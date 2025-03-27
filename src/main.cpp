@@ -1,3 +1,4 @@
+#include <cstdint>
 #include <vulkan/vulkan_core.h>
 
 #define GLFW_INCLUDE_VULKAN
@@ -23,6 +24,7 @@ public:
 
 private:
   GLFWwindow *window;
+  VkInstance instance;
 
   void initWindow() {
 
@@ -34,7 +36,35 @@ private:
   }
   void initVulkan() { createInstance(); }
 
-  void createInstance() {}
+  void createInstance() {
+    // Setting the app information
+    VkApplicationInfo appInfo;
+    appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+    appInfo.pApplicationName = "Triangle World";
+    appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+    appInfo.pEngineName = "No engine";
+    appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+    appInfo.apiVersion = VK_API_VERSION_1_0;
+
+    // Specify desired extensions
+    VkInstanceCreateInfo createInfo{};
+    createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+    createInfo.pApplicationInfo = &appInfo;
+
+    uint32_t glfwExtensionCount = 0;
+    const char **glfwExtensions;
+
+    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+    createInfo.enabledExtensionCount = glfwExtensionCount;
+    createInfo.ppEnabledExtensionNames = glfwExtensions;
+
+    createInfo.enabledLayerCount = 0;
+
+    if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
+      throw std::runtime_error("[x] Failed to create Instance!");
+    }
+  }
 
   void mainLoop() {
     while (!glfwWindowShouldClose(window)) {
@@ -43,6 +73,7 @@ private:
   }
 
   void cleanup() {
+    vkDestroyInstance(instance, nullptr);
     glfwDestroyWindow(window);
     glfwTerminate();
   }
