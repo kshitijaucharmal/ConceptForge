@@ -1,34 +1,62 @@
-#include <fstream>
+#include <vulkan/vulkan_core.h>
+
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+
+#include <vulkan/vulkan.h>
+
+#include <cstdlib>
 #include <iostream>
-#include <string>
+#include <stdexcept>
 
-class File {
-  std::ofstream file;
+const uint32_t WIDTH = 800;
+const uint32_t HEIGHT = 600;
 
+class HelloTriangleApplication {
 public:
-  File(const std::string &filename) {
-    file.open(filename);
-    if (!file.is_open()) {
-      throw std::runtime_error("Failed to open file");
+  void run() {
+    initWindow();
+    initVulkan();
+    mainLoop();
+    cleanup();
+  }
+
+private:
+  GLFWwindow *window;
+
+  void initWindow() {
+
+    glfwInit();
+
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
+  }
+  void initVulkan() { createInstance(); }
+
+  void createInstance() {}
+
+  void mainLoop() {
+    while (!glfwWindowShouldClose(window)) {
+      glfwPollEvents();
     }
   }
 
-  void write(const std::string &text) { file << text; }
-
-  ~File() {
-    if (file.is_open()) {
-      file.close();
-      std::cout << "File closed\n";
-    }
+  void cleanup() {
+    glfwDestroyWindow(window);
+    glfwTerminate();
   }
 };
 
 int main() {
+  HelloTriangleApplication app;
+
   try {
-    File f("example.txt");
-    f.write("Hello, RAII!");
+    app.run();
   } catch (const std::exception &e) {
-    std::cerr << e.what() << '\n';
+    std::cerr << e.what() << std::endl;
+    return EXIT_FAILURE;
   }
-  return 0;
+
+  return EXIT_SUCCESS;
 }
