@@ -1,16 +1,16 @@
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+
 #include <cstdint>
 #include <cstring>
 #include <map>
 #include <optional>
 #include <string>
 #include <vector>
+
 #include <vulkan/vk_platform.h>
-#include <vulkan/vulkan_core.h>
-
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-
 #include <vulkan/vulkan.h>
+#include <vulkan/vulkan_core.h>
 
 #include <cstdlib>
 #include <iostream>
@@ -28,6 +28,28 @@ const bool enableValidationLayers = false;
 const bool enableValidationLayers = true;
 #endif
 
+VkResult CreateDebugUtilsMessengerEXT(
+    VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
+    const VkAllocationCallbacks *pAllocator,
+    VkDebugUtilsMessengerEXT *pDebugMessenger) {
+  auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
+      instance, "vkCreateDebugUtilsMessengerEXT");
+  if (func != nullptr) {
+    return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
+  } else {
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
+  }
+}
+
+void DestroyDebugUtilsMessengerEXT(VkInstance instance,
+                                   VkDebugUtilsMessengerEXT debugMessenger,
+                                   const VkAllocationCallbacks *pAllocator) {
+  auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
+      instance, "vkDestroyDebugUtilsMessengerEXT");
+  if (func != nullptr) {
+    func(instance, debugMessenger, pAllocator);
+  }
+}
 struct QueueFamilyIndices {
   std::optional<uint32_t> graphicsFamily;
   bool isComplete() { return graphicsFamily.has_value(); }
@@ -46,6 +68,12 @@ private:
   GLFWwindow *window;
   VkInstance instance;
   VkDebugUtilsMessengerEXT debugMessenger;
+  VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+  VkDevice device;
+
+  float queuePriority = 1.0f;
+
+  VkQueue graphicsQueue;
 
   void initWindow() {
 
@@ -58,12 +86,38 @@ private:
   void initVulkan() {
     createInstance();
     setupDebugMessenger();
-
     pickPhysicalDevice();
+    createLogicalDevice();
+  }
+
+  void createLogicalDevice() {
+    QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
+    VkPhysicalDeviceFeatures deviceFeatures{};
+
+    VkDeviceQueueCreateInfo queueCreateInfo{};
+    queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    queueCreateInfo.queueFamilyIndex = indices.graphicsFamily.value();
+    queueCreateInfo.queueCount = 1;
+    queueCreateInfo.pQueuePriorities = &queuePriority;
+
+    VkDeviceCreateInfo createInfo{};
+    createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    createInfo.pQueueCreateInfos = &queueCreateInfo;
+    createInfo.queueCreateInfoCount = 1;
+
+    createInfo.pEnabledFeatures = &deviceFeatures;
+    // Can add extensions like VK_KHR_swapchain, these are Device specific
+    createInfo.enabledExtensionCount = 0;
+
+    if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) !=
+        VK_SUCCESS) {
+      throw std::runtime_error("failed to create logical device!");
+    }
+
+    vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
   }
 
   void pickPhysicalDevice() {
-    VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
 
@@ -164,30 +218,6 @@ private:
     if (CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr,
                                      &debugMessenger) != VK_SUCCESS) {
       throw std::runtime_error("failed to set up debug messenger!");
-    }
-  }
-
-  VkResult CreateDebugUtilsMessengerEXT(
-      VkInstance instance,
-      const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
-      const VkAllocationCallbacks *pAllocator,
-      VkDebugUtilsMessengerEXT *pDebugMessenger) {
-    auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
-        instance, "vkCreateDebugUtilsMessengerEXT");
-    if (func != nullptr) {
-      return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
-    } else {
-      return VK_ERROR_EXTENSION_NOT_PRESENT;
-    }
-  }
-
-  void DestroyDebugUtilsMessengerEXT(VkInstance instance,
-                                     VkDebugUtilsMessengerEXT debugMessenger,
-                                     const VkAllocationCallbacks *pAllocator) {
-    auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
-        instance, "vkDestroyDebugUtilsMessengerEXT");
-    if (func != nullptr) {
-      func(instance, debugMessenger, pAllocator);
     }
   }
 
@@ -308,6 +338,7 @@ private:
   }
 
   void cleanup() {
+    vkDestroyDevice(device, nullptr);
     if (enableValidationLayers) {
       DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
     }
