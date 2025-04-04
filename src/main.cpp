@@ -1,3 +1,4 @@
+#include <ostream>
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
@@ -39,6 +40,7 @@ static std::vector<char> readFile(const std::string &filename) {
   std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
   if (!file.is_open()) {
+    std::cout << filename << std::endl;
     throw std::runtime_error("failed to open file!");
   }
 
@@ -320,8 +322,8 @@ private:
   }
 
   void createGraphicsPipeline() {
-    auto vertShaderCode = readFile("shaders/vert.spv");
-    auto fragShaderCode = readFile("shaders/frag.spv");
+    auto vertShaderCode = readFile(std::string(SHADER_DIR) + "/vert.spv");
+    auto fragShaderCode = readFile(std::string(SHADER_DIR) + "/frag.spv");
 
     vertShaderModule = createShaderModule(vertShaderCode);
     fragShaderModule = createShaderModule(fragShaderCode);
