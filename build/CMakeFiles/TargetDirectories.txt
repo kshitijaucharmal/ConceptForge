@@ -1,4 +1,0 @@
-/home/kshitij/repos/UnderstandingCPP/build/CMakeFiles/imgui.dir
-/home/kshitij/repos/UnderstandingCPP/build/CMakeFiles/VulkanTest.dir
-/home/kshitij/repos/UnderstandingCPP/build/CMakeFiles/edit_cache.dir
-/home/kshitij/repos/UnderstandingCPP/build/CMakeFiles/rebuild_cache.dir

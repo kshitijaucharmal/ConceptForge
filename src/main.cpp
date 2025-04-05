@@ -1,28 +1,31 @@
-#include <ostream>
+// GLFW
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+// Standard cpp ------------------
 #include <algorithm> // Necessary for std::clamp
 #include <cstdint>   // Necessary for uint32_t
+#include <cstdlib>
 #include <cstring>
+#include <fstream>
+#include <iostream>
 #include <limits> // Necessary for std::numeric_limits
 #include <map>
 #include <optional>
+#include <ostream>
 #include <set>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
+// Vulkan ----------------------
 #include <vulkan/vk_platform.h>
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_core.h>
 
-#include <cstdlib>
-#include <fstream>
-#include <iostream>
-#include <stdexcept>
-
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
+const int MAX_FRAMES_IN_FLIGHT = 2;
 
 const std::vector<const char *> validationLayers = {
     "VK_LAYER_KHRONOS_validation"};
