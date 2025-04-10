@@ -1,16 +1,10 @@
-CFLAGS = -std=c++17 -O2
-LDFLAGS = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi
+default:
+	cd build && make && ./VulkanTest
 
-SRC_FILES = src/*.cpp
-BINARY_LOC = bin/VulkanTest
+test:
+	./build/VulkanTest
 
-VulkanTest: $(SRC_FILES)
-	g++ $(CFLAGS) -o $(BINARY_LOC) $(SRC_FILES) $(LDFLAGS)
+build:
+	mkdir -p build && cd build && cmake .. && make
 
-.PHONY: test clean
-
-test: VulkanTest
-	./$(BINARY_LOC)
-
-clean:
-	rm -f $(BINARY_LOC)
+all: build test
