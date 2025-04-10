@@ -1,4 +1,4 @@
-# 🧠🔥 ConceptForge
+# ConceptForge
 
 > "Describe your world in English. Let the AI bring it to life."
 
@@ -8,23 +8,23 @@ This project is part game engine, part AI assistant, and part creative tool — 
 
 ---
 
-## 🌌 What Can It Do?
+## What Can It Do?
 
-- ✨ Build and simulate 3D environments from natural language
-- 🐍 Expose engine APIs to Python for high-level scripting
-- 🎮 Render scenes in real time using Vulkan (including ray tracing down the line)
-- 🧠 Integrate with LLMs to generate Python code from user prompts
-- 🧪 Simulate physics, AI agents, procedural content — and more
+- Build and simulate 3D environments from natural language
+- Expose engine APIs to Python for high-level scripting
+- Render scenes in real time using Vulkan (including ray tracing down the line)
+- Integrate with LLMs to generate Python code from user prompts
+- Simulate physics, AI agents, procedural content — and more
 
 ---
 
-## 🧠 High-Level Overview
+## High-Level Overview
 
 ![Concept Diagram](diagram.png)
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer               | Stack                |
 |---------------------|----------------------|
@@ -37,7 +37,7 @@ This project is part game engine, part AI assistant, and part creative tool — 
 
 ---
 
-## ✅ Milestones
+## Milestones
 
 | Milestone                                         | Status     | Notes / Branch             |
 |--------------------------------------------------|------------|-----------------------------|
@@ -55,11 +55,11 @@ This project is part game engine, part AI assistant, and part creative tool — 
 
 ---
 
-## 📦 Getting Started
+## Getting Started
 
 > ⚠️ This project is under active development. Expect dragons. 🐉
 
-### 🔧 Prerequisites
+### Prerequisites
 
 - C++17 compatible compiler
 - Vulkan SDK
@@ -67,13 +67,20 @@ This project is part game engine, part AI assistant, and part creative tool — 
 - Python 3.10+
 - (Optional) OpenAI API key or local LLM model
 
-### 🔨 Build Instructions (Coming Soon)
+### Build Instructions (Coming Soon)
 
-Instructions for building on Linux and Windows(maybe..) will be documented soon — including setup for Vulkan, GLFW, and ImGui.
+> For now, the building process has only been tested on arch linux.
+
+```sh
+git clone https://github.com/kshitijaucharmal/ConceptForge
+cd ConceptForge
+make build # Compile
+make # Run
+```
 
 ---
 
-## 📂 Project Structure (Planned)
+## Project Structure (Planned)
 
 ```
 ConceptForge/
@@ -91,13 +98,13 @@ ConceptForge/
 
 ---
 
-## 🧪 Contributing
+## Contributing
 
 If you're into Vulkan, ECS, ImGui tools, or AI agents — and especially if you love weird ambitious projects — feel free to fork the repo, open issues, or submit PRs!
 
 ---
 
-## 📢 Follow the Project
+## Follow the Project
 
 - 🌐 Blog: [My Dev Blog](https://kshitijaucharmal.github.io/blog)
 - 🔗 GitHub: [https://github.com/kshitijaucharmal/ConceptForge](https://github.com/kshitijaucharmal/ConceptForge)
@@ -111,7 +118,7 @@ If you're into Vulkan, ECS, ImGui tools, or AI agents — and especially if you 
 
 ---
 
-## 📜 License
+## License
 
 MIT — use it, hack it, build your own universe with it.
 
