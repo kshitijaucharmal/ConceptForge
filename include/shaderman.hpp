@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 
 enum DrawMode {
     WIREFRAME,
@@ -21,8 +22,8 @@ namespace ShaderManagement {
         ~ShaderProgram();
         void Draw();
         // TODO Remove Source with filename
-        void InitVertexShader(const char* vertexShaderSource);
-        void InitFragmentShader(const char* fragmentShaderSource);
+        void InitVertexShader(std::string vertexShaderPath);
+        void InitFragmentShader(std::string fragmentShaderPath);
         void LinkShaders();
     };
 }

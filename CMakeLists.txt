@@ -18,8 +18,8 @@ add_library(
   external/imgui/backends/imgui_impl_opengl3.cpp)
 
 add_library(
-    glad STATIC
-    external/glad/src/glad.c
+  glad STATIC
+  external/glad/src/glad.c
 )
 
 add_compile_definitions(SHADER_DIR="${PROJECT_SOURCE_DIR}/shaders")

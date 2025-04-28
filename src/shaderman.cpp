@@ -4,6 +4,8 @@
 
 #include <GLFW/glfw3.h>
 
+#include "fileloader.hpp"
+
 // Rectangle
 float vertices[] = {
     0.5f,  0.5f, 0.0f,  // top right
@@ -51,7 +53,10 @@ namespace ShaderManagement {
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
     }
 
-    void ShaderProgram::InitVertexShader(const char* vertexShaderSource) {
+    void ShaderProgram::InitVertexShader(std::string vertexShaderPath) {
+        FileLoader vertexLoader(vertexShaderPath);
+        const char* vertexShaderSource = vertexLoader.getData();
+
         // Defining That this is a vertex shader
         vertexShader = glCreateShader(GL_VERTEX_SHADER);
         // Setting the shader source
@@ -72,7 +77,10 @@ namespace ShaderManagement {
         }
     }
 
-    void ShaderProgram::InitFragmentShader(const char* fragmentShaderSource) {
+    void ShaderProgram::InitFragmentShader(std::string fragmentShaderPath) {
+        FileLoader fragmentLoader(fragmentShaderPath);
+        const char* fragmentShaderSource = fragmentLoader.getData();
+
         fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
         glCompileShader(fragmentShader);
