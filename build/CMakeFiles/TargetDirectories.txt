@@ -1,5 +1,0 @@
-/home/kshitij/projects/Graphics/OpenGL/build/CMakeFiles/imgui.dir
-/home/kshitij/projects/Graphics/OpenGL/build/CMakeFiles/glad.dir
-/home/kshitij/projects/Graphics/OpenGL/build/CMakeFiles/OpenGL.dir
-/home/kshitij/projects/Graphics/OpenGL/build/CMakeFiles/edit_cache.dir
-/home/kshitij/projects/Graphics/OpenGL/build/CMakeFiles/rebuild_cache.dir
