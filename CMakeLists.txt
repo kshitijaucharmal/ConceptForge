@@ -35,4 +35,10 @@ target_include_directories(glad PUBLIC
 target_link_libraries(imgui PRIVATE OpenGL::GL glad glfw)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
+
+add_custom_target(RunMyProgram
+    COMMAND ${PROJECT_NAME}
+    DEPENDS ${PROJECT_NAME}
+)
+
 target_link_libraries(${PROJECT_NAME} PRIVATE imgui glad)
