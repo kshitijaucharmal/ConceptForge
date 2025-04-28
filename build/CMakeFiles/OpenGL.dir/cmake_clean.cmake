@@ -1,5 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/OpenGL.dir/link.d"
+  "CMakeFiles/OpenGL.dir/src/input.cpp.o"
+  "CMakeFiles/OpenGL.dir/src/input.cpp.o.d"
   "CMakeFiles/OpenGL.dir/src/main.cpp.o"
   "CMakeFiles/OpenGL.dir/src/main.cpp.o.d"
   "CMakeFiles/OpenGL.dir/src/window.cpp.o"

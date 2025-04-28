@@ -108,4 +108,5 @@ CMakeFiles/OpenGL.dir/src/main.cpp.o: \
  /home/kshitij/projects/Graphics/OpenGL/external/glad/include/KHR/khrplatform.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stdint.h \
  /usr/include/stdint.h /usr/include/bits/stdint-uintn.h \
- /usr/include/bits/stdint-least.h /usr/include/GLFW/glfw3.h
+ /usr/include/bits/stdint-least.h /usr/include/GLFW/glfw3.h \
+ /home/kshitij/projects/Graphics/OpenGL/include/input.hpp

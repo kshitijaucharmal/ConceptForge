@@ -1,1 +1,1 @@
-/usr/bin/c++ -Wl,--dependency-file=CMakeFiles/OpenGL.dir/link.d CMakeFiles/OpenGL.dir/src/main.cpp.o CMakeFiles/OpenGL.dir/src/window.cpp.o -o OpenGL  libimgui.a libglad.a /usr/lib/libGL.so /usr/lib/libglfw.so.3.4
+/usr/bin/c++ -Wl,--dependency-file=CMakeFiles/OpenGL.dir/link.d CMakeFiles/OpenGL.dir/src/input.cpp.o CMakeFiles/OpenGL.dir/src/main.cpp.o CMakeFiles/OpenGL.dir/src/window.cpp.o -o OpenGL  libimgui.a libglad.a /usr/lib/libGL.so /usr/lib/libglfw.so.3.4
