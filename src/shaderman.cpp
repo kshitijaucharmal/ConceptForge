@@ -4,21 +4,37 @@
 
 #include <GLFW/glfw3.h>
 
-// Vertices for a triangle
+// Rectangle
 float vertices[] = {
-  -0.5f, -0.5f, 0.0f,
-  0.5f, -0.5f, 0.0f,
-  0.0f,  0.5f, 0.0f
+    0.5f,  0.5f, 0.0f,  // top right
+    0.5f, -0.5f, 0.0f,  // bottom right
+    -0.5f, -0.5f, 0.0f,  // bottom left
+    -0.5f,  0.5f, 0.0f   // top left
+};
+unsigned int indices[] = {  // note that we start from 0!
+    0, 1, 3,   // first triangle
+    1, 2, 3    // second triangle
 };
 
 namespace ShaderManagement {
-    ShaderProgram::ShaderProgram() {
+    ShaderProgram::ShaderProgram(DrawMode mode) : drawMode{mode} {
+
+        // Set Draw Mode
+        switch(drawMode){
+            case DrawMode::WIREFRAME:
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                break;
+            case DrawMode::FILLED:
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                break;
+        }
+
         // Initialize Vertex Array Object (Stores Vertex attribute pointers)
         glGenVertexArrays(1, &VAO);
         // Bind VAO
         glBindVertexArray(VAO);
 
-        // Vertex Buffer Object
+        // Initialize Vertex Buffer Object
         glGenBuffers(1, &VBO);
         // bind VBO to the buffer
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -27,6 +43,12 @@ namespace ShaderManagement {
         // GL_DYNAMIC_DRAW
         // GL_STREAM_DRAW
         glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+        // Initialize Element Buffer Object
+        // Stores indices
+        glGenBuffers(1, &EBO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
     }
 
     void ShaderProgram::InitVertexShader(const char* vertexShaderSource) {
@@ -96,6 +118,7 @@ namespace ShaderManagement {
     void ShaderProgram::Draw(){
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)0);
+        glBindVertexArray(0);
     }
 }

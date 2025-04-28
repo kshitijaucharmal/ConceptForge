@@ -27,8 +27,9 @@ std::string WINDOWNAME = "OpenGL Learning";
 int main() {
   WindowManagement::Window window(WIDTH, HEIGHT, WINDOWNAME);
   InputManagement::Input input;
-  ShaderManagement::ShaderProgram shaderProgram;
+  ShaderManagement::ShaderProgram shaderProgram(DrawMode::WIREFRAME);
 
+  // Shader Management
   shaderProgram.InitVertexShader(vertexShaderSource);
   shaderProgram.InitFragmentShader(fragmentShaderSource);
   shaderProgram.LinkShaders();
