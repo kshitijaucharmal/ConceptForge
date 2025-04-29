@@ -40,6 +40,9 @@ Window::Window(int w, int h, std::string name)
 }
 
 // Destructor
-Window::~Window() { glfwTerminate(); }
+Window::~Window() {
+  glfwDestroyWindow(window);
+  glfwTerminate();
+}
 
 } // namespace WindowManagement
