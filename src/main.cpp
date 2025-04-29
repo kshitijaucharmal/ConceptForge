@@ -5,7 +5,6 @@
 
 #include <iostream>
 #include <string>
-
 const std::string vertexShaderPath = std::string(SHADER_DIR) + "/shader1.vert";
 const std::string fragmentShaderPath = std::string(SHADER_DIR) + "/shader1.frag";
 
@@ -25,7 +24,6 @@ int main() {
 
   // Render Loop
   while (!glfwWindowShouldClose(window.window)) {
-
     // input processing
     input.processInput(window.window);
 
@@ -34,6 +32,9 @@ int main() {
     glClearColor(0.7f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
+    // Send Data
+    shaderProgram.SendDataToVS();
+    shaderProgram.SendDataToFS();
     shaderProgram.Draw();
 
     // check and call events and swap buffers

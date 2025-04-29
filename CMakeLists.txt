@@ -22,6 +22,8 @@ add_library(
   external/glad/src/glad.c
 )
 
+add_subdirectory(external/glm)
+
 add_compile_definitions(SHADER_DIR="${PROJECT_SOURCE_DIR}/shaders")
 
 target_include_directories(imgui PUBLIC
@@ -31,9 +33,6 @@ target_include_directories(imgui PUBLIC
 target_include_directories(glad PUBLIC
   external/glad/include)
 
-# Linking Vulkan And GLFW
-target_link_libraries(imgui PRIVATE OpenGL::GL glad glfw)
-
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 add_custom_target(RunMyProgram
@@ -41,4 +40,4 @@ add_custom_target(RunMyProgram
     DEPENDS ${PROJECT_NAME}
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE imgui glad)
+target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL imgui glad glfw glm)

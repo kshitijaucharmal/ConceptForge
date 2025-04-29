@@ -1,21 +1,21 @@
 #include "shaderman.hpp"
 #include <iostream>
 #include <glad/glad.h>
+#include <math.h>
 
 #include <GLFW/glfw3.h>
 
 #include "fileloader.hpp"
 
-// Rectangle
 float vertices[] = {
-    0.5f,  0.5f, 0.0f,  // top right
-    0.5f, -0.5f, 0.0f,  // bottom right
-    -0.5f, -0.5f, 0.0f,  // bottom left
-    -0.5f,  0.5f, 0.0f   // top left
+    // positions         // colors
+    0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   // bottom right
+    -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   // bottom left
+    0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f    // top
 };
+
 unsigned int indices[] = {  // note that we start from 0!
-    0, 1, 3,   // first triangle
-    1, 2, 3    // second triangle
+    0, 1, 2,   // first triangle
 };
 
 namespace ShaderManagement {
@@ -102,7 +102,7 @@ namespace ShaderManagement {
         glAttachShader(shaderProgram, fragmentShader);
         glLinkProgram(shaderProgram);
 
-        // Error handling
+        // Error handling for linking
         int success;
         char infoLog[512];
         glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
@@ -110,15 +110,56 @@ namespace ShaderManagement {
             glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
             std::cerr << "ERROR::SHADER::LINKING_ERR\n" << infoLog << std::endl;
         }
+    }
 
-        // TODO: Make another function for this
+    void ShaderProgram::SendDataToVS(){
         // Sending data into the vertex shader
         // location, n values, value type, normalized?, stride, position offset of type (void*)
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-            glEnableVertexAttribArray(0);
-        }
+        // position attribute
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+        // color attribute
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3* sizeof(float)));
+        glEnableVertexAttribArray(1);
+    }
 
-        ShaderProgram::~ShaderProgram() {
+    void ShaderProgram::SendDataToFS(){
+        // TODO: Design a pipeline to send in these values from somewhere else
+        // Calculate / Get Values
+        float timeValue = glfwGetTime();
+
+        // Send values
+        setFloat("iTime", timeValue);
+    }
+
+    // Generic Types
+    void ShaderProgram::setBool(const std::string &name, bool value) const
+    {
+        glUniform1i(glGetUniformLocation(shaderProgram, name.c_str()), (int)value);
+    }
+    void ShaderProgram::setInt(const std::string &name, int value) const
+    {
+        glUniform1i(glGetUniformLocation(shaderProgram, name.c_str()), value);
+    }
+    void ShaderProgram::setFloat(const std::string &name, float value) const
+    {
+        glUniform1f(glGetUniformLocation(shaderProgram, name.c_str()), value);
+    }
+    void ShaderProgram::setVec2(const std::string &name, glm::vec2 value) const
+    {
+        glUniform2f(glGetUniformLocation(shaderProgram, name.c_str()), value.x, value.y);
+    }
+    void ShaderProgram::setVec3(const std::string &name, glm::vec3 value) const
+    {
+        glUniform3f(glGetUniformLocation(shaderProgram, name.c_str()), value.x, value.y, value.z);
+    }
+    void ShaderProgram::setVec4(const std::string &name, glm::vec4 value) const
+    {
+        glUniform4f(glGetUniformLocation(shaderProgram, name.c_str()), value.x, value.y, value.z,
+value.w);
+    }
+
+    ShaderProgram::~ShaderProgram() {
         glDeleteShader(fragmentShader);
         glDeleteShader(vertexShader);
     }
