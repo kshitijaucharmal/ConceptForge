@@ -49,7 +49,7 @@ namespace GUIManagement {
         }
     }
 
-    void MainGUI::DemoWindow(glm::vec4 clearColor){
+    void MainGUI::DemoWindow(glm::vec4& clearColor){
       static float f = 0.0f;
       static int counter = 0;
 

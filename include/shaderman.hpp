@@ -19,6 +19,9 @@ namespace ShaderManagement {
         unsigned int fragmentShader;
         unsigned int shaderProgram;
         DrawMode drawMode;
+        // Example
+        unsigned int texture1;
+        unsigned int texture2;
 
     public:
         ShaderProgram(DrawMode mode);
@@ -29,6 +32,7 @@ namespace ShaderManagement {
         void LinkShaders();
         void SendDataToVS();
         void SendDataToFS();
+        void BindTexture();
         // utility uniform functions
         void setBool(const std::string &name, bool value) const;
         void setInt(const std::string &name, int value) const;

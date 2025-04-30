@@ -10,6 +10,7 @@
 // Imgui Based UI
 #include "gui.hpp"
 
+
 // Shader Paths
 const std::string vertexShaderPath = std::string(SHADER_DIR) + "/shader1.vert";
 const std::string fragmentShaderPath = std::string(SHADER_DIR) + "/shader1.frag";
@@ -18,7 +19,8 @@ const std::string fragmentShaderPath = std::string(SHADER_DIR) + "/shader1.frag"
 static const int WIDTH = 800;
 static const int HEIGHT = 600;
 static const std::string WINDOWNAME = "ConceptForge";
-static const glm::vec4 clearColor(0.05, 0.05, 0.05, 1.0f);
+
+static glm::vec4 clearColor(0.05, 0.05, 0.05, 1.0f);
 
 int main() {
   WindowManagement::Window window(WIDTH, HEIGHT, WINDOWNAME);
@@ -32,10 +34,12 @@ int main() {
   // Setup Main GUI
   GUIManagement::MainGUI mainGui(window.window, ImGui::GetIO());
 
+
   // Shader Management
   shaderProgram.InitVertexShader(vertexShaderPath);
   shaderProgram.InitFragmentShader(fragmentShaderPath);
   shaderProgram.LinkShaders();
+  shaderProgram.BindTexture();
 
   // Render Loop
   while (!glfwWindowShouldClose(window.window)) {

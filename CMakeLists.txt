@@ -7,6 +7,8 @@ find_package(glfw3 REQUIRED)
 include_directories(include)
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 
+include_directories(external/stb_image)
+
 add_library(
   imgui STATIC
   external/imgui/imgui.cpp
@@ -25,6 +27,7 @@ add_library(
 add_subdirectory(external/glm)
 
 add_compile_definitions(SHADER_DIR="${PROJECT_SOURCE_DIR}/shaders")
+add_compile_definitions(TEXTURE_DIR="${PROJECT_SOURCE_DIR}/assets/textures")
 
 target_include_directories(imgui PUBLIC
   external/imgui

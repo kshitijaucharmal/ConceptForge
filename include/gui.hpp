@@ -20,6 +20,6 @@ namespace GUIManagement {
         void NewFrame();
         void RenderFrame();
         // Just demo
-        void DemoWindow(glm::vec4 clearColor);
+        void DemoWindow(glm::vec4& clearColor);
     };
 }
