@@ -1,8 +1,6 @@
 #pragma once
 #include <string>
-#include <glm/vec2.hpp>
-#include <glm/vec3.hpp>
-#include <glm/vec4.hpp>
+#include "glm/glm.hpp"
 
 enum DrawMode {
     WIREFRAME,
@@ -17,13 +15,14 @@ namespace ShaderManagement {
         unsigned int EBO;
         unsigned int vertexShader;
         unsigned int fragmentShader;
-        unsigned int shaderProgram;
         DrawMode drawMode;
         // Example
         unsigned int texture1;
         unsigned int texture2;
 
     public:
+        // TODO: Move to private
+        unsigned int shaderProgram;
         ShaderProgram(DrawMode mode);
         ~ShaderProgram();
         void Draw();

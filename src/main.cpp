@@ -5,7 +5,11 @@
 
 #include <iostream>
 #include <string>
-#include "glm/vec4.hpp"
+
+// GLM
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 // Imgui Based UI
 #include "gui.hpp"
@@ -18,12 +22,14 @@ const std::string fragmentShaderPath = std::string(SHADER_DIR) + "/shader1.frag"
 // Constants
 static const int WIDTH = 800;
 static const int HEIGHT = 600;
+static const float aspect_ratio = (float)WIDTH / (float)HEIGHT;
 static const std::string WINDOWNAME = "ConceptForge";
 
 static glm::vec4 clearColor(0.05, 0.05, 0.05, 1.0f);
 
 int main() {
-  WindowManagement::Window window(WIDTH, HEIGHT, WINDOWNAME);
+  std::cout << aspect_ratio << std::endl;
+  WindowManagement::Window window(WIDTH, HEIGHT, WINDOWNAME, false);
   InputManagement::Input input;
   ShaderManagement::ShaderProgram shaderProgram(DrawMode::FILLED);
 
@@ -34,12 +40,19 @@ int main() {
   // Setup Main GUI
   GUIManagement::MainGUI mainGui(window.window, ImGui::GetIO());
 
-
   // Shader Management
   shaderProgram.InitVertexShader(vertexShaderPath);
   shaderProgram.InitFragmentShader(fragmentShaderPath);
   shaderProgram.LinkShaders();
   shaderProgram.BindTexture();
+
+  float d = 0.0f;
+  // Gives an identity matrix
+  glm::mat4 trans = glm::mat4(1.0);
+  trans = glm::rotate(trans, d, glm::vec3(0.0f, 0.0f, 1.0f));
+
+  unsigned int transformLoc = glGetUniformLocation(shaderProgram.shaderProgram, "transform");
+  glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
 
   // Render Loop
   while (!glfwWindowShouldClose(window.window)) {
@@ -54,6 +67,10 @@ int main() {
     // Send Shader Data
     shaderProgram.SendDataToVS();
     shaderProgram.SendDataToFS();
+
+    trans = glm::mat4(1.0);
+    trans = glm::rotate(trans, d, glm::vec3(0.0f, 0.0f, 1.0f));
+    glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
 
     // Draw
     shaderProgram.Draw();
@@ -72,7 +89,9 @@ int main() {
     mainGui.NewFrame();
 
     // Show demo window
-    mainGui.DemoWindow(clearColor);
+    ImGui::Begin("Hello World");
+    ImGui::SliderFloat("float", &d, -1.0f * glm::pi<float>(), glm::pi<float>());            // Edit 1 float using a slider from 0.0f to 1.0f
+    ImGui::End();
 
     // Render
     mainGui.RenderFrame();

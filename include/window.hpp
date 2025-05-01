@@ -13,9 +13,10 @@ private:
   int width;
   int height;
   std::string windowName;
+  bool fullscreen;
 
 public:
-  Window(int w, int h, std::string name);
+  Window(int w, int h, std::string name, bool fullscreen);
   ~Window();
   GLFWwindow *window;
 };
