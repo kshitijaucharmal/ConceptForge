@@ -8,26 +8,50 @@
 #include "fileloader.hpp"
 #include "stb_image.h"
 
-// Rectangle
 float vertices[] = {
-    // positions          // colors           // texture coords
-     0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
-     0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
-    -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
-    -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+    0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+    0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+    0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+    0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+    0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+    0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+    0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+    0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 };
 
-unsigned int indices[] = {  // note that we start from 0!
-    0, 1, 3,   // first triangle
-    1, 2, 3   // second triangle
-};
-
-// Texture Coordinates
-float textCoords[] = {
-    0.0f, 0.0f,
-    1.0f, 0.0f,
-    0.5f, 1.0f
-};
 
 namespace ShaderManagement {
     ShaderProgram::ShaderProgram(DrawMode mode) : drawMode{mode} {
@@ -44,11 +68,11 @@ namespace ShaderManagement {
 
         // Initialize Vertex Array Object (Stores Vertex attribute pointers)
         glGenVertexArrays(1, &VAO);
+        // Initialize Vertex Buffer Object
+        glGenBuffers(1, &VBO);
         // Bind VAO
         glBindVertexArray(VAO);
 
-        // Initialize Vertex Buffer Object
-        glGenBuffers(1, &VBO);
         // bind VBO to the buffer
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         // As the triangle position does not change frequently
@@ -59,9 +83,9 @@ namespace ShaderManagement {
 
         // Initialize Element Buffer Object
         // Stores indices
-        glGenBuffers(1, &EBO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+        // glGenBuffers(1, &EBO);
+        // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
     }
 
     void ShaderProgram::InitVertexShader(std::string vertexShaderPath) {
@@ -126,18 +150,25 @@ namespace ShaderManagement {
     void ShaderProgram::SendDataToVS(){
         // Sending data into the vertex shader
         // location, n values, value type, normalized?, stride, position offset of type (void*)
+        // // position attribute
+        // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+        // glEnableVertexAttribArray(0);
+        // // color attribute
+        // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3* sizeof(float)));
+        // glEnableVertexAttribArray(1);
+        // // Texture attribute
+        // glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6* sizeof(float)));
+        // glEnableVertexAttribArray(2);
+
         // position attribute
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
-        // color attribute
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3* sizeof(float)));
+        // texture coord attribute
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
-        // Texture attribute
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6* sizeof(float)));
-        glEnableVertexAttribArray(2);
     }
 
-    void ShaderProgram::BindTexture(){
+    void ShaderProgram::BindTextures(){
         glGenTextures(1, &texture1);
         glBindTexture(GL_TEXTURE_2D, texture1);
         // set the texture wrapping/filtering options (on the currently bound texture object)
@@ -176,9 +207,13 @@ namespace ShaderManagement {
         }
         stbi_image_free(data);
 
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture1);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, texture2);
         glUseProgram(shaderProgram);
+        ShaderProgram::setInt("texture1", 0);
         ShaderProgram::setInt("texture2", 1);
-
     }
 
     void ShaderProgram::SendDataToFS(){
@@ -216,21 +251,21 @@ namespace ShaderManagement {
         glUniform4f(glGetUniformLocation(shaderProgram, name.c_str()), value.x, value.y, value.z,
 value.w);
     }
+    void ShaderProgram::setMat4(const std::string &name, glm::mat4 value) const
+    {
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
+    }
 
     ShaderProgram::~ShaderProgram() {
         glDeleteShader(fragmentShader);
         glDeleteShader(vertexShader);
     }
 
-    void ShaderProgram::Draw(){
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture1);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texture2);
-
+    void ShaderProgram::Use(){
         glUseProgram(shaderProgram);
-        glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)0);
-        glBindVertexArray(0);
+    }
+
+    void ShaderProgram::Draw(){
+        glDrawArrays(GL_TRIANGLES, 0, 36);
     }
 }

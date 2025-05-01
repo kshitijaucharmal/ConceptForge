@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include "glm/glm.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 enum DrawMode {
     WIREFRAME,
@@ -25,13 +26,14 @@ namespace ShaderManagement {
         unsigned int shaderProgram;
         ShaderProgram(DrawMode mode);
         ~ShaderProgram();
+        void Use();
         void Draw();
         void InitVertexShader(std::string vertexShaderPath);
         void InitFragmentShader(std::string fragmentShaderPath);
         void LinkShaders();
         void SendDataToVS();
         void SendDataToFS();
-        void BindTexture();
+        void BindTextures();
         // utility uniform functions
         void setBool(const std::string &name, bool value) const;
         void setInt(const std::string &name, int value) const;
@@ -39,5 +41,6 @@ namespace ShaderManagement {
         void setVec2(const std::string &name, glm::vec2 value) const;
         void setVec3(const std::string &name, glm::vec3 value) const;
         void setVec4(const std::string &name, glm::vec4 value) const;
+        void setMat4(const std::string &name, glm::mat4 value) const;
     };
 }

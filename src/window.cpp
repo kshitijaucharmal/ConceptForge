@@ -18,6 +18,7 @@ Window::Window(int w, int h, std::string name, bool fullscreen=false)
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
+
   if(fullscreen){
     const auto monitor = glfwGetPrimaryMonitor();
     const GLFWvidmode* mode = glfwGetVideoMode(monitor);
@@ -43,10 +44,12 @@ Window::Window(int w, int h, std::string name, bool fullscreen=false)
     std::cerr << "Failed to initialize GLAD" << std::endl;
     return;
   }
+  glEnable(GL_DEPTH_TEST);
 
   // Resize support
   glViewport(0, 0, width, height);
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
 }
 
 // Destructor
