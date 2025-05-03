@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.10..4.0)
 project(OpenGL)
 
 find_package(OpenGL REQUIRED)
-find_package(glfw3 REQUIRED)
 
 include_directories(src)
 file(GLOB_RECURSE SOURCES "src/*.cpp")
@@ -25,6 +24,7 @@ add_library(
 )
 
 add_subdirectory(external/glm)
+add_subdirectory(external/glfw)
 
 add_compile_definitions(SHADER_DIR="${PROJECT_SOURCE_DIR}/shaders")
 add_compile_definitions(TEXTURE_DIR="${PROJECT_SOURCE_DIR}/assets/textures")
@@ -38,7 +38,7 @@ target_include_directories(glad PUBLIC
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-add_custom_target(RunMyProgram
+add_custom_target(run
     COMMAND ${PROJECT_NAME}
     DEPENDS ${PROJECT_NAME}
 )
