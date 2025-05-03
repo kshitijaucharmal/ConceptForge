@@ -5,57 +5,12 @@
 
 #include <GLFW/glfw3.h>
 
-#include "fileloader.hpp"
+#include "utilities/fileloader.hpp"
 #include "stb_image.h"
-
-float vertices[] = {
-    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-    0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-    0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-    0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-    0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-    0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-    0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-    0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-    0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-};
 
 
 namespace ShaderManagement {
-    ShaderProgram::ShaderProgram(DrawMode mode) : drawMode{mode} {
-
+    ShaderProgram::ShaderProgram(DrawMode mode, std::string &vertexShaderPath, std::string &fragmentShaderPath) : drawMode{mode} {
         // Set Draw Mode
         switch(drawMode){
             case DrawMode::WIREFRAME:
@@ -66,29 +21,12 @@ namespace ShaderManagement {
                 break;
         }
 
-        // Initialize Vertex Array Object (Stores Vertex attribute pointers)
-        glGenVertexArrays(1, &VAO);
-        // Initialize Vertex Buffer Object
-        glGenBuffers(1, &VBO);
-        // Bind VAO
-        glBindVertexArray(VAO);
-
-        // bind VBO to the buffer
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        // As the triangle position does not change frequently
-        // GL_STATIC_DRAW is used
-        // GL_DYNAMIC_DRAW
-        // GL_STREAM_DRAW
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-        // Initialize Element Buffer Object
-        // Stores indices
-        // glGenBuffers(1, &EBO);
-        // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+        InitVertexShader(vertexShaderPath);
+        InitFragmentShader(fragmentShaderPath);
+        LinkShaders();
     }
 
-    void ShaderProgram::InitVertexShader(std::string vertexShaderPath) {
+    void ShaderProgram::InitVertexShader(std::string &vertexShaderPath) {
         FileLoader vertexLoader(vertexShaderPath);
         const char* vertexShaderSource = vertexLoader.getData();
 
@@ -112,7 +50,7 @@ namespace ShaderManagement {
         }
     }
 
-    void ShaderProgram::InitFragmentShader(std::string fragmentShaderPath) {
+    void ShaderProgram::InitFragmentShader(std::string &fragmentShaderPath) {
         FileLoader fragmentLoader(fragmentShaderPath);
         const char* fragmentShaderSource = fragmentLoader.getData();
 
@@ -147,6 +85,7 @@ namespace ShaderManagement {
         }
     }
 
+    //  WARNING: DEAD CODE
     void ShaderProgram::SendDataToVS(){
         // Sending data into the vertex shader
         // location, n values, value type, normalized?, stride, position offset of type (void*)
@@ -159,13 +98,6 @@ namespace ShaderManagement {
         // // Texture attribute
         // glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6* sizeof(float)));
         // glEnableVertexAttribArray(2);
-
-        // position attribute
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
-        // texture coord attribute
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(1);
     }
 
     void ShaderProgram::BindTextures(){
@@ -207,13 +139,9 @@ namespace ShaderManagement {
         }
         stbi_image_free(data);
 
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture1);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texture2);
         glUseProgram(shaderProgram);
-        ShaderProgram::setInt("texture1", 0);
-        ShaderProgram::setInt("texture2", 1);
+        setInt("texture1", 0);
+        setInt("texture2", 1);
     }
 
     void ShaderProgram::SendDataToFS(){
@@ -261,11 +189,9 @@ value.w);
         glDeleteShader(vertexShader);
     }
 
-    void ShaderProgram::Use(){
+    void ShaderProgram::Use()
+    {
         glUseProgram(shaderProgram);
     }
 
-    void ShaderProgram::Draw(){
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-    }
 }
