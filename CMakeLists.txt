@@ -31,7 +31,8 @@ add_compile_definitions(TEXTURE_DIR="${PROJECT_SOURCE_DIR}/assets/textures")
 
 target_include_directories(imgui PUBLIC
   external/imgui
-  external/imgui/backends)
+  external/imgui/backends
+  external/glfw/include)
 
 target_include_directories(glad PUBLIC
   external/glad/include)

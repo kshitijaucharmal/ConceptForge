@@ -4,13 +4,28 @@ Making a simulation engine in OpenGL
 
 ## Requirements
 Most of the source code has been included in the repo, only the build dependencies need to be satisfied:
-[Cmake](https://cmake.org/download/)
+1. [Cmake](https://cmake.org/download/)
+2. [MinGW](https://www.mingw-w64.org/downloads/)
 
 ## Installation
+
+### Common:
+
 ```bash
 git clone --recurse-submodules https://github.com/kshitijaucharmal/OpenGL-GE
 cd OpenGL-GE
-mkdir build && cd build
+mkdir build
+cd build
+```
+### Windows
+```bash
+cmake -G "MinGW Makefiles" ..
+mingw32-make
+mingw32-make run # to execute
+```
+
+### Linux / Mac OS
+```bash
 cmake ..
 make
 make run # to execute
