@@ -58,6 +58,13 @@ int main() {
   glfwSetScrollCallback(window.window, scroll_callback);
 
   shaderProgram.BindTextures();
+
+  // bind textures on corresponding texture units
+  // glActiveTexture(GL_TEXTURE0);
+  // glBindTexture(GL_TEXTURE_2D, shaderProgram.texture1);
+  // glActiveTexture(GL_TEXTURE0 + 1);
+  // glBindTexture(GL_TEXTURE_2D, shaderProgram.texture2);
+
   std::vector<Cube> cubes;
   for(int i = 0; i < 10; i++){
     Cube cube(shaderProgram.shaderProgram);
@@ -66,8 +73,6 @@ int main() {
     float angle = 20.f * i;
     cube.Rotate(angle,glm::vec3(1.0f, 0.3f, 0.5f));
     cubes.push_back(cube);
-    // shaderProgram.setMat4("model", cube.model);
-    // cube.Draw();
   }
 
   // Setup Dear ImGui context
@@ -93,11 +98,6 @@ int main() {
     glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // also clear the depth buffer now!
 
-    // bind textures on corresponding texture units
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, shaderProgram.texture1);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, shaderProgram.texture2);
 
     shaderProgram.Use();
 

@@ -86,37 +86,29 @@ namespace ShaderManagement {
     }
 
     void ShaderProgram::BindTextures(){
-        glGenTextures(1, &texture1);
-        glBindTexture(GL_TEXTURE_2D, texture1);
+        unsigned int texture1 = BindTexture(TEXTURE_DIR "/awesomeface.png", "texture1", 0, true);
+        unsigned int texture2 = BindTexture(TEXTURE_DIR "/wall.jpg", "texture2", 1, false);
+    }
+
+    // Texturepath is relative to TEXTURE_DIR for now
+    unsigned int ShaderProgram::BindTexture(const char* texturePath, const char* textureShaderName, unsigned int textureLoc, bool flip){
+        unsigned int texture;
+        glGenTextures(1, &texture);
+        glActiveTexture(GL_TEXTURE0 + textureLoc);
+        glBindTexture(GL_TEXTURE_2D, texture);
         // set the texture wrapping/filtering options (on the currently bound texture object)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        stbi_set_flip_vertically_on_load(flip);
 
         int width, height, nrChannels;
-        unsigned char *data = stbi_load((std::string(TEXTURE_DIR) + "/wall.jpg").c_str(), &width, &height, &nrChannels, 0);
-        if(data){
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-            glGenerateMipmap(GL_TEXTURE_2D);
-        }
-        else{
-            std::cerr << "Failed to load texture\n";
-        }
-        stbi_image_free(data);
-
-        glGenTextures(1, &texture2);
-        glBindTexture(GL_TEXTURE_2D, texture2);
-        // set the texture wrapping/filtering options (on the currently bound texture object)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        stbi_set_flip_vertically_on_load(true);
-        data = stbi_load((std::string(TEXTURE_DIR) + "/awesomeface.png").c_str(), &width, &height, &nrChannels, 0);
-        if (data)
-        {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        unsigned char *data = stbi_load(texturePath, &width, &height, &nrChannels, 0);
+        if (data) {
+            // If Alpha channel exists
+            GLenum inputFormat = (nrChannels == 4) ? GL_RGBA : GL_RGB;
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, inputFormat, GL_UNSIGNED_BYTE, data);
             glGenerateMipmap(GL_TEXTURE_2D);
         }
         else{
@@ -125,8 +117,8 @@ namespace ShaderManagement {
         stbi_image_free(data);
 
         glUseProgram(shaderProgram);
-        setInt("texture1", 0);
-        setInt("texture2", 1);
+        setInt(textureShaderName, textureLoc);
+        return texture;
     }
 
     void ShaderProgram::SendDataToShader(){

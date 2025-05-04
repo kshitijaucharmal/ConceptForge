@@ -22,10 +22,9 @@ namespace ShaderManagement {
         void InitFragmentShader(std::string &fragmentShaderPath);
 
     public:
-        // TODO: Move to private
         // Example
-        unsigned int texture1;
-        unsigned int texture2;
+        // unsigned int texture1;
+        // unsigned int texture2;
         unsigned int shaderProgram;
         ShaderProgram(DrawMode mode, std::string &vertexShaderPath, std::string &fragmentShaderPath);
         ~ShaderProgram();
@@ -34,6 +33,7 @@ namespace ShaderManagement {
         void LinkShaders();
         void SendDataToShader();
         void BindTextures();
+        unsigned int BindTexture(const char* texturePath, const char* textureShaderName, unsigned int textureLoc, bool flip=true);
         // utility uniform functions
         void setBool(const std::string &name, bool value) const;
         void setInt(const std::string &name, int value) const;

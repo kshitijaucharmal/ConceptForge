@@ -12,4 +12,5 @@ float speed = 5.;
 void main()
 {
     FragColor = mix(texture(texture1, TexCoord), texture(texture2, TexCoord), 0.5);
+    // FragColor = vec4(1.);
 }
