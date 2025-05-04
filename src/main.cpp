@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 // GLM
 #include "glm/glm.hpp"
@@ -52,12 +53,22 @@ int main() {
   ShaderManagement::ShaderProgram shaderProgram(DrawMode::FILLED, vertexShaderPath, fragmentShaderPath);
   InputManagement::Input input(window.window, camera);
 
-  glfwSetInputMode(window.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-  glfwSetCursorPosCallback(window.window, mouse_callback);
+  // glfwSetInputMode(window.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+  // glfwSetCursorPosCallback(window.window, mouse_callback);
   glfwSetScrollCallback(window.window, scroll_callback);
 
   shaderProgram.BindTextures();
-  Cube cube(shaderProgram.shaderProgram);
+  std::vector<Cube> cubes;
+  for(int i = 0; i < 10; i++){
+    Cube cube(shaderProgram.shaderProgram);
+    cube.Reset();
+    cube.Translate(cubePositions[i]);
+    float angle = 20.f * i;
+    cube.Rotate(angle,glm::vec3(1.0f, 0.3f, 0.5f));
+    cubes.push_back(cube);
+    // shaderProgram.setMat4("model", cube.model);
+    // cube.Draw();
+  }
 
   // Setup Dear ImGui context
   IMGUI_CHECKVERSION();
@@ -100,15 +111,11 @@ int main() {
     shaderProgram.setMat4("view", view);
 
     // Send Shader Data
-    shaderProgram.SendDataToFS();
+    shaderProgram.SendDataToShader();
 
-    for(int i = 0; i < 10; i++){
-      cube.Reset();
-      cube.Translate(cubePositions[i]);
-      float angle = 20.f * i;
-      cube.Rotate(angle,glm::vec3(1.0f, 0.3f, 0.5f));
+    for(Cube cube : cubes){
+      cube.Update();
       shaderProgram.setMat4("model", cube.model);
-      // Draw
       cube.Draw();
     }
 
@@ -127,11 +134,12 @@ int main() {
 
     mainGui.DemoWindow(clearColor);
 
+    ImGui::SliderFloat("Cube 1", &cubes[0].position.x, -10, 10);
+
     // Render
     mainGui.RenderFrame();
 
     glfwSwapBuffers(window.window);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   }
 
   return 0;

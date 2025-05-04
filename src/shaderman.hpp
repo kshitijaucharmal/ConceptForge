@@ -32,8 +32,7 @@ namespace ShaderManagement {
         void Use();
         void Draw();
         void LinkShaders();
-        void SendDataToVS();
-        void SendDataToFS();
+        void SendDataToShader();
         void BindTextures();
         // utility uniform functions
         void setBool(const std::string &name, bool value) const;
