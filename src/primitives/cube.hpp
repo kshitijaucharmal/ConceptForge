@@ -40,6 +40,7 @@ public:
 
     void Use();
     void Update();
+    void UpdateModelMatrix();
     void Draw();
 
     void GUI();

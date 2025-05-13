@@ -8,15 +8,19 @@
 #include <vector>
 
 // GLM
+#define GLM_ENABLE_EXPERIMENTAL
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
+#include "glm/gtx/matrix_decompose.hpp"
 
 // Imgui Based UI
 #include "editor/gui.hpp"
 
 #include "primitives/cube.hpp"
 #include "constants.hpp"
+
+#include "ImGuizmo.h"
 
 // Cube positions
 glm::vec3 cubePositions[] = {
@@ -59,21 +63,9 @@ int main() {
 
   shaderProgram.BindTextures();
 
-  // bind textures on corresponding texture units
-  // glActiveTexture(GL_TEXTURE0);
-  // glBindTexture(GL_TEXTURE_2D, shaderProgram.texture1);
-  // glActiveTexture(GL_TEXTURE0 + 1);
-  // glBindTexture(GL_TEXTURE_2D, shaderProgram.texture2);
-
-  std::vector<Cube> cubes;
-  for(int i = 0; i < sizeof(cubePositions) / sizeof(glm::vec3); i++){
-    Cube cube(shaderProgram.shaderProgram);
-    cube.Reset();
-    cube.Translate(cubePositions[i]);
-    cube.Scale(glm::vec3(i+1));
-
-    cubes.push_back(cube);
-  }
+  Cube cube(shaderProgram.shaderProgram);
+  cube.Reset();
+  cube.Translate(cubePositions[0]);
 
   // Setup Dear ImGui context
   IMGUI_CHECKVERSION();
@@ -83,6 +75,8 @@ int main() {
   GUIManagement::MainGUI mainGui(window.window, ImGui::GetIO());
   // Matrix transformations for projecting to the screen
   // V(clip) = M(projection)⋅M(view)⋅M(model)⋅V(local)
+  static ImGuizmo::OPERATION gizmoOperation = ImGuizmo::TRANSLATE;
+  static ImGuizmo::MODE gizmoMode = ImGuizmo::LOCAL;
 
   // Render Loop
   while (!glfwWindowShouldClose(window.window)) {
@@ -97,12 +91,12 @@ int main() {
     // Clear Screen with this color
     glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // also clear the depth buffer now!
-
+    glEnable(GL_DEPTH_TEST);
 
     shaderProgram.Use();
 
     // Projection Matrix
-    glm::mat4 projection = glm::perspective(glm::radians(60.0f), ASPECTRATIO, 0.01f, 100.0f);;
+    glm::mat4 projection = glm::perspective(glm::radians(85.0f), ASPECTRATIO, 0.01f, 100.0f);;
     shaderProgram.setMat4("projection", projection);
 
     // Camera
@@ -112,12 +106,8 @@ int main() {
 
     // Send Shader Data
     shaderProgram.SendDataToShader();
-
-    for(Cube cube : cubes){
-      cube.Update();
-      shaderProgram.setMat4("model", cube.model);
-      cube.Draw();
-    }
+    shaderProgram.setMat4("model", cube.model);
+    cube.Draw();
 
     // check and call events
     glfwPollEvents();
@@ -129,13 +119,62 @@ int main() {
       continue;
     }
 
+    glDisable(GL_DEPTH_TEST);
+
     // Create new Frame
     mainGui.NewFrame();
 
-    mainGui.DemoWindow(clearColor);
+    ImGui::Begin("Controls");
+    if (ImGui::RadioButton("Translate", gizmoOperation == ImGuizmo::TRANSLATE)) gizmoOperation = ImGuizmo::TRANSLATE;
+    ImGui::SameLine();
+    if (ImGui::RadioButton("Rotate", gizmoOperation == ImGuizmo::ROTATE)) gizmoOperation = ImGuizmo::ROTATE;
+    ImGui::SameLine();
+    if (ImGui::RadioButton("Scale", gizmoOperation == ImGuizmo::SCALE)) gizmoOperation = ImGuizmo::SCALE;
+
+
+    if (ImGui::RadioButton("Local", gizmoMode == ImGuizmo::LOCAL)) gizmoMode = ImGuizmo::LOCAL;
+    ImGui::SameLine();
+    if (ImGui::RadioButton("Global", gizmoMode == ImGuizmo::WORLD)) gizmoMode = ImGuizmo::WORLD;
+    ImGui::End();
+
+    ImGuiIO& io = ImGui::GetIO();
+    // Debug window to verify mouse capture
+    ImGui::Begin("Debug");
+    ImGui::Text("ImGuizmo IsOver: %s", ImGuizmo::IsOver() ? "true" : "false");
+    ImGui::Text("ImGuizmo IsUsing: %s", ImGuizmo::IsUsing() ? "true" : "false");
+    ImGui::Text("Mouse Position: %.1f, %.1f", io.MousePos.x, io.MousePos.y);
+    ImGui::Text("ImGui WantCaptureMouse: %s", io.WantCaptureMouse ? "true" : "false");
+    ImGui::End();
+
+    // Set up ImGuizmo
+    ImGuizmo::SetOrthographic(false);
+    ImGuizmo::SetDrawlist();
+    ImGuizmo::SetRect(0, 0, (float)WIDTH, (float)HEIGHT);
+    ImGuizmo::BeginFrame();
+
+    ImGuizmo::Manipulate(glm::value_ptr(view),
+                         glm::value_ptr(projection),
+                         gizmoOperation,
+                         gizmoMode,
+                         glm::value_ptr(cube.model),
+                         nullptr,
+                         nullptr);
+
+    // If the gizmo was used, decompose the result and update
+    if (ImGuizmo::IsUsing()) {
+      glm::vec3 skew;
+      glm::vec4 perspective;
+      glm::quat rotQuat;
+
+      glm::decompose(cube.model, cube.scale, rotQuat, cube.position, skew, perspective);
+      cube.rotation = glm::degrees(glm::eulerAngles(rotQuat)); // Convert to Euler angles
+
+      // Update the model matrix from the new values
+      cube.UpdateModelMatrix();
+    }
 
     // Testing
-    cubes[0].GUI();
+    cube.GUI();
 
     // Render
     mainGui.RenderFrame();
@@ -146,19 +185,15 @@ int main() {
   return 0;
 }
 
-
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
-{
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
   camera.ProcessMouseScroll(static_cast<float>(yoffset));
 }
 
-void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
-{
+void mouse_callback(GLFWwindow* window, double xposIn, double yposIn) {
   float xpos = static_cast<float>(xposIn);
   float ypos = static_cast<float>(yposIn);
 
-  if (firstMouse)
-  {
+  if (firstMouse) {
     lastX = xpos;
     lastY = ypos;
     firstMouse = false;

@@ -16,7 +16,13 @@ add_library(
   external/imgui/imgui_widgets.cpp
   external/imgui/imgui_demo.cpp
   external/imgui/backends/imgui_impl_glfw.cpp
-  external/imgui/backends/imgui_impl_opengl3.cpp)
+  external/imgui/backends/imgui_impl_opengl3.cpp
+)
+
+add_library(
+  ImGuizmo STATIC
+  external/ImGuizmo/ImGuizmo.cpp
+)
 
 add_library(
   glad STATIC
@@ -34,6 +40,9 @@ target_include_directories(imgui PUBLIC
   external/imgui/backends
   external/glfw/include)
 
+target_include_directories(ImGuizmo PUBLIC external/ImGuizmo)
+target_link_libraries(ImGuizmo imgui)
+
 target_include_directories(glad PUBLIC
   external/glad/include)
 
@@ -44,4 +53,4 @@ add_custom_target(run
     DEPENDS ${PROJECT_NAME}
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL imgui glad glfw glm)
+target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL imgui ImGuizmo glad glfw glm)

@@ -25,52 +25,70 @@ Cube::Cube(unsigned int sp) : shaderProgram(sp) {
   Reset();
 };
 
-
 void Cube::Reset(){
   position = glm::vec3(0.0);
   rotation = glm::vec3(0.0);
   scale = glm::vec3(1.0);
+  UpdateModelMatrix();
+}
+
+// Rebuild the entire model matrix from scratch using the current transformation properties
+void Cube::UpdateModelMatrix() {
+  // Always start with identity matrix
   model = glm::mat4(1.0f);
-  Update();
+
+  // Apply transformations in the correct order: Scale -> Rotate -> Translate
+  model = glm::translate(model, position);
+
+  // For rotation, convert Euler angles to quaternion for better interpolation
+  glm::quat rotationQuat = glm::quat(glm::radians(rotation));
+  model = model * glm::mat4_cast(rotationQuat);
+
+  model = glm::scale(model, scale);
 }
 
 // Transform Tools ---------------------------------------------------------
 void Cube::Translate(glm::vec3 pos) {
   position = pos;
-  model = glm::translate(model, position);
+  UpdateModelMatrix();
 }
 
 void Cube::Rotate(float angle, glm::vec3 axis) {
-  model = glm::rotate(model, glm::radians(angle), axis);
+  // Convert angle-axis to Euler angles and add to current rotation
+  glm::quat rotQuat = glm::angleAxis(glm::radians(angle), glm::normalize(axis));
+  glm::vec3 eulerAngles = glm::degrees(glm::eulerAngles(rotQuat));
+  rotation += eulerAngles;
+  UpdateModelMatrix();
 }
 
 void Cube::Rotate(glm::vec3 rot){
   rotation = rot;
-  glm::quat rotationQuat = glm::quat(glm::radians(rot)); // Convert Euler to quaternion
-  glm::mat4 rotationMatrix = glm::mat4_cast(rotationQuat); // Convert quaternion to matrix
-
-  model *= rotationMatrix;
+  UpdateModelMatrix();
 }
 
 void Cube::Scale(glm::vec3 factor) {
-  model = glm::scale(model, factor);
+  scale = factor;
+  UpdateModelMatrix();
 }
 
 // -------------------------------------------------------------------------
 
-void Cube::Update(){
-  Translate(position);
-  Rotate(rotation);
-  Scale(scale);
-}
-
 void Cube::GUI(){
+  // Store previous values to detect changes
+  glm::vec3 prevScale = scale;
+  glm::vec3 prevRotation = rotation;
+  glm::vec3 prevPosition = position;
   ImGui::Begin("Transform");                          // Create a window called "Hello, world!" and append into it.
   // Testing
   ImGui::DragFloat3("Scale", glm::value_ptr(scale),0.1,  0.0, 10.0);
   ImGui::DragFloat3("Rotate", glm::value_ptr(rotation),1.,  -180.0, 180.0);
   ImGui::DragFloat3("Position", glm::value_ptr(position),0.01,  -10.0, 10.0);
   ImGui::End();
+
+  // Only update model matrix if values changed
+  if (scale != prevScale || rotation != prevRotation || position != prevPosition) {
+    UpdateModelMatrix();
+  }
 }
 
 
