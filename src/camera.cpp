@@ -19,6 +19,24 @@ Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float u
     updateCameraVectors();
 }
 
+void Camera::SetTransform(glm::vec3 position, glm::vec3 up){
+    Position = position;
+    WorldUp = up;
+    updateCameraVectors();
+}
+
+void Camera::LookAt(glm::vec3 target) {
+    // Calculate the new Front vector by subtracting the camera position from the target position
+    Front = glm::normalize(target - Position);
+
+    // Recalculate the Right and Up vectors based on the new Front vector
+    Right = glm::normalize(glm::cross(Front, WorldUp));  // The Right vector is perpendicular to Front and WorldUp
+    Up = glm::normalize(glm::cross(Right, Front));  // The Up vector is perpendicular to both Right and Front
+
+    // Update the view matrix based on the new camera orientation
+    updateCameraVectors();
+}
+
 // returns the view matrix calculated using Euler Angles and the LookAt Matrix
 glm::mat4 Camera::GetViewMatrix()
 {

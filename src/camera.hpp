@@ -43,6 +43,9 @@ public:
     void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true);
     void ProcessMouseScroll(float yoffset);
 
+    void SetTransform(glm::vec3 position, glm::vec3 up);
+    void LookAt(glm::vec3 target);
+
 private:
     void updateCameraVectors();
 };

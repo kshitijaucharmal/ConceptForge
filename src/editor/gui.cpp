@@ -1,6 +1,10 @@
+#include "vector"
+#include "string"
 
 #include "gui.hpp"
 const char* glsl_version = "#version 130";
+
+#include "constants.hpp"
 
 namespace GUIManagement {
     MainGUI::MainGUI(GLFWwindow *window, ImGuiIO& IO) : io{IO}{
@@ -26,6 +30,9 @@ namespace GUIManagement {
         ImGui_ImplOpenGL3_Init(glsl_version);
     }
 
+    GLfloat inspectorWidth = 350.0f;
+    GLfloat inspectorHeight = HEIGHT;
+
     void MainGUI::NewFrame(){
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
@@ -49,32 +56,52 @@ namespace GUIManagement {
         }
     }
 
-    void MainGUI::DemoWindow(glm::vec4& clearColor){
-      static float f = 0.0f;
-      static int counter = 0;
+    // Windows -----------------------------------------------------------------------------
+    void MainGUI::ShowInspectorWindow(SimObject::Entity& entity, ImGuizmo::OPERATION &operation, ImGuizmo::MODE &mode) {
+        inspectorHeight = io.DisplaySize.y;
+        ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x - inspectorWidth, 0), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(inspectorWidth, inspectorHeight), ImGuiCond_Always);
 
-      ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+        ImGui::Begin("Inspector", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 
-      ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-      // ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-      // ImGui::Checkbox("Another Window", &show_another_window);
+        if (ImGui::CollapsingHeader("Gizmo Controls", ImGuiTreeNodeFlags_DefaultOpen)) {
+            if (ImGui::RadioButton("Translate", operation == ImGuizmo::TRANSLATE)) operation = ImGuizmo::TRANSLATE;
+            ImGui::SameLine();
+            if (ImGui::RadioButton("Rotate", operation == ImGuizmo::ROTATE)) operation = ImGuizmo::ROTATE;
+            ImGui::SameLine();
+            if (ImGui::RadioButton("Scale", operation == ImGuizmo::SCALE)) operation = ImGuizmo::SCALE;
 
-      ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-      ImGui::ColorEdit4("clear color", (float*)&clearColor); // Edit 3 floats representing a color
+            if (ImGui::RadioButton("Local", mode == ImGuizmo::LOCAL)) mode = ImGuizmo::LOCAL;
+            ImGui::SameLine();
+            if (ImGui::RadioButton("Global", mode == ImGuizmo::WORLD)) mode = ImGuizmo::WORLD;
+        }
 
-      if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-        counter++;
-      ImGui::SameLine();
-      ImGui::Text("counter = %d", counter);
+        if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
+            entity.GUI();
+        }
 
-      ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-      ImGui::End();
+
+        ImGui::End();
     }
+
+    void MainGUI::ShowConsole() {
+        ImGui::SetNextWindowPos(ImVec2(0, io.DisplaySize.y - 150.0), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(io.DisplaySize.x - inspectorWidth, 150.0), ImGuiCond_Always);
+
+        ImGuiIO& io = ImGui::GetIO();
+        ImGui::Begin("Console", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
+        ImGui::Text("ImGuizmo IsOver: %s", ImGuizmo::IsOver() ? "true" : "false");
+        ImGui::Text("ImGuizmo IsUsing: %s", ImGuizmo::IsUsing() ? "true" : "false");
+        ImGui::Text("Mouse Position: %.1f, %.1f", io.MousePos.x, io.MousePos.y);
+        ImGui::Text("ImGui WantCaptureMouse: %s", io.WantCaptureMouse ? "true" : "false");
+        ImGui::End();
+    }
+
+    // -------------------------------------------------------------------------------------
 
     MainGUI::~MainGUI(){
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
     }
-
 }

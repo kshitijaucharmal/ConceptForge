@@ -3,7 +3,18 @@
 
 extern float cubeVertices[];
 
-Cube::Cube(unsigned int sp) : shaderProgram(sp) {
+Cube::Cube(unsigned int sp, glm::vec3 pos, glm::vec3 rot, glm::vec3 sca)
+  : shaderProgram(sp) {
+
+  position = pos;
+  rotation = rot;
+  scale = sca;
+
+  SetupTextures();
+  UpdateModelMatrix();
+};
+
+void Cube::SetupTextures(){
   // Initialize Vertex Array Object (Stores Vertex attribute pointers)
   glGenVertexArrays(1, &VAO);
   // Initialize Vertex Buffer Object
@@ -21,15 +32,6 @@ Cube::Cube(unsigned int sp) : shaderProgram(sp) {
   // texture coord attribute
   glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
   glEnableVertexAttribArray(1);
-
-  Reset();
-};
-
-void Cube::Reset(){
-  position = glm::vec3(0.0);
-  rotation = glm::vec3(0.0);
-  scale = glm::vec3(1.0);
-  UpdateModelMatrix();
 }
 
 // Rebuild the entire model matrix from scratch using the current transformation properties
@@ -68,6 +70,7 @@ void Cube::Rotate(glm::vec3 rot){
 
 void Cube::Scale(glm::vec3 factor) {
   scale = factor;
+  scale = glm::max(scale, 0.001f);
   UpdateModelMatrix();
 }
 
@@ -78,20 +81,15 @@ void Cube::GUI(){
   glm::vec3 prevScale = scale;
   glm::vec3 prevRotation = rotation;
   glm::vec3 prevPosition = position;
-  ImGui::Begin("Transform");                          // Create a window called "Hello, world!" and append into it.
-  // Testing
-  ImGui::DragFloat3("Scale", glm::value_ptr(scale),0.1,  0.0, 10.0);
-  ImGui::DragFloat3("Rotate", glm::value_ptr(rotation),1.,  -180.0, 180.0);
-  ImGui::DragFloat3("Position", glm::value_ptr(position),0.01,  -10.0, 10.0);
-  ImGui::End();
+
+  ImGui::DragFloat3("Position", glm::value_ptr(position), 0.01,  -10.0, 10.0);
+  ImGui::DragFloat3("Rotation", glm::value_ptr(rotation), 1.,  -180.0, 180.0);
+  ImGui::DragFloat3("Scale", glm::value_ptr(scale), 0.1,  0.0, 10.0);
 
   // Only update model matrix if values changed
   if (scale != prevScale || rotation != prevRotation || position != prevPosition) {
     UpdateModelMatrix();
   }
 }
-
-
-void Cube::Use() { glUseProgram(shaderProgram); }
 
 void Cube::Draw() { glDrawArrays(GL_TRIANGLES, 0, 36); }

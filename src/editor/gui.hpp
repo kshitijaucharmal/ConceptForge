@@ -5,13 +5,20 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-#include <GLFW/glfw3.h>
-
 #include <glm/vec4.hpp>
+
+// Entity
+#include "../primitives/entity.hpp"
+
+#include "ImGuizmo.h"
 
 namespace GUIManagement {
     class MainGUI {
     private:
+        GLboolean b_inspector = true;
+        GLboolean b_fileSystem = true;
+        GLboolean b_debug_console = true;
+        GLboolean b_gizmos = true;
     public:
         ImGuiIO& io;
         MainGUI(GLFWwindow *window, ImGuiIO& IO);
@@ -19,7 +26,13 @@ namespace GUIManagement {
 
         void NewFrame();
         void RenderFrame();
-        // Just demo
-        void DemoWindow(glm::vec4& clearColor);
+
+        void SetupEditorWindows();
+        void DrawEditorWindows();
+
+        // Editor Windows
+        void ShowInspectorWindow(SimObject::Entity &entity, ImGuizmo::OPERATION &operation, ImGuizmo::MODE &mode);
+        void ShowConsole();
+        void ShowFileSystem();
     };
 }

@@ -1,47 +1,26 @@
 #pragma once
 
-#include <glad/glad.h>
+// Extend from entity
+#include "entity.hpp"
 
-#include <GLFW/glfw3.h>
-// GLM
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtc/type_ptr.hpp"
-#include "glm/gtc/quaternion.hpp"
-
-// For GUI
-#include "imgui.h"
-
-class Cube {
+class Cube : public SimObject::Entity {
 private:
-    unsigned int VAO;
-    unsigned int VBO;
-    unsigned int shaderProgram;
+    GLuint VAO;
+    GLuint VBO;
+    GLuint shaderProgram;
 
 public:
-    // Transform Components
-    glm::vec3 position;
-    // TODO: Handle rot and scaling
-    glm::vec3 rotation;
-    glm::vec3 scale;
-
-    glm::mat4 model = glm::mat4(1.0f);
-    Cube(unsigned int sp);
-    void Reset();
+    Cube(unsigned int sp, glm::vec3 pos=glm::vec3(0.0), glm::vec3 rot=glm::vec3(0.0), glm::vec3 sca=glm::vec3(1.0));
+    void SetupTextures();
 
     // Transform ---------------------------------------------------------------
-    void Translate(glm::vec3 pos);
-    // Euler Angles rotation
-    void Rotate(glm::vec3 rot);
-    // Angle Axis Rotation
-    void Rotate(float angle, glm::vec3 axis);
-    void Scale(glm::vec3 factor);
+    void Translate(glm::vec3 pos) override;
+    void Rotate(glm::vec3 rot) override;
+    void Rotate(float angle, glm::vec3 axis) override;
+    void Scale(glm::vec3 factor) override;
+    void UpdateModelMatrix() override;
     // -------------------------------------------------------------------------
 
-    void Use();
-    void Update();
-    void UpdateModelMatrix();
-    void Draw();
-
-    void GUI();
+    void Draw() override;
+    void GUI() override;
 };

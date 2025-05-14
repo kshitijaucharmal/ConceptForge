@@ -64,7 +64,6 @@ int main() {
   shaderProgram.BindTextures();
 
   Cube cube(shaderProgram.shaderProgram);
-  cube.Reset();
   cube.Translate(cubePositions[0]);
 
   // Setup Dear ImGui context
@@ -119,32 +118,11 @@ int main() {
       continue;
     }
 
-    glDisable(GL_DEPTH_TEST);
-
     // Create new Frame
     mainGui.NewFrame();
 
-    ImGui::Begin("Controls");
-    if (ImGui::RadioButton("Translate", gizmoOperation == ImGuizmo::TRANSLATE)) gizmoOperation = ImGuizmo::TRANSLATE;
-    ImGui::SameLine();
-    if (ImGui::RadioButton("Rotate", gizmoOperation == ImGuizmo::ROTATE)) gizmoOperation = ImGuizmo::ROTATE;
-    ImGui::SameLine();
-    if (ImGui::RadioButton("Scale", gizmoOperation == ImGuizmo::SCALE)) gizmoOperation = ImGuizmo::SCALE;
-
-
-    if (ImGui::RadioButton("Local", gizmoMode == ImGuizmo::LOCAL)) gizmoMode = ImGuizmo::LOCAL;
-    ImGui::SameLine();
-    if (ImGui::RadioButton("Global", gizmoMode == ImGuizmo::WORLD)) gizmoMode = ImGuizmo::WORLD;
-    ImGui::End();
-
-    ImGuiIO& io = ImGui::GetIO();
-    // Debug window to verify mouse capture
-    ImGui::Begin("Debug");
-    ImGui::Text("ImGuizmo IsOver: %s", ImGuizmo::IsOver() ? "true" : "false");
-    ImGui::Text("ImGuizmo IsUsing: %s", ImGuizmo::IsUsing() ? "true" : "false");
-    ImGui::Text("Mouse Position: %.1f, %.1f", io.MousePos.x, io.MousePos.y);
-    ImGui::Text("ImGui WantCaptureMouse: %s", io.WantCaptureMouse ? "true" : "false");
-    ImGui::End();
+    mainGui.ShowInspectorWindow(cube, gizmoOperation, gizmoMode);
+    mainGui.ShowConsole();
 
     // Set up ImGuizmo
     ImGuizmo::SetOrthographic(false);
@@ -153,15 +131,31 @@ int main() {
     ImGuizmo::BeginFrame();
 
     ImGuizmo::Manipulate(glm::value_ptr(view),
-                         glm::value_ptr(projection),
-                         gizmoOperation,
-                         gizmoMode,
-                         glm::value_ptr(cube.model),
-                         nullptr,
-                         nullptr);
+                        glm::value_ptr(projection),
+                        gizmoOperation,
+                        gizmoMode,
+                        glm::value_ptr(cube.model),
+                        nullptr,
+                        nullptr);
+
+    ImGuizmo::ViewManipulate(glm::value_ptr(view),
+                             1.0f,
+                             ImVec2(10, 10),
+                             ImVec2(128, 128),
+                             IM_COL32(40, 40, 40, 150));
+    // Modify camera
+    glm::mat4 cameraMatrix = glm::inverse(view);
+    glm::vec3 position = glm::vec3(cameraMatrix[3]);
+    glm::vec3 forward  = -glm::vec3(cameraMatrix[2]);
+    glm::vec3 up       = glm::vec3(cameraMatrix[1]);
+
+    camera.SetTransform(position, up);
+    camera.LookAt(position + forward);
+    view = camera.GetViewMatrix();
 
     // If the gizmo was used, decompose the result and update
     if (ImGuizmo::IsUsing()) {
+
       glm::vec3 skew;
       glm::vec4 perspective;
       glm::quat rotQuat;
@@ -172,9 +166,6 @@ int main() {
       // Update the model matrix from the new values
       cube.UpdateModelMatrix();
     }
-
-    // Testing
-    cube.GUI();
 
     // Render
     mainGui.RenderFrame();
