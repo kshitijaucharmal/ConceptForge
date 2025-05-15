@@ -3,7 +3,7 @@
 
 extern float cubeVertices[];
 
-Cube::Cube(unsigned int sp, glm::vec3 pos, glm::vec3 rot, glm::vec3 sca)
+Cube::Cube(ShaderManagement::ShaderProgram &sp, glm::vec3 pos, glm::vec3 rot, glm::vec3 sca)
   : shaderProgram(sp) {
 
   position = pos;
@@ -92,4 +92,7 @@ void Cube::GUI(){
   }
 }
 
-void Cube::Draw() { glDrawArrays(GL_TRIANGLES, 0, 36); }
+void Cube::Draw() {
+  shaderProgram.setMat4("model", model);
+  glDrawArrays(GL_TRIANGLES, 0, 36);
+}

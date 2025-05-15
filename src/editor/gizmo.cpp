@@ -1,0 +1,50 @@
+#include "gizmo.hpp"
+
+using namespace Editor;
+
+Gizmo::Gizmo(){
+    // Empty
+}
+
+void Gizmo::Show(SimObject::Entity &entity, Projection &projection, Camera &camera){
+    ImGuizmo::SetOrthographic(false);
+    ImGuizmo::SetDrawlist();
+    ImGuizmo::SetRect(0, 0, (float)WIDTH, (float)HEIGHT);
+    ImGuizmo::BeginFrame();
+
+    ImGuizmo::Manipulate(glm::value_ptr(projection.view),
+                        glm::value_ptr(projection.projection),
+                        gizmoOperation,
+                        gizmoMode,
+                        glm::value_ptr(entity.model),
+                        nullptr,
+                        nullptr);
+
+    ImGuizmo::ViewManipulate(glm::value_ptr(projection.view),
+                             1.0f,
+                             ImVec2(ImGui::GetIO().DisplaySize.x - (inspectorWidth + 165), 10),
+                             ImVec2(100, 100),
+                             IM_COL32(40, 40, 40, 150));
+    // Modify camera
+    glm::mat4 cameraMatrix = glm::inverse(projection.view);
+    glm::vec3 position = glm::vec3(cameraMatrix[3]);
+    glm::vec3 forward  = -glm::vec3(cameraMatrix[2]);
+    glm::vec3 up       = glm::vec3(cameraMatrix[1]);
+
+    camera.SetTransform(position, up);
+    camera.LookAt(position + forward);
+    projection.view = camera.GetViewMatrix();
+
+    // If the gizmo was used, decompose the result and update
+    if (ImGuizmo::IsUsing()) {
+      glm::vec3 skew;
+      glm::vec4 perspective;
+      glm::quat rotQuat;
+
+      glm::decompose(entity.model, entity.scale, rotQuat, entity.position, skew, perspective);
+      entity.rotation = glm::degrees(glm::eulerAngles(rotQuat)); // Convert to Euler angles
+
+      // Update the model matrix from the new values
+      entity.UpdateModelMatrix();
+    }
+}

@@ -1,5 +1,8 @@
 #pragma once
 
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
 #include <iostream>
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -7,17 +10,21 @@
 
 #include <glm/vec4.hpp>
 
-// Entity
-#include "../primitives/entity.hpp"
-
 #include "ImGuizmo.h"
 
-namespace GUIManagement {
+#include "vector"
+#include "string"
+
+#include "constants.hpp"
+#include "gizmo.hpp"
+
+namespace Editor {
     class MainGUI {
     private:
         GLboolean b_inspector = true;
-        GLboolean b_fileSystem = true;
-        GLboolean b_debug_console = true;
+        GLboolean b_assetBrowser = true;
+        GLboolean b_debugConsole = true;
+        GLboolean b_cameraControls = true;
         GLboolean b_gizmos = true;
     public:
         ImGuiIO& io;
@@ -31,8 +38,9 @@ namespace GUIManagement {
         void DrawEditorWindows();
 
         // Editor Windows
-        void ShowInspectorWindow(SimObject::Entity &entity, ImGuizmo::OPERATION &operation, ImGuizmo::MODE &mode);
+        void ShowCameraControls(GLfloat *fov);
         void ShowConsole();
-        void ShowFileSystem();
+
+        void Show();
     };
 }

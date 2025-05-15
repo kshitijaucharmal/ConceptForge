@@ -2,6 +2,8 @@
 
 #include <string>
 
+static const char* glsl_version = "#version 130";
+
 // Shader Paths
 static std::string vertexShaderPath = std::string(SHADER_DIR) + "/engine.vert";
 static std::string fragmentShaderPath = std::string(SHADER_DIR) + "/engine.frag";
@@ -13,3 +15,7 @@ static const float ASPECTRATIO = (float)WIDTH / (float)HEIGHT;
 static const std::string WINDOWNAME = "ConceptForge";
 
 const float cameraSpeed = 5.0f; // adjust accordingly
+
+// Editor
+// Inspector
+static const int inspectorWidth = 300; // height determined by window size
