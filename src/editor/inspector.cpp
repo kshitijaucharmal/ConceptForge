@@ -3,13 +3,12 @@
 using namespace Editor;
 
 Inspector::Inspector() {
-    auto io = ImGui::GetIO();
-    const int inspectorHeight = io.DisplaySize.y;
-    ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x - inspectorWidth, 0), ImGuiCond_Always);
-    ImGui::SetNextWindowSize(ImVec2(inspectorWidth, inspectorHeight), ImGuiCond_Always);
+    // Empty Constructor
 }
 
 void Inspector::Show(SimObject::Entity& entity, ImGuizmo::OPERATION &operation, ImGuizmo::MODE &mode){
+    ImGui::SetNextWindowPos(ImVec2(WIDTH - inspectorWidth, 0), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(inspectorWidth, HEIGHT), ImGuiCond_Always);
     ImGui::Begin("Inspector", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 
     if (ImGui::CollapsingHeader("Gizmo Controls", ImGuiTreeNodeFlags_DefaultOpen)) {

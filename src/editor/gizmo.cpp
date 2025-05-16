@@ -20,11 +20,6 @@ void Gizmo::Show(SimObject::Entity &entity, Projection &projection, Camera &came
                         nullptr,
                         nullptr);
 
-    ImGuizmo::ViewManipulate(glm::value_ptr(projection.view),
-                             1.0f,
-                             ImVec2(ImGui::GetIO().DisplaySize.x - (inspectorWidth + 165), 10),
-                             ImVec2(100, 100),
-                             IM_COL32(40, 40, 40, 150));
     // Modify camera
     glm::mat4 cameraMatrix = glm::inverse(projection.view);
     glm::vec3 position = glm::vec3(cameraMatrix[3]);

@@ -18,4 +18,6 @@ const float cameraSpeed = 5.0f; // adjust accordingly
 
 // Editor
 // Inspector
-static const int inspectorWidth = 300; // height determined by window size
+static const int inspectorWidth = 350; // height determined by window size
+static const int consoleHeight = 150;
+static const int assetBrowserWidth = 300;

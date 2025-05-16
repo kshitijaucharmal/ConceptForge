@@ -7,6 +7,7 @@ include_directories(src)
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 
 include_directories(external/stb_image)
+include_directories(external/IconFont)
 
 add_library(
   imgui STATIC
@@ -34,6 +35,7 @@ add_subdirectory(external/glfw)
 
 add_compile_definitions(SHADER_DIR="${PROJECT_SOURCE_DIR}/shaders")
 add_compile_definitions(TEXTURE_DIR="${PROJECT_SOURCE_DIR}/assets/textures")
+add_compile_definitions(FONT_DIR="${PROJECT_SOURCE_DIR}/fonts")
 
 target_include_directories(imgui PUBLIC
   external/imgui

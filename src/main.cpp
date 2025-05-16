@@ -26,6 +26,7 @@
 
 #include "editor/gizmo.hpp"
 #include "editor/inspector.hpp"
+#include "editor/asset_browser.hpp"
 
 // Cube positions
 glm::vec3 cubePositions[] = {
@@ -84,6 +85,8 @@ int main() {
 
   Editor::Gizmo gizmo;
   Editor::Inspector inspector;
+  Editor::AssetBrowser asset_browser;
+  std::string myDirectory = "/home/kshitij";
 
   // Render Loop
   while (!glfwWindowShouldClose(window.window)) {
@@ -123,6 +126,7 @@ int main() {
     mainGui.ShowConsole();
     gizmo.Show(cube, projection, camera);
     inspector.Show(cube, gizmo.gizmoOperation, gizmo.gizmoMode);
+    asset_browser.Show(myDirectory);
 
     // Render
     mainGui.RenderFrame();
