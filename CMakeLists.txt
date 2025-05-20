@@ -1,6 +1,23 @@
 cmake_minimum_required(VERSION 3.10..4.0)
 project(OpenGL)
 
+add_compile_definitions(SHADER_DIR="${PROJECT_SOURCE_DIR}/shaders")
+add_compile_definitions(TEXTURE_DIR="${PROJECT_SOURCE_DIR}/assets/textures")
+add_compile_definitions(FONT_DIR="${PROJECT_SOURCE_DIR}/fonts")
+
+if (CMAKE_VERSION VERSION_LESS 3.18)
+  set(DEV_MODULE Development)
+else()
+  set(DEV_MODULE Development.Module)
+endif()
+
+find_package(Python COMPONENTS Interpreter ${DEV_MODULE} REQUIRED)
+
+if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif()
+
 find_package(OpenGL REQUIRED)
 
 include_directories(src)
@@ -8,6 +25,14 @@ file(GLOB_RECURSE SOURCES "src/*.cpp")
 
 include_directories(external/stb_image)
 include_directories(external/IconFont)
+
+add_subdirectory(external/glm)
+add_subdirectory(external/glfw)
+add_subdirectory(external/nanobind)
+
+# Nano bind
+file(GLOB_RECURSE NB_SOURCES "nanobind/*.cpp")
+nanobind_add_module(concept_forge ${NB_SOURCES})
 
 add_library(
   imgui STATIC
@@ -29,13 +54,6 @@ add_library(
   glad STATIC
   external/glad/src/glad.c
 )
-
-add_subdirectory(external/glm)
-add_subdirectory(external/glfw)
-
-add_compile_definitions(SHADER_DIR="${PROJECT_SOURCE_DIR}/shaders")
-add_compile_definitions(TEXTURE_DIR="${PROJECT_SOURCE_DIR}/assets/textures")
-add_compile_definitions(FONT_DIR="${PROJECT_SOURCE_DIR}/fonts")
 
 target_include_directories(imgui PUBLIC
   external/imgui

@@ -4,3 +4,6 @@
 [submodule "external/glfw"]
 	path = external/glfw
 	url = https://github.com/glfw/glfw
+[submodule "external/nanobind"]
+	path = external/nanobind
+	url = https://github.com/wjakob/nanobind

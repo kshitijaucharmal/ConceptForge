@@ -7,7 +7,7 @@ Current Build Directory Index-Host System=0
 
 [CMake][CMake Build Directory 0]
 Build Directory Path=/mnt/Data/projects/Graphics/OpenGL/build
-Build Type=
+Build Type=Release
 CMake Binary=/usr/bin/cmake
 CMake Executable=/usr/bin/cmake
 Environment Profile=
