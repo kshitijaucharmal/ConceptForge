@@ -11,7 +11,6 @@ public:
     // TODO: Setter/Getter
     glm::mat4 projection;
     glm::mat4 view;
-    GLfloat fov = 85.0f;
 
     // Constructor
     Projection();

@@ -9,7 +9,7 @@ namespace Const {
     // Shader Paths
     static std::string vertexShaderPath = std::string(SHADER_DIR) + "/engine.vert";
     static std::string fragmentShaderPath = std::string(SHADER_DIR) + "/engine.frag";
-    static glm::vec4 clearColor(0.1, 0.1, 0.1, 1.0f);
+    static glm::vec4 clearColor(0.05, 0.05, 0.05, 1.0f);
 
     // Constants
     static const int WIDTH = 1600;
@@ -18,6 +18,7 @@ namespace Const {
     static const std::string WINDOWNAME = "ConceptForge";
 
     const float cameraSpeed = 5.0f; // adjust accordingly
+    static float fov = 45.0f;
 
     // Editor
     // Inspector
@@ -25,6 +26,5 @@ namespace Const {
     static const int consoleHeight = 150;
     static const int assetBrowserWidth = 300;
 
-
-    static std::string projectDir = "/home/kshitij";
+    static std::string projectDir = "/mnt/Data/projects/Graphics/OpenGL";
 }

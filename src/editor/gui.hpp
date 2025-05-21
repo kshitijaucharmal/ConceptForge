@@ -28,7 +28,7 @@ namespace Editor {
         GLboolean b_gizmos = true;
     public:
         ImGuiIO io;
-        MainGUI(GLFWwindow *window);
+        MainGUI(GLFWwindow* window);
         ~MainGUI();
 
         void NewFrame();

@@ -29,7 +29,7 @@
 
 namespace Engine {
     class ConceptForge{
-    private:
+    public:
         // Time management
         float lastFrame = 0.0f; // Time of last frame
         // Projection Logic
@@ -45,7 +45,6 @@ namespace Engine {
         Editor::AssetBrowser asset_browser;
         Projection projection;
 
-    public:
         ConceptForge();
         ~ConceptForge();
 
@@ -59,5 +58,9 @@ namespace Engine {
         void Render();
         void CalcProjection();
         void GUIManagement();
+
+        std::vector<Cube> cubes;
+        int selectedCube = -1;
+        void SetSelected(int selected);
     };
 }

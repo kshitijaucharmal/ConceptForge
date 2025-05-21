@@ -3,7 +3,7 @@
 using namespace Engine;
 
 ConceptForge::ConceptForge():
-  camera(glm::vec3(0.0f, 0.0f, 3.0f)),
+  camera(glm::vec3(7.3589f, 5.3444f, 6.9258f), glm::vec3(0.0f, 1.0f, 0.0f), -132.4f, -28.2f),
   window(Const::WIDTH, Const::HEIGHT, Const::WINDOWNAME, false),
   shaderProgram(DrawMode::FILLED, Const::vertexShaderPath, Const::fragmentShaderPath),
   mainGui(window.window)
@@ -19,7 +19,8 @@ ConceptForge::ConceptForge():
     Editor::Inspector inspector;
     Editor::AssetBrowser asset_browser;
 
-    // Cube cube(shaderProgram);
+    Cube cube(shaderProgram);
+    cubes.push_back(cube);
 }
 
 ConceptForge::~ConceptForge(){
@@ -55,10 +56,17 @@ void ConceptForge::CalcProjection(){
     projection.Calculate(camera, shaderProgram);
 }
 
+void ConceptForge::SetSelected(int selected){
+    if(selected < 0 || selected >= cubes.size()){
+        std::cout << "Selection is wrong" << std::endl;
+    }
+    selectedCube = selected;
+}
+
 void ConceptForge::GUIManagement(){
     // Remove from here
     // Send Shader Data
-    // cube.Draw();
+    for(Cube cube : cubes) cube.Draw();
 
     // check and call events
     glfwPollEvents();
@@ -74,8 +82,10 @@ void ConceptForge::GUIManagement(){
 
     // Draw All UI
     mainGui.ShowConsole();
-    // gizmo.Show(cube, projection, camera);
-    // inspector.Show(cube, gizmo.gizmoOperation, gizmo.gizmoMode);
+    if(selectedCube != -1){
+        gizmo.Show(cubes[selectedCube], projection, camera);
+        inspector.Show(cubes[selectedCube], gizmo.gizmoOperation, gizmo.gizmoMode);
+    }
     asset_browser.Show(Const::projectDir);
 
     // Render

@@ -17,7 +17,6 @@ MainGUI::MainGUI(GLFWwindow *window){
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(Const::glsl_version);
 
-    ImGuiIO& io = ImGui::GetIO();
     ImFontConfig config;
     config.MergeMode = true;
     config.PixelSnapH = true;
@@ -154,10 +153,10 @@ void MainGUI::ShowCameraControls(float *fov) {
 }
 
 void MainGUI::ShowConsole() {
-    ImGui::SetNextWindowPos(ImVec2(0, io.DisplaySize.y - Const::consoleHeight), ImGuiCond_Always);
-    ImGui::SetNextWindowSize(ImVec2(io.DisplaySize.x - Const::inspectorWidth, (float_t)Const::consoleHeight), ImGuiCond_Always);
+    ImGui::SetNextWindowPos(ImVec2(0, Const::HEIGHT - Const::consoleHeight), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(Const::WIDTH - Const::inspectorWidth, (float_t)Const::consoleHeight), ImGuiCond_Always);
 
-    ImGuiIO& io = ImGui::GetIO();
+    ImGuiIO io = ImGui::GetIO();
     ImGui::Begin("Console", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
     ImGui::Text("ImGuizmo IsOver: %s", ImGuizmo::IsOver() ? "true" : "false");
     ImGui::Text("ImGuizmo IsUsing: %s", ImGuizmo::IsUsing() ? "true" : "false");
