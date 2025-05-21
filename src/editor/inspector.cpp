@@ -7,8 +7,8 @@ Inspector::Inspector() {
 }
 
 void Inspector::Show(SimObject::Entity& entity, ImGuizmo::OPERATION &operation, ImGuizmo::MODE &mode){
-    ImGui::SetNextWindowPos(ImVec2(WIDTH - inspectorWidth, 0), ImGuiCond_Always);
-    ImGui::SetNextWindowSize(ImVec2(inspectorWidth, HEIGHT), ImGuiCond_Always);
+    ImGui::SetNextWindowPos(ImVec2(Const::WIDTH - Const::inspectorWidth, 0), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(Const::inspectorWidth, Const::HEIGHT), ImGuiCond_Always);
     ImGui::Begin("Inspector", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 
     if (ImGui::CollapsingHeader("Gizmo Controls", ImGuiTreeNodeFlags_DefaultOpen)) {

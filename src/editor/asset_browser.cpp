@@ -40,7 +40,7 @@ AssetBrowser::AssetBrowser(){
 // Show
 void AssetBrowser::Show(std::string& currentDirectory) {
     ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
-    ImGui::SetNextWindowSize(ImVec2(assetBrowserWidth, HEIGHT - consoleHeight), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(Const::assetBrowserWidth, Const::HEIGHT - Const::consoleHeight), ImGuiCond_Always);
     ImGui::Begin("Asset Browser", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 
     // Static char buffer (resizable with std::vector)

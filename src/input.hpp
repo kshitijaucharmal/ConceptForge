@@ -9,11 +9,8 @@ namespace InputManagement {
 class Input {
 
 private:
-  GLFWwindow* window;
 public:
-  Camera &camera;
-  Input(GLFWwindow* window, Camera &cam);
-  void processInput(float deltaTime);
+  void processInput(GLFWwindow* window, Camera& camera, float deltaTime);
 };
 
 } // namespace InputManagement

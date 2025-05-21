@@ -1,11 +1,8 @@
 #include "input.hpp"
 
 namespace InputManagement {
-  Input::Input(GLFWwindow* window, Camera &cam) : window(window), camera(cam){
-    // Empty
-  }
 
-  void Input::processInput(float deltaTime){
+  void Input::processInput(GLFWwindow* window, Camera &camera, float deltaTime){
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
       glfwSetWindowShouldClose(window, true);
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)

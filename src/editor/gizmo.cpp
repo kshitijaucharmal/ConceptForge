@@ -9,7 +9,7 @@ Gizmo::Gizmo(){
 void Gizmo::Show(SimObject::Entity &entity, Projection &projection, Camera &camera){
     ImGuizmo::SetOrthographic(false);
     ImGuizmo::SetDrawlist();
-    ImGuizmo::SetRect(0, 0, (float)WIDTH, (float)HEIGHT);
+    ImGuizmo::SetRect(0, 0, (float)Const::WIDTH, (float)Const::HEIGHT);
     ImGuizmo::BeginFrame();
 
     ImGuizmo::Manipulate(glm::value_ptr(projection.view),

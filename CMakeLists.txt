@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10..4.0)
+cmake_minimum_required(VERSION 3.10..)
 project(OpenGL)
 
 add_compile_definitions(SHADER_DIR="${PROJECT_SOURCE_DIR}/shaders")
@@ -28,11 +28,9 @@ include_directories(external/IconFont)
 
 add_subdirectory(external/glm)
 add_subdirectory(external/glfw)
-add_subdirectory(external/nanobind)
 
 # Nano bind
 file(GLOB_RECURSE NB_SOURCES "nanobind/*.cpp")
-nanobind_add_module(concept_forge ${NB_SOURCES})
 
 add_library(
   imgui STATIC
@@ -60,11 +58,12 @@ target_include_directories(imgui PUBLIC
   external/imgui/backends
   external/glfw/include)
 
-target_include_directories(ImGuizmo PUBLIC external/ImGuizmo)
 target_link_libraries(ImGuizmo imgui)
 
-target_include_directories(glad PUBLIC
-  external/glad/include)
+target_include_directories(ImGuizmo PUBLIC external/ImGuizmo)
+target_include_directories(glad PUBLIC external/glad/include)
+
+add_subdirectory(external/nanobind)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
@@ -73,4 +72,16 @@ add_custom_target(run
     DEPENDS ${PROJECT_NAME}
 )
 
+nanobind_add_module(concept_forge ${NB_SOURCES})
+
+# Link Everything to nanobind as well
+target_include_directories(concept_forge PRIVATE
+  src
+  external/glad/include
+  external/imgui
+  external/imgui/backends
+  external/glfw/include
+  external/ImGuizmo
+)
 target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL imgui ImGuizmo glad glfw glm)
+

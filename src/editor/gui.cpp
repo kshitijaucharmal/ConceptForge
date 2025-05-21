@@ -1,16 +1,21 @@
 #include "gui.hpp"
 using namespace Editor;
 
-MainGUI::MainGUI(GLFWwindow *window, ImGuiIO& IO) : io{IO}{
+MainGUI::MainGUI(GLFWwindow *window){
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+
+    io = ImGui::GetIO();
+
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform
 
-
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init(glsl_version);
+    ImGui_ImplOpenGL3_Init(Const::glsl_version);
 
     ImGuiIO& io = ImGui::GetIO();
     ImFontConfig config;
@@ -149,8 +154,8 @@ void MainGUI::ShowCameraControls(float *fov) {
 }
 
 void MainGUI::ShowConsole() {
-    ImGui::SetNextWindowPos(ImVec2(0, io.DisplaySize.y - consoleHeight), ImGuiCond_Always);
-    ImGui::SetNextWindowSize(ImVec2(io.DisplaySize.x - inspectorWidth, (float_t)consoleHeight), ImGuiCond_Always);
+    ImGui::SetNextWindowPos(ImVec2(0, io.DisplaySize.y - Const::consoleHeight), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(io.DisplaySize.x - Const::inspectorWidth, (float_t)Const::consoleHeight), ImGuiCond_Always);
 
     ImGuiIO& io = ImGui::GetIO();
     ImGui::Begin("Console", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);

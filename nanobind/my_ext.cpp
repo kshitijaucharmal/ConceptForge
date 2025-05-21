@@ -1,9 +1,21 @@
+// Nano Bind
 #include <nanobind/nanobind.h>
+#include <nanobind/stl/string.h>
 
-int add(int a, int b) { return a + b; }
+#include "setup.hpp"
+
+namespace nb = nanobind;
+
+float add(float a, float b){
+    return a + b;
+}
+
+void Init(){
+    std::cout << "Hello World" << std::endl;
+}
 
 NB_MODULE(concept_forge, m) {
-  m.def("add", &add);
-
-  m.doc() = "Forge your concept with ConceptForge";
+    m.def("add", &add);
+    m.def("init", &Init);
+    m.doc() = "Class";
 }

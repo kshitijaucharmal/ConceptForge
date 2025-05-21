@@ -12,7 +12,7 @@ void Projection::Calculate(Camera &camera, ShaderManagement::ShaderProgram &shad
     shaderProgram.Use();
 
     // Projection Matrix
-    projection = glm::perspective(glm::radians(fov), ASPECTRATIO, 0.01f, 100.0f);
+    projection = glm::perspective(glm::radians(fov), Const::ASPECTRATIO, 0.01f, 100.0f);
     shaderProgram.setMat4("projection", projection);
 
     // Camera
