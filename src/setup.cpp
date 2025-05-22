@@ -19,8 +19,8 @@ ConceptForge::ConceptForge():
     Editor::Inspector inspector;
     Editor::AssetBrowser asset_browser;
 
-    Cube cube(shaderProgram);
-    cubes.push_back(cube);
+    std::unique_ptr<Cube> cube = std::make_unique<Cube>(shaderProgram);
+    entities.push_back(std::move(cube));
 }
 
 ConceptForge::~ConceptForge(){
@@ -57,16 +57,17 @@ void ConceptForge::CalcProjection(){
 }
 
 void ConceptForge::SetSelected(int selected){
-    if(selected < 0 || selected >= cubes.size()){
+    if(selected < 0 || selected >= entities.size()){
         std::cout << "Selection is wrong" << std::endl;
+        return;
     }
-    selectedCube = selected;
+    selectedEntity = selected;
 }
 
 void ConceptForge::GUIManagement(){
     // Remove from here
     // Send Shader Data
-    for(Cube cube : cubes) cube.Draw();
+    for(const auto& entity : entities) entity->Draw();
 
     // check and call events
     glfwPollEvents();
@@ -79,13 +80,15 @@ void ConceptForge::GUIManagement(){
 
     // Create new Frame
     mainGui.NewFrame();
+    mainGui.ShowConsole();
 
     // Draw All UI
-    mainGui.ShowConsole();
-    if(selectedCube != -1){
-        gizmo.Show(cubes[selectedCube], projection, camera);
-        inspector.Show(cubes[selectedCube], gizmo.gizmoOperation, gizmo.gizmoMode);
+    SimObject::Entity current_entity;
+    if(selectedEntity >= 0){
+        gizmo.Show(*entities[selectedEntity], projection, camera);
+        inspector.Show(*entities[selectedEntity], gizmo.gizmoOperation, gizmo.gizmoMode);
     }
+
     asset_browser.Show(Const::projectDir);
 
     // Render

@@ -15,6 +15,7 @@
 namespace SimObject {
     class Entity {
     public:
+        virtual ~Entity() = default;
         // Transform Components ------------------------------------------
         glm::vec3 position;
         glm::vec3 rotation;
@@ -24,14 +25,14 @@ namespace SimObject {
         // ---------------------------------------------------------------
 
         // Transform Functions ---------------------------------------------------------------
-        virtual void Translate(glm::vec3 pos) = 0;
-        virtual void Rotate(glm::vec3 rot) = 0;
-        virtual void Rotate(float angle, glm::vec3 axis) = 0;
-        virtual void Scale(glm::vec3 factor) = 0;
-        virtual void UpdateModelMatrix() = 0;
+        virtual void UpdateModelMatrix();
+        virtual void Translate(glm::vec3 pos);
+        virtual void Rotate(glm::vec3 rot);
+        virtual void Rotate(float angle, glm::vec3 axis);
+        virtual void Scale(glm::vec3 factor);
         // -------------------------------------------------------------------------
 
-        virtual void Draw() = 0;
-        virtual void GUI() = 0;
+        virtual void Draw();
+        virtual void GUI();
     };
 }

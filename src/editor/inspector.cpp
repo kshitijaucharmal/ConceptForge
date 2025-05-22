@@ -1,5 +1,7 @@
 #include "inspector.hpp"
 
+#include <iostream>
+
 using namespace Editor;
 
 Inspector::Inspector() {

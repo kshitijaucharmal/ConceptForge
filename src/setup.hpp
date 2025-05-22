@@ -8,6 +8,7 @@
 #include "shaderman.hpp"
 
 #include <string>
+#include <memory>
 
 // GLM
 #ifndef GLM_ENABLE_EXPERIMENTAL
@@ -21,6 +22,7 @@
 // Imgui Based UI
 #include "editor/gui.hpp"
 
+#include "primitives/entity.hpp"
 #include "primitives/cube.hpp"
 
 #include "editor/asset_browser.hpp"
@@ -48,7 +50,6 @@ namespace Engine {
         ConceptForge();
         ~ConceptForge();
 
-        // Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
         float deltaTime = 0.0f; // Time between current frame and last frame
 
         // Seperate functions
@@ -59,8 +60,8 @@ namespace Engine {
         void CalcProjection();
         void GUIManagement();
 
-        std::vector<Cube> cubes;
-        int selectedCube = -1;
+        std::vector<std::unique_ptr<SimObject::Entity>> entities;
+        int selectedEntity = 0;
         void SetSelected(int selected);
     };
 }
