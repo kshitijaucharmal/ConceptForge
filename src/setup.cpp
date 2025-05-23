@@ -1,16 +1,18 @@
 #include "setup.hpp"
 
+#include "primitives/uv_sphere.hpp"
+
 using namespace Engine;
 
 ConceptForge::ConceptForge():
   camera(glm::vec3(7.3589f, 5.3444f, 6.9258f), glm::vec3(0.0f, 1.0f, 0.0f), -132.4f, -28.2f),
   window(Const::WIDTH, Const::HEIGHT, Const::WINDOWNAME, false),
-  shaderProgram(DrawMode::FILLED, Const::vertexShaderPath, Const::fragmentShaderPath),
   mainGui(window.window)
 {
     // Projection Logic - Initialize
     Projection projection;
 
+    shaderProgram.Init(DrawMode::FILLED, Const::vertexShaderPath, Const::fragmentShaderPath),
     // Bind all textures
     shaderProgram.BindTextures();
 
@@ -19,8 +21,8 @@ ConceptForge::ConceptForge():
     Editor::Inspector inspector;
     Editor::AssetBrowser asset_browser;
 
-    std::unique_ptr<Cube> cube = std::make_unique<Cube>(shaderProgram);
-    entities.push_back(std::move(cube));
+    std::unique_ptr<UVSphere> uvsphere = std::make_unique<UVSphere>(shaderProgram);
+    entities.push_back(std::move(uvsphere));
 }
 
 ConceptForge::~ConceptForge(){

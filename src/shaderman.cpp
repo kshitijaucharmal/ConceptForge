@@ -10,7 +10,11 @@
 
 
 namespace ShaderManagement {
-    ShaderProgram::ShaderProgram(DrawMode mode, std::string &vertexShaderPath, std::string &fragmentShaderPath) : drawMode{mode} {
+    ShaderProgram::ShaderProgram(){
+
+    }
+    void ShaderProgram::Init(DrawMode mode, std::string &vertexShaderPath, std::string &fragmentShaderPath) {
+        drawMode = mode;
         // Set Draw Mode
         switch(drawMode){
             case DrawMode::WIREFRAME:

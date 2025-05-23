@@ -7,8 +7,9 @@ namespace Const {
     static const char* glsl_version = "#version 130";
 
     // Shader Paths
-    static std::string vertexShaderPath = std::string(SHADER_DIR) + "/engine.vert";
-    static std::string fragmentShaderPath = std::string(SHADER_DIR) + "/engine.frag";
+    // Shouldn't be constant I think
+    static std::string vertexShaderPath = std::string(SHADER_DIR) + "/unlit.vert";
+    static std::string fragmentShaderPath = std::string(SHADER_DIR) + "/unlit.frag";
     static glm::vec4 clearColor(0.05, 0.05, 0.05, 1.0f);
 
     // Constants

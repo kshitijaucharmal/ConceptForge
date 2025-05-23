@@ -23,7 +23,6 @@
 #include "editor/gui.hpp"
 
 #include "primitives/entity.hpp"
-#include "primitives/cube.hpp"
 
 #include "editor/asset_browser.hpp"
 #include "editor/gizmo.hpp"

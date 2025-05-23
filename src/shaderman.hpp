@@ -11,9 +11,6 @@ enum DrawMode {
 namespace ShaderManagement {
     class ShaderProgram{
     private:
-        // unsigned int VAO;
-        // unsigned int VBO;
-        // unsigned int EBO;
         unsigned int vertexShader;
         unsigned int fragmentShader;
         DrawMode drawMode;
@@ -22,11 +19,9 @@ namespace ShaderManagement {
         void InitFragmentShader(std::string &fragmentShaderPath);
 
     public:
-        // Example
-        // unsigned int texture1;
-        // unsigned int texture2;
         unsigned int shaderProgram;
-        ShaderProgram(DrawMode mode, std::string &vertexShaderPath, std::string &fragmentShaderPath);
+        ShaderProgram();
+        void Init(DrawMode mode, std::string &vertexShaderPath, std::string &fragmentShaderPath);
         ~ShaderProgram();
         void Use();
         void Draw();

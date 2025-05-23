@@ -58,6 +58,6 @@ void Entity::GUI(){
   }
 }
 
-void Entity::Draw() {
-  glDrawArrays(GL_TRIANGLES, 0, 36);
+void Entity::Draw(){
+
 }

@@ -16,5 +16,6 @@ float speed = 5.;
 void main()
 {
     gl_Position = projection * view * model * vec4(aPos, 1.0f);
+    // Keeping this, probably will need later
     TexCoord = aTexCoord;
 }
