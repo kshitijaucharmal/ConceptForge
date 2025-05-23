@@ -10,7 +10,7 @@ namespace Const {
     // Shouldn't be constant I think
     static std::string vertexShaderPath = std::string(SHADER_DIR) + "/unlit.vert";
     static std::string fragmentShaderPath = std::string(SHADER_DIR) + "/unlit.frag";
-    static glm::vec4 clearColor(0.05, 0.05, 0.05, 1.0f);
+    static glm::vec4 clearColor(0.2, 0.2, 0.25, 1.0f);
 
     // Constants
     static const int WIDTH = 1600;

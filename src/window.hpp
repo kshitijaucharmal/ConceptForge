@@ -5,6 +5,8 @@
 #include <GLFW/glfw3.h>
 #include <string>
 
+#include "constants.hpp"
+
 namespace WindowManagement {
 
 class Window {
@@ -15,10 +17,19 @@ private:
   std::string windowName;
   bool fullscreen;
 
+  GLuint fbo = 0, fboTexture = 0, rbo = 0;
+  void InitFramebuffer(); // FBO setup
+
 public:
   Window(int w, int h, std::string name, bool fullscreen);
   ~Window();
   GLFWwindow *window;
+  void RenderToFBO();    // Render your scene here
+
+  // Call in this order
+  void ImGuiBegin();
+  void RenderToImGui();  // Shows FBO texture in ImGui
+  void ImGuiEnd();
 };
 
 } // namespace WindowManagement

@@ -27,6 +27,7 @@
 #include "editor/asset_browser.hpp"
 #include "editor/gizmo.hpp"
 #include "editor/inspector.hpp"
+#include "editor/object_creation_menu.hpp"
 
 namespace Engine {
     class ConceptForge{
@@ -44,6 +45,7 @@ namespace Engine {
         Editor::Gizmo gizmo;
         Editor::Inspector inspector;
         Editor::AssetBrowser asset_browser;
+        Editor::ObjectCreationMenu objCreatorMenu;
         Projection projection;
 
         ConceptForge();

@@ -21,6 +21,7 @@ ConceptForge::ConceptForge():
     Editor::Gizmo gizmo;
     Editor::Inspector inspector;
     Editor::AssetBrowser asset_browser;
+    Editor::ObjectCreationMenu objCreatorMenu;
 
     // Add an empty
     std::unique_ptr<SimObject::Entity> empty = std::make_unique<SimObject::Entity>();
@@ -55,7 +56,9 @@ void ConceptForge::Render(){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
 
+    window.RenderToFBO();
 }
+
 void ConceptForge::CalcProjection(){
     projection.Calculate(camera, shaderProgram);
 }
@@ -69,6 +72,7 @@ void ConceptForge::SetSelected(int selected){
 }
 
 void ConceptForge::GUIManagement(){
+    glBindFramebuffer(GL_FRAMEBUFFER, 0); // back to default
     // Remove from here
     // Send Shader Data
     for(const auto& entity : entities) entity->Draw();
@@ -84,6 +88,8 @@ void ConceptForge::GUIManagement(){
 
     // Create new Frame
     mainGui.NewFrame();
+    window.ImGuiBegin();
+
     mainGui.ShowConsole();
 
     // Draw All UI
@@ -94,7 +100,10 @@ void ConceptForge::GUIManagement(){
     }
 
     asset_browser.Show(Const::projectDir);
+    window.RenderToImGui();
+    objCreatorMenu.Show();
 
+    window.ImGuiEnd();
     // Render
     mainGui.RenderFrame();
 
