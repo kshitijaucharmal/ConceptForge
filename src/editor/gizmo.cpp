@@ -7,6 +7,7 @@ Gizmo::Gizmo(){
 }
 
 void Gizmo::Show(SimObject::Entity &entity, Projection &projection, Camera &camera){
+    ImGui::Begin("Scene");
     ImGuizmo::SetOrthographic(false);
     ImGuizmo::SetDrawlist();
     ImGuizmo::SetRect(0, 0, (float)Const::WIDTH, (float)Const::HEIGHT);
@@ -42,4 +43,5 @@ void Gizmo::Show(SimObject::Entity &entity, Projection &projection, Camera &came
       // Update the model matrix from the new values
       entity.UpdateModelMatrix();
     }
+    ImGui::End();
 }

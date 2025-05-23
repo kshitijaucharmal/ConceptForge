@@ -8,21 +8,33 @@ using namespace nb::literals;
 #include <memory>
 
 #include "setup.hpp"
+#include "primitives/entity.hpp"
 #include "primitives/cube.hpp"
+#include "primitives/uv_sphere.hpp"
+
 using namespace Engine;
+using namespace SimObject;
 
 float add(float a, float b){
     return a + b;
 }
 
 void AddCube(ConceptForge &forge, float x, float y, float z){
-    Cube cube(forge.shaderProgram);
-    cube.Translate(glm::vec3(x, y, z));
-    forge.cubes.push_back(cube);
+    std::unique_ptr<Cube> cube = std::make_unique<Cube>(forge.shaderProgram);
+    cube->Translate(glm::vec3(x, y, z));
+    forge.entities.push_back(std::move(cube));
+}
+
+void AddUVSphere(ConceptForge &forge, float x, float y, float z){
+    std::unique_ptr<UVSphere> sphere = std::make_unique<UVSphere>(forge.shaderProgram);
+    sphere->Translate(glm::vec3(x, y, z));
+    forge.entities.push_back(std::move(sphere));
 }
 
 NB_MODULE(concept_forge, m) {
     m.def("add", &add, "a"_a, "b"_a, "Adds two numbers");
+
+    //nb::class_<SimObject::Entity, std::shared_ptr<SimObject::Entity>>(m, "Entity");
 
     nb::class_<ConceptForge>(m, "ConceptForge")
         .def(nb::init<>())
@@ -38,9 +50,10 @@ NB_MODULE(concept_forge, m) {
         .def_rw("deltaTime", &ConceptForge::deltaTime)
         .def_rw("shader_pg", &ConceptForge::shaderProgram)
         .def_rw("input_man", &ConceptForge::input)
-        .def_rw("cubes", &ConceptForge::cubes)
+        .def_rw("entities", &ConceptForge::entities)
         .def("set_selected", &ConceptForge::SetSelected);
 
     // For testing
     m.def("add_cube", &AddCube);
+    m.def("add_uv_sphere", &AddUVSphere);
 }

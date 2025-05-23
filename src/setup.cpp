@@ -22,10 +22,9 @@ ConceptForge::ConceptForge():
     Editor::Inspector inspector;
     Editor::AssetBrowser asset_browser;
 
-    std::unique_ptr<UVSphere> uvsphere = std::make_unique<UVSphere>(shaderProgram);
-    std::unique_ptr<Cube> cube = std::make_unique<Cube>(shaderProgram);
-    entities.push_back(std::move(cube));
-    entities.push_back(std::move(uvsphere));
+    // Add an empty
+    std::unique_ptr<SimObject::Entity> empty = std::make_unique<SimObject::Entity>();
+    entities.push_back(std::move(empty));
 }
 
 ConceptForge::~ConceptForge(){

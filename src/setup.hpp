@@ -59,7 +59,7 @@ namespace Engine {
         void CalcProjection();
         void GUIManagement();
 
-        std::vector<std::unique_ptr<SimObject::Entity>> entities;
+        std::vector<std::shared_ptr<SimObject::Entity>> entities;
         int selectedEntity = 0;
         void SetSelected(int selected);
     };
