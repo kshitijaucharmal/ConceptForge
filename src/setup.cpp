@@ -1,6 +1,7 @@
 #include "setup.hpp"
 
 #include "primitives/uv_sphere.hpp"
+#include "primitives/cube.hpp"
 
 using namespace Engine;
 
@@ -22,6 +23,8 @@ ConceptForge::ConceptForge():
     Editor::AssetBrowser asset_browser;
 
     std::unique_ptr<UVSphere> uvsphere = std::make_unique<UVSphere>(shaderProgram);
+    std::unique_ptr<Cube> cube = std::make_unique<Cube>(shaderProgram);
+    entities.push_back(std::move(cube));
     entities.push_back(std::move(uvsphere));
 }
 

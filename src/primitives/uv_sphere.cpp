@@ -4,7 +4,7 @@
 #include <cmath>
 
 // Generates a sphere's vertex data (x, y, z, u, v)
-std::vector<float> UVSphere::GenerateSphere(int sectorCount, int stackCount, float radius) {
+std::vector<float> UVSphere::GenerateSphere() {
     std::vector<float> vertices;
     float x, y, z, u, v;
     float sectorStep = 2 * M_PI / sectorCount;
@@ -36,7 +36,7 @@ std::vector<float> UVSphere::GenerateSphere(int sectorCount, int stackCount, flo
     return vertices;
 }
 
-std::vector<uint> UVSphere::GenerateSphereIndices(int sectorCount, int stackCount) {
+std::vector<uint> UVSphere::GenerateSphereIndices() {
     std::vector<uint> indices;
 
     for (int i = 0; i < stackCount; ++i) {
@@ -62,25 +62,34 @@ std::vector<uint> UVSphere::GenerateSphereIndices(int sectorCount, int stackCoun
     return indices;
 }
 
-UVSphere::UVSphere(ShaderManagement::ShaderProgram &sp, glm::vec3 pos, glm::vec3 rot, glm::vec3 sca)
-  : shaderProgram(sp) {
+UVSphere::UVSphere(
+    ShaderManagement::ShaderProgram &sp,
+    int sectorCount,
+    int stackCount,
+    float radius
+) : shaderProgram(sp) {
 
-  position = pos;
-  rotation = rot;
-  scale = sca;
+    this->sectorCount = sectorCount;
+    this->stackCount = stackCount;
+    this->radius = radius;
 
-  std::vector<float> sphereVertices = GenerateSphere(10, 10);
-  std::vector<unsigned int> sphereIndices = GenerateSphereIndices(10, 10);
-  CreateSphereVAO(sphereVertices, sphereIndices);
-  indexCount = sphereIndices.size();
+    position = glm::vec3(0.0);
+    rotation = glm::vec3(0.0);
+    scale = glm::vec3(1.0);
 
-  UpdateModelMatrix();
+    std::vector<float> sphereVertices = GenerateSphere();
+    std::vector<unsigned int> sphereIndices = GenerateSphereIndices();
+    CreateSphereVAO(sphereVertices, sphereIndices);
+    indexCount = sphereIndices.size();
+
+    UpdateModelMatrix();
 };
 
 void UVSphere::Draw() {
   shaderProgram.setMat4("model", model);
   glBindVertexArray(VAO);
   glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
+  glBindVertexArray(0); // Unbind VAO
 }
 
 void UVSphere::CreateSphereVAO(const std::vector<float>& vertices, const std::vector<uint>& indices) {

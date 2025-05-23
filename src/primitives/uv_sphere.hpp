@@ -15,10 +15,19 @@ private:
     ShaderManagement::ShaderProgram shaderProgram;
 
 public:
-    UVSphere(ShaderManagement::ShaderProgram &sp, glm::vec3 pos=glm::vec3(0.0), glm::vec3 rot=glm::vec3(0.0), glm::vec3 sca=glm::vec3(1.0));
+    UVSphere(
+        ShaderManagement::ShaderProgram &sp,
+        int sectorCount = 36,
+        int stackCount = 18,
+        float radius = 0.5f
+    );
 
-    std::vector<float> GenerateSphere(int sectorCount, int stackCount, float radius = 1.0f);
-    std::vector<uint> GenerateSphereIndices(int sectorCount, int stackCount);
+    int sectorCount;
+    int stackCount;
+    float radius;
+
+    std::vector<float> GenerateSphere();
+    std::vector<uint> GenerateSphereIndices();
 
     void CreateSphereVAO(const std::vector<float>& vertices, const std::vector<uint>& indices);
 
