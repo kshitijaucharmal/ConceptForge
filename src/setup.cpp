@@ -88,7 +88,11 @@ void ConceptForge::GUIManagement(){
 
     // Create new Frame
     mainGui.NewFrame();
+
     window.ImGuiBegin();
+    window.RenderToImGui();
+    objCreatorMenu.Show();
+    window.ImGuiEnd();
 
     mainGui.ShowConsole();
 
@@ -100,10 +104,6 @@ void ConceptForge::GUIManagement(){
     }
 
     asset_browser.Show(Const::projectDir);
-    window.RenderToImGui();
-    objCreatorMenu.Show();
-
-    window.ImGuiEnd();
     // Render
     mainGui.RenderFrame();
 

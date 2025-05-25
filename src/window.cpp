@@ -85,8 +85,8 @@ void Window::RenderToImGui() {
 }
 
 void Window::ImGuiBegin(){
-  ImGui::SetNextWindowPos(ImVec2(Const::assetBrowserWidth, 0), ImGuiCond_Always);
-  ImGui::SetNextWindowSize(ImVec2(Const::WIDTH - (Const::inspectorWidth + Const::assetBrowserWidth), Const::HEIGHT - Const::consoleHeight), ImGuiCond_Always);
+  // ImGui::SetNextWindowPos(ImVec2(Const::assetBrowserWidth, 0), ImGuiCond_Always);
+  // ImGui::SetNextWindowSize(ImVec2(Const::WIDTH - (Const::inspectorWidth + Const::assetBrowserWidth), Const::HEIGHT - Const::consoleHeight), ImGuiCond_Always);
 
   // Remove padding, (cause its invisible)
   ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
@@ -96,15 +96,13 @@ void Window::ImGuiBegin(){
 
   ImGui::Begin("Viewport",
                nullptr,
-               ImGuiWindowFlags_NoMove |
-               ImGuiWindowFlags_NoResize |
-               ImGuiWindowFlags_NoTitleBar |
-               ImGuiWindowFlags_NoScrollbar |
                ImGuiWindowFlags_NoCollapse |
                ImGuiWindowFlags_NoBackground);
 
   ImVec2 renderSize = ImGui::GetContentRegionAvail();
-  ImGui::InvisibleButton("CatchMouseInput", renderSize);
+  if(ImGui::InvisibleButton("CatchMouseInput", renderSize)){
+    std::cout << "Caught" << std::endl;
+  }
 
   // Pop back style vars
   ImGui::PopStyleVar(4);

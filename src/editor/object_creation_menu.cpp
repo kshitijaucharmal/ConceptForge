@@ -12,6 +12,7 @@ void ObjectCreationMenu::Show(){
     }
 
     if (ImGui::BeginPopupContextWindow("RightClickMenu")) {
+        ImGui::Text("     Create");
         if (ImGui::MenuItem("Option 1")) {
             printf("Option 1 selected\n");
         }
