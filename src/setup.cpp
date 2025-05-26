@@ -24,16 +24,15 @@ ConceptForge::ConceptForge():
     Editor::ObjectCreationMenu objCreatorMenu;
 
     // Add an empty
-    std::unique_ptr<SimObject::Entity> empty = std::make_unique<SimObject::Entity>();
-    entities.push_back(std::move(empty));
+    // std::unique_ptr<SimObject::Entity> empty = std::make_unique<SimObject::Entity>();
+    // entities.push_back(std::move(empty));
+    // Add a sphere
+    std::unique_ptr<UVSphere> sphere = std::make_unique<UVSphere>(shaderProgram, 36, 18, 0.5);
+    entities.push_back(std::move(sphere));
 }
 
 ConceptForge::~ConceptForge(){
-
-}
-
-void ConceptForge::DeltaTimeCalc(){
-    // Delta Time calculation
+} void ConceptForge::DeltaTimeCalc(){ // Delta Time calculation
     float currentFrame = glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
@@ -52,11 +51,16 @@ void ConceptForge::Render(){
     // rendering commands
     // Clear Screen with this color
     auto clearColor = Const::clearColor;
+
     glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
-
     window.RenderToFBO();
+
+    // Draw all entities
+    for(const auto& entity : entities) entity->Draw();
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void ConceptForge::CalcProjection(){
@@ -72,10 +76,6 @@ void ConceptForge::SetSelected(int selected){
 }
 
 void ConceptForge::GUIManagement(){
-    glBindFramebuffer(GL_FRAMEBUFFER, 0); // back to default
-    // Remove from here
-    // Send Shader Data
-    for(const auto& entity : entities) entity->Draw();
 
     // check and call events
     glfwPollEvents();
@@ -90,9 +90,9 @@ void ConceptForge::GUIManagement(){
     mainGui.NewFrame();
 
     window.ImGuiBegin();
+    // ImGui::Begin("OpenGL Scene in ImGui");
     window.RenderToImGui();
     objCreatorMenu.Show();
-    window.ImGuiEnd();
 
     mainGui.ShowConsole();
 
@@ -104,6 +104,7 @@ void ConceptForge::GUIManagement(){
     }
 
     asset_browser.Show(Const::projectDir);
+    ImGui::End();
     // Render
     mainGui.RenderFrame();
 

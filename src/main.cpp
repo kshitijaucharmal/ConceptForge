@@ -8,9 +8,9 @@ int main() {
 
   // Render Loop
   while (!forge.WindowShouldClose()) {
+    forge.Render();
     forge.DeltaTimeCalc();
     forge.ProcessInput();
-    forge.Render();
     forge.CalcProjection();
     forge.GUIManagement();
   }

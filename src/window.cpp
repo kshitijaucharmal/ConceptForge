@@ -39,6 +39,7 @@ Window::Window(int w, int h, std::string name, bool fullscreen=false)
 
   // Make context
   glfwMakeContextCurrent(window);
+  glfwSwapInterval(1);
 
   // GLAD manages function pointers for OpenGL
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
@@ -47,7 +48,7 @@ Window::Window(int w, int h, std::string name, bool fullscreen=false)
   }
 
   // Resize support
-  glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+  // glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
   glEnable(GL_DEPTH_TEST);
   glViewport(0, 0, width, height);
 
@@ -55,22 +56,20 @@ Window::Window(int w, int h, std::string name, bool fullscreen=false)
 }
 
 void Window::InitFramebuffer() {
-  glGenTextures(1, &fboTexture);
-  glBindTexture(GL_TEXTURE_2D, fboTexture);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
   glGenFramebuffers(1, &fbo);
   glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+  glGenTextures(1, &fboTexture);
+  glBindTexture(GL_TEXTURE_2D, fboTexture);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, Const::WIDTH, Const::HEIGHT, 0, GL_RGB,
+               GL_UNSIGNED_BYTE, nullptr);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fboTexture, 0);
 
-  glGenRenderbuffers(1, &rbo);
-  glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
-
   if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-    throw std::runtime_error("Framebuffer is not complete!");
+    std::cerr << "Framebuffer not complete!" << std::endl;
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -81,7 +80,7 @@ void Window::RenderToFBO() {
 
 void Window::RenderToImGui() {
   ImVec2 size = ImGui::GetContentRegionAvail();
-  ImGui::Image((ImTextureID)(intptr_t)fboTexture, size, ImVec2(0, 1), ImVec2(1, 0));
+  ImGui::Image((ImTextureID)(uintptr_t)fboTexture, size, ImVec2(0, 1), ImVec2(1, 0));
 }
 
 void Window::ImGuiBegin(){
@@ -89,23 +88,8 @@ void Window::ImGuiBegin(){
   // ImGui::SetNextWindowSize(ImVec2(Const::WIDTH - (Const::inspectorWidth + Const::assetBrowserWidth), Const::HEIGHT - Const::consoleHeight), ImGuiCond_Always);
 
   // Remove padding, (cause its invisible)
-  ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-  ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
-  ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
-  ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+  ImGui::Begin("Viewport");
 
-  ImGui::Begin("Viewport",
-               nullptr,
-               ImGuiWindowFlags_NoCollapse |
-               ImGuiWindowFlags_NoBackground);
-
-  ImVec2 renderSize = ImGui::GetContentRegionAvail();
-  if(ImGui::InvisibleButton("CatchMouseInput", renderSize)){
-    std::cout << "Caught" << std::endl;
-  }
-
-  // Pop back style vars
-  ImGui::PopStyleVar(4);
 }
 
 void Window::ImGuiEnd() {

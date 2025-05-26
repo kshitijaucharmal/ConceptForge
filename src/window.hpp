@@ -18,13 +18,13 @@ private:
   bool fullscreen;
 
   GLuint fbo = 0, fboTexture = 0, rbo = 0;
-  void InitFramebuffer(); // FBO setup
 
 public:
   Window(int w, int h, std::string name, bool fullscreen);
   ~Window();
   GLFWwindow *window;
   void RenderToFBO();    // Render your scene here
+  void InitFramebuffer(); // FBO setup
 
   // Call in this order
   void ImGuiBegin();
