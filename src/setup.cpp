@@ -8,17 +8,15 @@ using namespace Engine;
 ConceptForge::ConceptForge():
   camera(glm::vec3(7.3589f, 5.3444f, 6.9258f), glm::vec3(0.0f, 1.0f, 0.0f), -132.4f, -28.2f),
   window(Const::WIDTH, Const::HEIGHT, Const::WINDOWNAME, false),
+  projection(),
+  gizmo(camera, projection),
   mainGui(window.window)
 {
-    // Projection Logic - Initialize
-    Projection projection;
-
     shaderProgram.Init(DrawMode::FILLED, Const::vertexShaderPath, Const::fragmentShaderPath),
     // Bind all textures
     shaderProgram.BindTextures();
 
     // Setup Main GUI
-    Editor::Gizmo gizmo;
     Editor::Inspector inspector;
     Editor::AssetBrowser asset_browser;
     Editor::ObjectCreationMenu objCreatorMenu;
@@ -52,10 +50,10 @@ void ConceptForge::Render(){
     // Clear Screen with this color
     auto clearColor = Const::clearColor;
 
+    window.RenderToFBO();
     glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
-    window.RenderToFBO();
 
     // Draw all entities
     for(const auto& entity : entities) entity->Draw();
@@ -90,21 +88,20 @@ void ConceptForge::GUIManagement(){
     mainGui.NewFrame();
 
     window.ImGuiBegin();
-    // ImGui::Begin("OpenGL Scene in ImGui");
     window.RenderToImGui();
+    ImGui::End();
+
     objCreatorMenu.Show();
 
     mainGui.ShowConsole();
 
     // Draw All UI
-    SimObject::Entity current_entity;
     if(selectedEntity >= 0){
-        gizmo.Show(*entities[selectedEntity], projection, camera);
+        gizmo.Show(*entities[selectedEntity]);
         inspector.Show(*entities[selectedEntity], gizmo.gizmoOperation, gizmo.gizmoMode);
     }
 
     asset_browser.Show(Const::projectDir);
-    ImGui::End();
     // Render
     mainGui.RenderFrame();
 

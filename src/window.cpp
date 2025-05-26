@@ -85,11 +85,14 @@ void Window::RenderToImGui() {
 
 void Window::ImGuiBegin(){
   // ImGui::SetNextWindowPos(ImVec2(Const::assetBrowserWidth, 0), ImGuiCond_Always);
-  // ImGui::SetNextWindowSize(ImVec2(Const::WIDTH - (Const::inspectorWidth + Const::assetBrowserWidth), Const::HEIGHT - Const::consoleHeight), ImGuiCond_Always);
+  // float width = Const::WIDTH - (Const::inspectorWidth + Const::assetBrowserWidth);
+  // float height = Const::HEIGHT - Const::consoleHeight;
+  // float width = 400;
+  // float height = 300;
+  // ImGui::SetNextWindowSize(ImVec2(width, height), ImGuiCond_Always);
 
   // Remove padding, (cause its invisible)
-  ImGui::Begin("Viewport");
-
+  ImGui::Begin("Viewport", nullptr, ImGuiWindowFlags_NoBackground);
 }
 
 void Window::ImGuiEnd() {

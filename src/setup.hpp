@@ -39,14 +39,14 @@ namespace Engine {
         WindowManagement::Window window;
         ShaderManagement::ShaderProgram shaderProgram;
         InputManagement::Input input;
+        Projection projection;
+        Editor::Gizmo gizmo;
 
         // GUI
         Editor::MainGUI mainGui;
-        Editor::Gizmo gizmo;
         Editor::Inspector inspector;
         Editor::AssetBrowser asset_browser;
         Editor::ObjectCreationMenu objCreatorMenu;
-        Projection projection;
 
         ConceptForge();
         ~ConceptForge();

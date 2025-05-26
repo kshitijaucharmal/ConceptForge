@@ -22,9 +22,11 @@ namespace Editor{
     public:
         ImGuizmo::OPERATION gizmoOperation = ImGuizmo::TRANSLATE;
         ImGuizmo::MODE gizmoMode = ImGuizmo::LOCAL;
-        Gizmo();
+        Camera &camera;
+        Projection &projection;
+        Gizmo(Camera &cam, Projection &pro);
 
         // TODO: Seperate gizmos
-        void Show(SimObject::Entity &entity, Projection &projection, Camera &camera);
+        void Show(SimObject::Entity &entity);
     };
 }

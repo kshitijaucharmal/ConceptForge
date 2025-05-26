@@ -2,11 +2,11 @@
 
 using namespace Editor;
 
-Gizmo::Gizmo(){
+Gizmo::Gizmo(Camera &cam, Projection &pro) : camera(cam), projection(pro){
     // Empty
 }
 
-void Gizmo::Show(SimObject::Entity &entity, Projection &projection, Camera &camera){
+void Gizmo::Show(SimObject::Entity &entity){
     ImGui::Begin("Scene");
     ImGuizmo::SetOrthographic(false);
     ImGuizmo::SetDrawlist();
