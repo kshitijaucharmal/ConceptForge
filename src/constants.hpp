@@ -10,6 +10,7 @@ namespace Const {
     // Shouldn't be constant I think
     static std::string vertexShaderPath = std::string(SHADER_DIR) + "/unlit.vert";
     static std::string fragmentShaderPath = std::string(SHADER_DIR) + "/unlit.frag";
+    // Darkish blue
     static glm::vec4 clearColor(0.1, 0.1, 0.15, 1.0f);
 
     // Constants
@@ -27,5 +28,6 @@ namespace Const {
     static const int consoleHeight = 150;
     static const int assetBrowserWidth = 300;
 
+    // TODO: make this absolute path
     static std::string projectDir = "/mnt/Data/projects/Graphics/OpenGL";
 }

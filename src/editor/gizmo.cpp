@@ -17,7 +17,7 @@ void Gizmo::Show(SimObject::Entity &entity, Projection &projection, Camera &came
                         glm::value_ptr(projection.projection),
                         gizmoOperation,
                         gizmoMode,
-                        glm::value_ptr(entity.model),
+                        (float*)entity.GetModelPointer(),
                         nullptr,
                         nullptr);
 
@@ -37,8 +37,8 @@ void Gizmo::Show(SimObject::Entity &entity, Projection &projection, Camera &came
       glm::vec4 perspective;
       glm::quat rotQuat;
 
-      glm::decompose(entity.model, entity.scale, rotQuat, entity.position, skew, perspective);
-      entity.rotation = glm::degrees(glm::eulerAngles(rotQuat)); // Convert to Euler angles
+      glm::decompose(entity.GetModel(), entity.scale, rotQuat, entity.position, skew, perspective);
+      entity.SetRotation(glm::degrees(glm::eulerAngles(rotQuat))); // Convert to Euler angles
 
       // Update the model matrix from the new values
       entity.UpdateModelMatrix();

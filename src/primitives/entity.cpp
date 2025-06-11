@@ -18,29 +18,72 @@ void Entity::UpdateModelMatrix() {
   model = glm::scale(model, scale);
 }
 
-void Entity::Translate(glm::vec3 pos) {
+glm::mat4 Entity::GetModel(){
+  return model;
+}
+
+void* Entity::GetModelPointer(){
+  return glm::value_ptr(model);
+}
+
+// === Getters ===
+// -------------------------------------------------------------------------
+glm::vec3 Entity::GetPosition() {
+  return position;
+}
+glm::vec3 Entity::GetRotation() {
+  return rotation;
+}
+glm::vec3 Entity::GetScale() {
+  return scale;
+}
+
+// -------------------------------------------------------------------------
+
+// === Setters ===
+// -------------------------------------------------------------------------
+void Entity::SetPosition(glm::vec3 pos) {
   position = pos;
   UpdateModelMatrix();
 }
 
+void Entity::SetRotation(glm::vec3 eulerAngles) {
+  rotation = eulerAngles;
+  UpdateModelMatrix();
+}
+
+void Entity::SetScale(glm::vec3 scale) {
+  scale = glm::max(scale, 0.001f);  // Prevent degenerate scale
+  UpdateModelMatrix();
+}
+// -------------------------------------------------------------------------
+
+// === Relative Modifiers ===
+// -------------------------------------------------------------------------
+void Entity::Translate(glm::vec3 delta) {
+  position += delta;
+  UpdateModelMatrix();
+}
+
 void Entity::Rotate(float angle, glm::vec3 axis) {
-  // Convert angle-axis to Euler angles and add to current rotation
-  glm::quat rotQuat = glm::angleAxis(glm::radians(angle), glm::normalize(axis));
-  glm::vec3 eulerAngles = glm::degrees(glm::eulerAngles(rotQuat));
-  rotation += eulerAngles;
+  glm::quat deltaQuat = glm::angleAxis(glm::radians(angle), glm::normalize(axis));
+  glm::quat currentQuat = glm::quat(glm::radians(rotation));
+  glm::quat newQuat = deltaQuat * currentQuat;
+  rotation = glm::degrees(glm::eulerAngles(newQuat));
   UpdateModelMatrix();
 }
 
-void Entity::Rotate(glm::vec3 rot){
-  rotation = rot;
+void Entity::Rotate(glm::vec3 eulerDelta) {
+  rotation += eulerDelta;
   UpdateModelMatrix();
 }
 
-void Entity::Scale(glm::vec3 factor) {
-  scale = factor;
-  scale = glm::max(scale, 0.001f);
+void Entity::Scale(glm::vec3 factorDelta) {
+  scale *= factorDelta;
+  scale = glm::max(scale, 0.001f);  // Clamp to prevent collapse
   UpdateModelMatrix();
 }
+// -------------------------------------------------------------------------
 
 void Entity::GUI(){
   // Store previous values to detect changes
