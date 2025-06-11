@@ -6,6 +6,8 @@
 #include <string>
 
 #include "constants.hpp"
+#include "glm/glm.hpp"
+#include "imgui.h"
 
 namespace WindowManagement {
 
@@ -29,6 +31,7 @@ public:
   // Call in this order
   void ImGuiBegin();
   void RenderToImGui();  // Shows FBO texture in ImGui
+  ImVec2 viewportPos, viewportSize;
   void ImGuiEnd();
 };
 

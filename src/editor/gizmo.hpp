@@ -17,6 +17,9 @@
 #include "camera.hpp"
 #include "projection.hpp"
 
+#include "window.hpp"
+#include "iostream"
+
 namespace Editor{
     class Gizmo {
     public:
@@ -25,8 +28,9 @@ namespace Editor{
         Camera &camera;
         Projection &projection;
         Gizmo(Camera &cam, Projection &pro);
+        GLuint fbo = 0, fboTexture = 0;
 
         // TODO: Seperate gizmos
-        void Show(SimObject::Entity &entity);
+        void Show(SimObject::Entity &entity, WindowManagement::Window &window);
     };
 }

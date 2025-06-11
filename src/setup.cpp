@@ -25,8 +25,8 @@ ConceptForge::ConceptForge():
     // std::unique_ptr<SimObject::Entity> empty = std::make_unique<SimObject::Entity>();
     // entities.push_back(std::move(empty));
     // Add a sphere
-    std::unique_ptr<UVSphere> sphere = std::make_unique<UVSphere>(shaderProgram, 36, 18, 0.5);
-    entities.push_back(std::move(sphere));
+    std::unique_ptr<Cube> cube = std::make_unique<Cube>(shaderProgram);
+    entities.push_back(std::move(cube));
 }
 
 ConceptForge::~ConceptForge(){
@@ -50,10 +50,10 @@ void ConceptForge::Render(){
     // Clear Screen with this color
     auto clearColor = Const::clearColor;
 
-    window.RenderToFBO();
     glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
+    window.RenderToFBO();
 
     // Draw all entities
     for(const auto& entity : entities) entity->Draw();
@@ -84,12 +84,17 @@ void ConceptForge::GUIManagement(){
       return;
     }
 
+    gizmo.Show(*entities[selectedEntity], window);
+
     // Create new Frame
     mainGui.NewFrame();
 
     window.ImGuiBegin();
     window.RenderToImGui();
-    ImGui::End();
+    // Then: gizmos (ensure alpha blending is enabled in your shader or ImGui style)
+    ImGui::SetCursorPos(ImGui::GetCursorStartPos());  // Reset to top-left
+    ImGui::Image((ImTextureID)(uintptr_t)gizmo.fboTexture, window.viewportSize, ImVec2(0,1), ImVec2(1,0));
+    window.ImGuiEnd();
 
     objCreatorMenu.Show();
 
@@ -97,7 +102,7 @@ void ConceptForge::GUIManagement(){
 
     // Draw All UI
     if(selectedEntity >= 0){
-        gizmo.Show(*entities[selectedEntity]);
+        // gizmo.Show(*entities[selectedEntity], 300, 400);
         inspector.Show(*entities[selectedEntity], gizmo.gizmoOperation, gizmo.gizmoMode);
     }
 

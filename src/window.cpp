@@ -3,7 +3,6 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "imgui.h"
 
 namespace WindowManagement {
 // Resize Callback
@@ -51,6 +50,8 @@ Window::Window(int w, int h, std::string name, bool fullscreen=false)
   // glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
   glEnable(GL_DEPTH_TEST);
   glViewport(0, 0, width, height);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   InitFramebuffer();
 }
@@ -70,29 +71,33 @@ void Window::InitFramebuffer() {
 
   if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     std::cerr << "Framebuffer not complete!" << std::endl;
+  else std::cout << fbo << std::endl;
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Window::RenderToFBO() {
   glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+  glClearColor(0.1, 0.2, 0.3, 1.0);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  // glEnable(GL_DEPTH_TEST);
 }
 
 void Window::RenderToImGui() {
-  ImVec2 size = ImGui::GetContentRegionAvail();
-  ImGui::Image((ImTextureID)(uintptr_t)fboTexture, size, ImVec2(0, 1), ImVec2(1, 0));
+  viewportSize = ImGui::GetContentRegionAvail();
+  viewportPos = ImGui::GetWindowPos();
+  ImGui::Image((ImTextureID)(uintptr_t)fboTexture, viewportSize, ImVec2(0, 1), ImVec2(1, 0));
 }
 
 void Window::ImGuiBegin(){
-  // ImGui::SetNextWindowPos(ImVec2(Const::assetBrowserWidth, 0), ImGuiCond_Always);
+  ImGui::SetNextWindowPos(ImVec2(Const::assetBrowserWidth, 0), ImGuiCond_FirstUseEver);
   // float width = Const::WIDTH - (Const::inspectorWidth + Const::assetBrowserWidth);
   // float height = Const::HEIGHT - Const::consoleHeight;
-  // float width = 400;
-  // float height = 300;
-  // ImGui::SetNextWindowSize(ImVec2(width, height), ImGuiCond_Always);
+  float width = 400;
+  float height = 300;
+  ImGui::SetNextWindowSize(ImVec2(width, height), ImGuiCond_FirstUseEver);
 
-  // Remove padding, (cause its invisible)
-  ImGui::Begin("Viewport", nullptr, ImGuiWindowFlags_NoBackground);
+  ImGui::Begin("Viewport");
 }
 
 void Window::ImGuiEnd() {
