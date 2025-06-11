@@ -2,8 +2,8 @@
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>
 // For binding glm vectors
-#include <nanobind/stl/array.h>
 #include <glm/glm.hpp>
+#include <nanobind/stl/array.h>
 
 namespace nb = nanobind;
 using namespace nb::literals;
@@ -17,16 +17,13 @@ using namespace nb::literals;
 using namespace Engine;
 using namespace SimObject;
 
-#include "b_math.cpp"
+#include "b_math.hpp"
 
 // -------------------------------------------------------------------------
 // First arg acts as self
-void AddCube(
-    SimObject::Entity &entity,
-    ConceptForge &forge,
-    MathBindings::Vec3Wrapper &pos,
-    MathBindings::Vec3Wrapper &rot,
-    MathBindings::Vec3Wrapper &scale) {
+void AddCube(SimObject::Entity &entity, ConceptForge &forge,
+             MathBindings::Vec3Wrapper &pos, MathBindings::Vec3Wrapper &rot,
+             MathBindings::Vec3Wrapper &scale) {
 
   std::unique_ptr<Cube> cube = std::make_unique<Cube>(forge.shaderProgram);
   cube->Translate(glm::vec3(pos.x, pos.y, pos.z));
@@ -35,16 +32,18 @@ void AddCube(
   forge.entities.push_back(std::move(cube));
 }
 
-void AddUVSphere(SimObject::Entity &entity, ConceptForge &forge, float x, float y, float z) {
-  std::unique_ptr<UVSphere> sphere = std::make_unique<UVSphere>(forge.shaderProgram);
+void AddUVSphere(SimObject::Entity &entity, ConceptForge &forge, float x,
+                 float y, float z) {
+  std::unique_ptr<UVSphere> sphere =
+      std::make_unique<UVSphere>(forge.shaderProgram);
   sphere->Translate(glm::vec3(x, y, z));
   forge.entities.push_back(std::move(sphere));
 }
 // -------------------------------------------------------------------------
 
 NB_MODULE(concept_forge, m) {
-  // nb::class_<SimObject::Entity, std::shared_ptr<SimObject::Entity>>(m, "Entity");
-  // nb::class_<Cube, std::shared_ptr<Cube>>(m, "Cube");
+  // nb::class_<SimObject::Entity, std::shared_ptr<SimObject::Entity>>(m,
+  // "Entity"); nb::class_<Cube, std::shared_ptr<Cube>>(m, "Cube");
   // nb::class_<UVSphere, std::shared_ptr<UVSphere>>(m, "UVSphere");
 
   // Math submodule
@@ -55,12 +54,16 @@ NB_MODULE(concept_forge, m) {
   nb::class_<ConceptForge>(m, "ConceptForge")
       .def(nb::init<>())
       // In Order
-      .def("window_should_close", &ConceptForge::WindowShouldClose, "Check if window should close")
-      .def("calc_delta_time", &ConceptForge::DeltaTimeCalc, "Calculate Delta Time")
+      .def("window_should_close", &ConceptForge::WindowShouldClose,
+           "Check if window should close")
+      .def("calc_delta_time", &ConceptForge::DeltaTimeCalc,
+           "Calculate Delta Time")
       .def("process_input", &ConceptForge::ProcessInput, "Process Input")
       .def("render", &ConceptForge::Render, "Clear Screen and Render")
-      .def("calc_projection", &ConceptForge::CalcProjection, "Calculate the Projection Matrix")
-      .def("gui_management", &ConceptForge::GUIManagement, "Draw editor windows")
+      .def("calc_projection", &ConceptForge::CalcProjection,
+           "Calculate the Projection Matrix")
+      .def("gui_management", &ConceptForge::GUIManagement,
+           "Draw editor windows")
 
       // Variables / Objects
       .def_rw("window", &ConceptForge::window)
