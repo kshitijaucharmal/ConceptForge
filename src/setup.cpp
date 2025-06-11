@@ -24,8 +24,8 @@ ConceptForge::ConceptForge():
     Editor::ObjectCreationMenu objCreatorMenu;
 
     // Add an empty
-    std::unique_ptr<SimObject::Entity> empty = std::make_unique<SimObject::Entity>();
-    entities.push_back(std::move(empty));
+    std::unique_ptr<Cube> cube = std::make_unique<Cube>(shaderProgram);
+    entities.push_back(std::move(cube));
 }
 
 ConceptForge::~ConceptForge(){
@@ -89,10 +89,10 @@ void ConceptForge::GUIManagement(){
     // Create new Frame
     mainGui.NewFrame();
 
-    window.ImGuiBegin();
-    window.RenderToImGui();
-    objCreatorMenu.Show();
-    window.ImGuiEnd();
+    // window.ImGuiBegin();
+    // window.RenderToImGui();
+    // objCreatorMenu.Show();
+    // window.ImGuiEnd();
 
     mainGui.ShowConsole();
 
