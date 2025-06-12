@@ -29,9 +29,9 @@ namespace SimObject {
         virtual glm::mat4 GetModel();
         virtual void* GetModelPointer();
         // Get
-        virtual glm::vec3 GetPosition();
-        virtual glm::vec3 GetRotation();
-        virtual glm::vec3 GetScale();
+        virtual glm::vec3 GetPosition() const;
+        virtual glm::vec3 GetRotation() const;
+        virtual glm::vec3 GetScale() const;
         // Set
         virtual void SetPosition(glm::vec3 pos);
         virtual void SetRotation(glm::vec3 rot);

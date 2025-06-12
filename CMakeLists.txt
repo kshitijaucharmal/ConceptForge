@@ -95,3 +95,10 @@ target_include_directories(concept_forge PRIVATE
 target_link_libraries(concept_forge
   PRIVATE OpenGL::GL imgui ImGuizmo glad glfw glm
 )
+
+# Assuming the output is in ${CMAKE_CURRENT_BINARY_DIR}
+add_custom_command(TARGET concept_forge POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_SOURCE_DIR}/python-scripts"
+    COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:concept_forge>" "${CMAKE_CURRENT_SOURCE_DIR}/python-scripts/"
+    COMMENT "Copying Python module to python-scripts/"
+)

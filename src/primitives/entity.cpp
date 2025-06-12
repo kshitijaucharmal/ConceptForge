@@ -28,13 +28,13 @@ void* Entity::GetModelPointer(){
 
 // === Getters ===
 // -------------------------------------------------------------------------
-glm::vec3 Entity::GetPosition() {
+glm::vec3 Entity::GetPosition() const {
   return position;
 }
-glm::vec3 Entity::GetRotation() {
+glm::vec3 Entity::GetRotation() const {
   return rotation;
 }
-glm::vec3 Entity::GetScale() {
+glm::vec3 Entity::GetScale() const {
   return scale;
 }
 
