@@ -55,7 +55,7 @@ namespace Engine {
 
         // Seperate functions
         bool WindowShouldClose();
-        void DeltaTimeCalc();
+        float DeltaTimeCalc();
         void ProcessInput();
         void Render();
         void CalcProjection();

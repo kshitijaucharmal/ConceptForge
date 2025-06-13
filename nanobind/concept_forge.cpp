@@ -50,6 +50,10 @@ UVSphere* AddUVSphere(ConceptForge &forge, glm::vec3 &pos, glm::vec3 &rot, glm::
 NB_MAKE_OPAQUE(std::vector<std::shared_ptr<SimObject::Entity>>);
 
 NB_MODULE(concept_forge, m) {
+
+  // Define all submodules here
+  nb::module_ primitives = m.def_submodule("primitives", "Primitive 3D objects that derive from Entity");
+
   // Bind Vec3
     nb::class_<glm::vec3>(m, "Vec3", "A 3D vector with float components x, y, and z.")
     .def(nb::init<float, float, float>(),
@@ -104,40 +108,41 @@ NB_MODULE(concept_forge, m) {
     .def("set_scale", &Entity::SetScale, "scale"_a, "Set the scale to a Vec3")
     // // Functions
     .def("translate", &Entity::Translate, "delta"_a, "Change the position by Vec3")
-    // Overloaded rotate
     .def("rotate", static_cast<void (Entity::*)(glm::vec3)>(&Entity::Rotate), "delta"_a, "Change the rotation by Vec3")
     .def("rotate", static_cast<void (Entity::*)(float, glm::vec3)>(&Entity::Rotate), "angle"_a, "axis"_a, "Change the rotation by angle and axis")
     .def("scale", &Entity::Scale, "deltaFactor"_a, "Change the scale by Vec3");
 
-  nb::class_<Cube, Entity>(m, "Cube")
-    .def(nb::init<ShaderManagement::ShaderProgram&>(), "Represents a Cube Entity");
+  // Primitives
+  nb::class_<Cube, Entity>(primitives, "Cube")
+    .def("__repr__", [](const Cube *) { return "<Cube>"; })
+    .def(nb::init<ShaderManagement::ShaderProgram&>(), "Represents a Cube Entity")
+    .def_static("new", &AddCube, nb::rv_policy::reference,
+    "forge"_a, "position"_a, "rotation"_a, "scale"_a,
+    "Create and register a Cube, returning it.");
 
-  nb::class_<UVSphere, Entity>(m, "UVSphere")
-    .def(nb::init<ShaderManagement::ShaderProgram&>(), "Represents a UV Coordinate Sphere Entity");
+  nb::class_<UVSphere, Entity>(primitives, "UVSphere")
+    .def("__repr__", [](const UVSphere *) { return "<UVSphere>"; })
+    .def(nb::init<ShaderManagement::ShaderProgram&>(), "Represents a UV Coordinate Sphere Entity")
+    .def_static("new", &AddUVSphere, nb::rv_policy::reference,
+    "forge"_a, "position"_a, "rotation"_a, "scale"_a,
+    "Create and register a UVSphere, returning it.");
 
   nb::bind_vector<std::vector<std::shared_ptr<SimObject::Entity>>>(m, "EntityVector");
 
   nb::class_<ConceptForge>(m, "ConceptForge")
       .def(nb::init<>())
       // In Order
-      .def("window_should_close", &ConceptForge::WindowShouldClose,
-           "Check if window should close")
-      .def("calc_delta_time", &ConceptForge::DeltaTimeCalc,
-           "Calculate Delta Time")
+      .def("window_should_close", &ConceptForge::WindowShouldClose, "Check if window should close")
+      .def("dt", &ConceptForge::DeltaTimeCalc, "Calculate and return Delta Time")
       .def("process_input", &ConceptForge::ProcessInput, "Process Input")
       .def("render", &ConceptForge::Render, "Clear Screen and Render")
-      .def("calc_projection", &ConceptForge::CalcProjection,
-           "Calculate the Projection Matrix")
-      .def("gui_management", &ConceptForge::GUIManagement,
-           "Draw editor windows")
+      .def("calc_projection", &ConceptForge::CalcProjection, "Calculate the Projection Matrix")
+      .def("gui_management", &ConceptForge::GUIManagement, "Draw editor windows")
 
       // Variables / Objects
       .def_rw("window", &ConceptForge::window)
-      .def_rw("deltaTime", &ConceptForge::deltaTime)
       .def_rw("shader_pg", &ConceptForge::shaderProgram)
       .def_rw("input_man", &ConceptForge::input)
       .def_rw("entities", &ConceptForge::entities)
-      .def("set_selected", &ConceptForge::SetSelected)
-      .def("add_cube", &AddCube, nb::rv_policy::reference_internal, "position"_a, "rotation"_a, "scale"_a, "Adds a cube")
-      .def("add_uvsphere", &AddUVSphere, nb::rv_policy::reference_internal, "position"_a, "rotation"_a, "scale"_a, "Adds a uv coordinate Sphere");
+      .def("set_selected", &ConceptForge::SetSelected);
 }

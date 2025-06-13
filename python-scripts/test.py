@@ -3,6 +3,7 @@ from math import sin, cos, pi
 import time
 
 from concept_forge import Entity, Vec3
+from concept_forge.primitives import Cube, UVSphere
 
 forge = cf.ConceptForge()
 
@@ -13,19 +14,21 @@ forge.entities.clear()
 pos = Vec3(0, 0, 0)
 rot = Vec3(0, 0, 0)
 scale = Vec3(1, 1, 1)
-cube = forge.add_cube(pos, rot, scale)
+cube = Cube.new(forge, pos, rot, scale)
 
 pos = Vec3(0, 2, 0)
 rot = Vec3(0, 0, 0)
 scale = Vec3(1, 1, 1)
-sphere = forge.add_uvsphere(pos, rot, scale)
+sphere = UVSphere.new(forge, pos, rot, scale)
 
 while not forge.window_should_close():
-    forge.calc_delta_time()
+    dt = forge.dt()
     forge.calc_projection()
 
-    sphere.rotate(200 * forge.deltaTime, Vec3(0, 1, 0))
-    cube.rotate(-200 * forge.deltaTime, Vec3(0, 1, 0))
+    sphere.rotate(200 * dt, Vec3(0, 1, 0))
+    cube.rotate(-200 * dt, Vec3(0, 1, 0))
+
+    cube.set_position(Vec3(0, sin(time.time() * 2) * 2, 0))
 
     forge.gui_management()
     forge.process_input()

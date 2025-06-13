@@ -32,11 +32,13 @@ ConceptForge::~ConceptForge(){
 
 }
 
-void ConceptForge::DeltaTimeCalc(){
+float ConceptForge::DeltaTimeCalc(){
     // Delta Time calculation
     float currentFrame = glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
+
+    return deltaTime;
 }
 
 bool ConceptForge::WindowShouldClose() {
