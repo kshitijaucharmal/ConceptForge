@@ -96,21 +96,56 @@ NB_MODULE(concept_forge, m) {
       return d;
     }, "Convert the vector to a Python dictionary {'x': x, 'y': y, 'z': z}.");
 
-  nb::class_<Entity>(m, "Entity")
-    .def(nb::init<>(), "Base Class for Entity with transform information")
+    nb::class_<Entity>(m, "Entity", "Base class representing a 3D object with position, rotation, and scale")
+    .def(nb::init<>(), "Create a new Entity with default position (0,0,0), rotation (0,0,0), and scale (1,1,1).")
+
     // Getters
-    .def("get_position", &Entity::GetPosition, "Get the Position as a Vec3")
-    .def("get_rotation", &Entity::GetRotation, "Get the Rotation as a Vec3 (eulerAngles)")
-    .def("get_scale", &Entity::GetScale, "Get the Scale as a Vec3")
+    .def("get_position", &Entity::GetPosition,
+         "Return the current position of the Entity as a Vec3 (x, y, z).")
+
+    .def("get_rotation", &Entity::GetRotation,
+         "Return the current rotation of the Entity as a Vec3 in Euler angles (in degrees).")
+
+    .def("get_scale", &Entity::GetScale,
+         "Return the current scale of the Entity as a Vec3 (x, y, z).")
+
     // Setters
-    .def("set_position", &Entity::SetPosition, "position"_a, "Set the position to a Vec3")
-    .def("set_rotation", &Entity::SetRotation, "rotation"_a, "Set the rotation to a Vec3 (eulerAngles)")
-    .def("set_scale", &Entity::SetScale, "scale"_a, "Set the scale to a Vec3")
-    // // Functions
-    .def("translate", &Entity::Translate, "delta"_a, "Change the position by Vec3")
-    .def("rotate", static_cast<void (Entity::*)(glm::vec3)>(&Entity::Rotate), "delta"_a, "Change the rotation by Vec3")
-    .def("rotate", static_cast<void (Entity::*)(float, glm::vec3)>(&Entity::Rotate), "angle"_a, "axis"_a, "Change the rotation by angle and axis")
-    .def("scale", &Entity::Scale, "deltaFactor"_a, "Change the scale by Vec3");
+    .def("set_position", &Entity::SetPosition, "position"_a,
+         "Set the position of the Entity.\n\n"
+         "Args:\n"
+         "    position (Vec3): The new position vector.")
+
+    .def("set_rotation", &Entity::SetRotation, "rotation"_a,
+         "Set the rotation of the Entity using Euler angles in degrees.\n\n"
+         "Args:\n"
+         "    rotation (Vec3): The new rotation vector.")
+
+    .def("set_scale", &Entity::SetScale, "scale"_a,
+         "Set the scale of the Entity.\n\n"
+         "Args:\n"
+         "    scale (Vec3): The new scale vector.")
+
+    // Transform operations
+    .def("translate", &Entity::Translate, "delta"_a,
+         "Translate (move) the Entity by a given delta vector.\n\n"
+         "Args:\n"
+         "    delta (Vec3): The amount to move in each axis.")
+
+    .def("rotate", static_cast<void (Entity::*)(glm::vec3)>(&Entity::Rotate), "delta"_a,
+         "Rotate the Entity by a delta rotation in Euler angles (degrees).\n\n"
+         "Args:\n"
+         "    delta (Vec3): Rotation to apply in each axis.")
+
+    .def("rotate", static_cast<void (Entity::*)(float, glm::vec3)>(&Entity::Rotate), "angle"_a, "axis"_a,
+         "Rotate the Entity around a given axis by a specified angle (degrees).\n\n"
+         "Args:\n"
+         "    angle (float): Angle in degrees.\n"
+         "    axis (Vec3): Axis to rotate around.")
+
+    .def("scale", &Entity::Scale, "deltaFactor"_a,
+         "Scale the Entity by multiplying its current scale by the given factor.\n\n"
+         "Args:\n"
+         "    deltaFactor (Vec3): Scale multiplier for each axis.");
 
   // Primitives
   nb::class_<Cube, Entity>(primitives, "Cube")
@@ -127,22 +162,58 @@ NB_MODULE(concept_forge, m) {
     "forge"_a, "position"_a, "rotation"_a, "scale"_a,
     "Create and register a UVSphere, returning it.");
 
-  nb::bind_vector<std::vector<std::shared_ptr<SimObject::Entity>>>(m, "EntityVector");
+  nb::bind_vector<std::vector<std::shared_ptr<SimObject::Entity>>>(m, "EntityVector",
+                                                                   "A dynamic array (list) of shared Entity objects.\n\n"
+                                                                   "This class behaves like a standard Python list and can be used to store or access\n"
+                                                                   "multiple Entity instances, such as those managed by a scene or simulation system.\n\n"
+                                                                   "Each element is a shared_ptr to an Entity, preserving ownership semantics."
+  );
 
-  nb::class_<ConceptForge>(m, "ConceptForge")
-      .def(nb::init<>())
-      // In Order
-      .def("window_should_close", &ConceptForge::WindowShouldClose, "Check if window should close")
-      .def("dt", &ConceptForge::DeltaTimeCalc, "Calculate and return Delta Time")
-      .def("process_input", &ConceptForge::ProcessInput, "Process Input")
-      .def("render", &ConceptForge::Render, "Clear Screen and Render")
-      .def("calc_projection", &ConceptForge::CalcProjection, "Calculate the Projection Matrix")
-      .def("gui_management", &ConceptForge::GUIManagement, "Draw editor windows")
+  nb::class_<ConceptForge>(m, "ConceptForge",
+                           "The main application context that manages the rendering window, input, GUI, and scene entities.\n"
+                           "This class acts as the core engine loop handler and entity manager.")
 
-      // Variables / Objects
-      .def_rw("window", &ConceptForge::window)
-      .def_rw("shader_pg", &ConceptForge::shaderProgram)
-      .def_rw("input_man", &ConceptForge::input)
-      .def_rw("entities", &ConceptForge::entities)
-      .def("set_selected", &ConceptForge::SetSelected);
+  // Constructor
+  .def(nb::init<>(), "Create a new ConceptForge instance with default settings.")
+
+  // Engine loop and rendering methods
+  .def("window_should_close", &ConceptForge::WindowShouldClose,
+       "Check if the rendering window should close (e.g. user clicked the close button).\n\n"
+       "Returns:\n"
+       "    bool: True if the window should close, False otherwise.")
+
+  .def("dt", &ConceptForge::DeltaTimeCalc,
+       "Return the time elapsed between the current and previous frame.\n\n"
+       "Useful for time-based animation and physics.\n\n"
+       "Returns:\n"
+       "    float: Delta time in seconds.")
+
+  .def("process_input", &ConceptForge::ProcessInput,
+       "Poll and process input events from the window (keyboard, mouse, etc).")
+
+  .def("render", &ConceptForge::Render,
+       "Clear the screen and render all registered entities.")
+
+  .def("calc_projection", &ConceptForge::CalcProjection,
+       "Recalculate the camera projection matrix based on current parameters like field of view, aspect ratio, etc.")
+
+  .def("gui_management", &ConceptForge::GUIManagement,
+       "Render the GUI (e.g. ImGui windows for editor features).")
+
+  // Public members
+  .def_rw("window", &ConceptForge::window,
+          "The rendering window object associated with the application.")
+
+  .def_rw("shader_pg", &ConceptForge::shaderProgram,
+          "The active ShaderProgram used for rendering entities.")
+
+  .def_rw("input_man", &ConceptForge::input,
+          "The input manager handling keyboard and mouse states.")
+
+  .def_rw("entities", &ConceptForge::entities,
+          "A list of entities currently active in the scene (EntityVector).")
+
+  // Selection
+  .def("set_selected", &ConceptForge::SetSelected, "Set the currently selected entity in the editor.");
+
 }
