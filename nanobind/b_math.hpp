@@ -1,53 +1,48 @@
+
+#pragma once
+
 namespace MathBindings {
-// Wrappers ================================================================
-// Vec3 wrapper ------------------------------------------------------------
-struct Vec3Wrapper {
-  float x, y, z;
+  void binder(nb::module_ &module){
+    nb::class_<glm::vec3>(module, "Vec3", "A 3D vector with float components x, y, and z.")
+    .def(nb::init<float, float, float>(),
+        "Constructor with x, y, z\n\n"
+        "Args:\n"
+        "    x (float): X-component\n"
+        "    y (float): Y-component\n"
+        "    z (float): Z-component")
+    .def_rw("x", &glm::vec3::x, "X-component of the vector")
+    .def_rw("y", &glm::vec3::y, "Y-component of the vector")
+    .def_rw("z", &glm::vec3::z, "Z-component of the vector")
 
-  Vec3Wrapper(float x_ = 0, float y_ = 0, float z_ = 0)
-  : x(x_), y(y_), z(z_) {}
+    .def("__repr__", [](const glm::vec3 &v) {
+      return "<Vec3 x=" + std::to_string(v.x) +
+      ", y=" + std::to_string(v.y) +
+      ", z=" + std::to_string(v.z) + ">";
+    }, "Return the string representation of the vector in the form '<Vec3 x=X, y=Y, z=Z>'")
 
-  // Allow constructing from glm::vec3
-  Vec3Wrapper(const glm::vec3& v) : x(v.x), y(v.y), z(v.z) {}
+    // Arithmetic operators
+    .def(nb::self + nb::self, "Vector addition. Returns a new Vec3 which is the sum of this and another Vec3.")
+    .def(nb::self - nb::self, "Vector subtraction. Returns a new Vec3 which is the difference between this and another Vec3.")
+    .def(nb::self * float(), "Scalar multiplication. Multiplies the vector by a scalar float.")
+    .def(float() * nb::self, "Scalar multiplication. Multiplies the vector by a scalar float.")
+    .def(nb::self * nb::self, "Component-wise multiplication. Multiplies each corresponding component of two vectors.")
 
-  glm::vec3 to_glm() const { return glm::vec3(x, y, z); }
+    // Conversion methods
+    .def("to_tuple", [](const glm::vec3 &v) {
+      return std::make_tuple(v.x, v.y, v.z);
+    }, "Convert the vector to a Python tuple of the form (x, y, z).")
 
-  Vec3Wrapper operator+(const Vec3Wrapper& other) const {
-    return Vec3Wrapper(x + other.x, y + other.y, z + other.z);
+    .def("to_list", [](const glm::vec3 &v) {
+      return std::vector<float>{v.x, v.y, v.z};
+    }, "Convert the vector to a Python list [x, y, z].")
+
+    .def("to_dict", [](const glm::vec3 &v) {
+      return nb::dict(
+        "x"_nb=v.x,
+        "y"_nb=v.y,
+        "z"_nb=v.z
+      );
+    }, "Convert the vector to a Python dictionary {'x': x, 'y': y, 'z': z}.");
   }
-
-  Vec3Wrapper operator-(const Vec3Wrapper& other) const {
-    return Vec3Wrapper(x - other.x, y - other.y, z - other.z);
-  }
-
-  Vec3Wrapper operator*(float scalar) const {
-    return Vec3Wrapper(x * scalar, y * scalar, z * scalar);
-  }
-};
-// -------------------------------------------------------------------
-
-// Functions ================================================================
-// --------------------------------------------------------------------------
-void vec3_binder(nb::module_ &module) {
-  nb::class_<Vec3Wrapper>(module, "Vec3")
-  .def(nb::init<float, float, float>(), "x"_a = 0.f, "y"_a = 0.f, "z"_a = 0.f)
-  .def_rw("x", &Vec3Wrapper::x)
-  .def_rw("y", &Vec3Wrapper::y)
-  .def_rw("z", &Vec3Wrapper::z)
-  .def("__add__", &Vec3Wrapper::operator+)
-  .def("__sub__", &Vec3Wrapper::operator-)
-  .def("__mul__", &Vec3Wrapper::operator*)
-  .def("__repr__", [](const Vec3Wrapper &v) {
-    return "Vec3(" +
-    std::to_string(v.x) + ", " +
-    std::to_string(v.y) + ", " +
-    std::to_string(v.z) + ")";
-  });
-}
-
-// Final Binder
-void math_binder(nb::module_ &module){
-    vec3_binder(module);
-}
 
 }

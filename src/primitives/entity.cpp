@@ -52,8 +52,8 @@ void Entity::SetRotation(glm::vec3 eulerAngles) {
   UpdateModelMatrix();
 }
 
-void Entity::SetScale(glm::vec3 scale) {
-  scale = glm::max(scale, 0.001f);  // Prevent degenerate scale
+void Entity::SetScale(glm::vec3 scl) {
+  scale = glm::max(scl, 0.001f);  // Prevent degenerate scale
   UpdateModelMatrix();
 }
 // -------------------------------------------------------------------------

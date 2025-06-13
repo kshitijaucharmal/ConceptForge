@@ -62,17 +62,7 @@ std::vector<uint> UVSphere::GenerateSphereIndices() {
     return indices;
 }
 
-UVSphere::UVSphere(
-    ShaderManagement::ShaderProgram &sp,
-    int sectorCount,
-    int stackCount,
-    float radius
-) : shaderProgram(sp) {
-
-    this->sectorCount = sectorCount;
-    this->stackCount = stackCount;
-    this->radius = radius;
-
+UVSphere::UVSphere(ShaderManagement::ShaderProgram &sp ) : shaderProgram(sp) {
     position = glm::vec3(0.0);
     rotation = glm::vec3(0.0);
     scale = glm::vec3(1.0);

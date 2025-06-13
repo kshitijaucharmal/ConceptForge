@@ -17,6 +17,7 @@ endif()
 
 # Find Python
 find_package(Python COMPONENTS Interpreter ${DEV_MODULE} REQUIRED)
+message(STATUS "Python version: ${Python_EXECUTABLE}")
 
 # Set default build type to Release if not specified
 if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)

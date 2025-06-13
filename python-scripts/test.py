@@ -1,34 +1,31 @@
 import concept_forge as cf
-from math import sin
+from math import sin, cos, pi
+import time
 
-from concept_forge import Entity
-from concept_forge import Vec3
+from concept_forge import Entity, Vec3
 
 forge = cf.ConceptForge()
-
-pos = Vec3(0.5, 1.5, 0.5)
-rot = Vec3(45, 45, 45)
-scale = Vec3(1, 1, 1)
 
 entityGen = Entity()
 
 forge.entities.clear()
 
-entityGen.add_cube(forge, pos, rot, scale)
+pos = Vec3(0, 0, 0)
+rot = Vec3(0, 0, 0)
+scale = Vec3(1, 1, 1)
+cube = forge.add_cube(pos, rot, scale)
 
-print(forge.entities)
-
-cube = forge.entities[0]
-
-dx = 0
-dy = 200
-dz = 0
-
-# print(forge.entities)
+pos = Vec3(0, 2, 0)
+rot = Vec3(0, 0, 0)
+scale = Vec3(1, 1, 1)
+sphere = forge.add_uvsphere(pos, rot, scale)
 
 while not forge.window_should_close():
     forge.calc_delta_time()
     forge.calc_projection()
+
+    sphere.rotate(200 * forge.deltaTime, Vec3(0, 1, 0))
+    cube.rotate(-200 * forge.deltaTime, Vec3(0, 1, 0))
 
     forge.gui_management()
     forge.process_input()
