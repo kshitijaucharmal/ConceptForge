@@ -161,7 +161,7 @@ void MainGUI::ShowConsole() {
     ImGui::Text("ImGuizmo IsOver: %s", ImGuizmo::IsOver() ? "true" : "false");
     ImGui::Text("ImGuizmo IsUsing: %s", ImGuizmo::IsUsing() ? "true" : "false");
     ImGui::Text("Mouse Position: %.1f, %.1f", io.MousePos.x, io.MousePos.y);
-    ImGui::Text("ImGui WantCaptureMouse: %s", io.WantCaptureMouse ? "true" : "false");
+    ImGui::Text("FPS: %.2f", io.Framerate);
     ImGui::End();
 }
 
