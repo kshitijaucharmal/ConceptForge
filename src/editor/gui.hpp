@@ -34,6 +34,9 @@ namespace Editor {
         void NewFrame();
         void RenderFrame();
 
+        void ImguiBegin();
+        void ImguiEnd();
+
         void SetupEditorWindows();
         void DrawEditorWindows();
 

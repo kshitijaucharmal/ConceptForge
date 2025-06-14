@@ -84,12 +84,13 @@ void ConceptForge::GUIManagement(){
     // Create new Frame
     mainGui.NewFrame();
 
-    // window.ImGuiBegin();
     // window.RenderToImGui();
     // objCreatorMenu.Show();
-    // window.ImGuiEnd();
 
+    mainGui.ImguiBegin();
     mainGui.ShowConsole();
+    mainGui.ShowCameraControls(&camera.fov);
+    mainGui.ImguiEnd();
 
     // Draw All UI
     SimObject::Entity *current_entity = hierarchy.GetSelected();

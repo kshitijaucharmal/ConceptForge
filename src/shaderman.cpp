@@ -13,7 +13,8 @@ namespace ShaderManagement {
     ShaderProgram::ShaderProgram(){
 
     }
-    void ShaderProgram::Init(DrawMode mode, std::string &vertexShaderPath, std::string &fragmentShaderPath) {
+
+    void ShaderProgram::SetDrawMode(DrawMode mode){
         drawMode = mode;
         // Set Draw Mode
         switch(drawMode){
@@ -24,6 +25,10 @@ namespace ShaderManagement {
                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
                 break;
         }
+    }
+
+    void ShaderProgram::Init(DrawMode mode, std::string &vertexShaderPath, std::string &fragmentShaderPath) {
+        SetDrawMode(mode);
 
         InitVertexShader(vertexShaderPath);
         InitFragmentShader(fragmentShaderPath);
@@ -89,8 +94,9 @@ namespace ShaderManagement {
         }
     }
 
+    // TODO: This should be called from elsewhere
     void ShaderProgram::BindTextures(){
-        unsigned int texture1 = BindTexture(TEXTURE_DIR "/awesomeface.png", "texture1", 0, true);
+        unsigned int texture1 = BindTexture(TEXTURE_DIR "/pepsilogo.png", "texture1", 0, true);
         unsigned int texture2 = BindTexture(TEXTURE_DIR "/wall.jpg", "texture2", 1, false);
     }
 

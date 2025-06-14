@@ -21,6 +21,7 @@ namespace ShaderManagement {
     public:
         unsigned int shaderProgram;
         ShaderProgram();
+        void SetDrawMode(DrawMode mode);
         void Init(DrawMode mode, std::string &vertexShaderPath, std::string &fragmentShaderPath);
         ~ShaderProgram();
         void Use();

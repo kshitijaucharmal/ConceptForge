@@ -20,12 +20,11 @@ namespace Const {
     static const std::string WINDOWNAME = "ConceptForge";
 
     const float cameraSpeed = 5.0f; // adjust accordingly
-    static float fov = 45.0f;
 
     // Editor
     // Inspector
     static const int inspectorWidth = 350; // height determined by window size
-    static const int consoleHeight = 150;
+    static const int consoleHeight = 500;
     static const int assetBrowserWidth = 300;
 
     // TODO: make this absolute path

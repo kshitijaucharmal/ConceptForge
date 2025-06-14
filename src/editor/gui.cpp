@@ -146,22 +146,28 @@ void MainGUI::RenderFrame(){
 }
 
 // Windows -----------------------------------------------------------------------------
+void Editor::MainGUI::ImguiBegin() {
+    ImGui::SetNextWindowPos(ImVec2(0, Const::HEIGHT - Const::consoleHeight), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(Const::assetBrowserWidth, (float_t)Const::consoleHeight), ImGuiCond_Always);
+    ImGui::Begin("Controls", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+}
+
 void MainGUI::ShowCameraControls(float *fov) {
     if (ImGui::CollapsingHeader("Camera Controls", ImGuiTreeNodeFlags_DefaultOpen)) {
-        ImGui::SliderFloat("Field of View", fov, 10., 170.);
+        ImGui::SliderFloat("Field of View", fov, 10., 150.);
     }
 }
 
 void MainGUI::ShowConsole() {
-    ImGui::SetNextWindowPos(ImVec2(0, Const::HEIGHT - Const::consoleHeight), ImGuiCond_Always);
-    ImGui::SetNextWindowSize(ImVec2(Const::WIDTH - Const::inspectorWidth, (float_t)Const::consoleHeight), ImGuiCond_Always);
-
-    ImGuiIO io = ImGui::GetIO();
-    ImGui::Begin("Console", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
-    ImGui::Text("ImGuizmo IsOver: %s", ImGuizmo::IsOver() ? "true" : "false");
-    ImGui::Text("ImGuizmo IsUsing: %s", ImGuizmo::IsUsing() ? "true" : "false");
-    ImGui::Text("Mouse Position: %.1f, %.1f", io.MousePos.x, io.MousePos.y);
-    ImGui::Text("FPS: %.2f", io.Framerate);
+    if (ImGui::CollapsingHeader("Debug Info", ImGuiTreeNodeFlags_DefaultOpen)) {
+        ImGuiIO io = ImGui::GetIO();
+        ImGui::Text("ImGuizmo IsOver: %s", ImGuizmo::IsOver() ? "true" : "false");
+        ImGui::Text("ImGuizmo IsUsing: %s", ImGuizmo::IsUsing() ? "true" : "false");
+        ImGui::Text("Mouse Position: %.1f, %.1f", io.MousePos.x, io.MousePos.y);
+        ImGui::Text("FPS: %.2f", io.Framerate);
+    }
+}
+void Editor::MainGUI::ImguiEnd() {
     ImGui::End();
 }
 
