@@ -67,6 +67,8 @@ UVSphere::UVSphere(ShaderManagement::ShaderProgram &sp ) : shaderProgram(sp) {
     rotation = glm::vec3(0.0);
     scale = glm::vec3(1.0);
 
+    name = "UV Sphere";
+
     std::vector<float> sphereVertices = GenerateSphere();
     std::vector<unsigned int> sphereIndices = GenerateSphereIndices();
     CreateSphereVAO(sphereVertices, sphereIndices);

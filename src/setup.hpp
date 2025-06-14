@@ -25,6 +25,7 @@
 #include "primitives/entity.hpp"
 
 #include "editor/asset_browser.hpp"
+#include "editor/hierarchy.hpp"
 #include "editor/gizmo.hpp"
 #include "editor/inspector.hpp"
 #include "editor/object_creation_menu.hpp"
@@ -44,7 +45,8 @@ namespace Engine {
         Editor::MainGUI mainGui;
         Editor::Gizmo gizmo;
         Editor::Inspector inspector;
-        Editor::AssetBrowser asset_browser;
+        // Editor::AssetBrowser asset_browser;
+        Editor::Hierarchy hierarchy;
         Editor::ObjectCreationMenu objCreatorMenu;
         Projection projection;
 
@@ -60,9 +62,5 @@ namespace Engine {
         void Render();
         void CalcProjection();
         void GUIManagement();
-
-        std::vector<std::shared_ptr<SimObject::Entity>> entities;
-        int selectedEntity = 0;
-        void SetSelected(int selected);
     };
 }

@@ -39,7 +39,7 @@ MainGUI::MainGUI(GLFWwindow *window){
         style.Alpha = 1.0f;
         style.DisabledAlpha = 1.0f;
         style.WindowPadding = ImVec2(12.0f, 12.0f);
-        style.WindowRounding = 11.5f;
+        // style.WindowRounding = 11.5f;
         style.WindowBorderSize = 0.0f;
         style.WindowMinSize = ImVec2(20.0f, 20.0f);
         style.WindowTitleAlign = ImVec2(0.5f, 0.5f);

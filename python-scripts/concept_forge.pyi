@@ -233,6 +233,16 @@ class EntityVector:
     def remove(self, arg: Entity, /) -> None:
         """Remove first occurrence of `arg`."""
 
+class Hierarchy:
+    def __init__(self) -> None:
+        """Create new Hierarchy instance"""
+
+    @property
+    def entities(self) -> "std::unordered_map<unsigned int, std::shared_ptr<SimObject::Entity>, std::hash<unsigned int>, std::equal_to<unsigned int>, std::allocator<std::pair<unsigned int const, std::shared_ptr<SimObject::Entity> > > >": ...
+
+    @entities.setter
+    def entities(self, arg: "std::unordered_map<unsigned int, std::shared_ptr<SimObject::Entity>, std::hash<unsigned int>, std::equal_to<unsigned int>, std::allocator<std::pair<unsigned int const, std::shared_ptr<SimObject::Entity> > > >", /) -> None: ...
+
 class ConceptForge:
     """
     The main application context that manages the rendering window, input, GUI, and scene entities.
@@ -296,11 +306,8 @@ class ConceptForge:
     def input_man(self, arg: "InputManagement::Input", /) -> None: ...
 
     @property
-    def entities(self) -> EntityVector:
-        """A list of entities currently active in the scene (EntityVector)."""
+    def hierarchy(self) -> Hierarchy:
+        """Hierarchy object that holds references to all entities in the scene"""
 
-    @entities.setter
-    def entities(self, arg: EntityVector, /) -> None: ...
-
-    def set_selected(self, arg: int, /) -> None:
-        """Set the currently selected entity in the editor."""
+    @hierarchy.setter
+    def hierarchy(self, arg: Hierarchy, /) -> None: ...

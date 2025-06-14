@@ -12,6 +12,6 @@ namespace Editor {
     public:
         Inspector();
 
-        void Show(SimObject::Entity& entity, ImGuizmo::OPERATION &operation, ImGuizmo::MODE &mode);
+        void Show(SimObject::Entity *entity, ImGuizmo::OPERATION &operation, ImGuizmo::MODE &mode);
     };
 }

@@ -8,8 +8,7 @@ from concept_forge.primitives import Cube, UVSphere
 forge = cf.ConceptForge()
 
 entityGen = Entity()
-
-forge.entities.clear()
+forge.hierarchy.entities.clear()
 
 pos = Vec3(0, 0, 0)
 rot = Vec3(0, 0, 0)

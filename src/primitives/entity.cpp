@@ -85,22 +85,4 @@ void Entity::Scale(glm::vec3 factorDelta) {
 }
 // -------------------------------------------------------------------------
 
-void Entity::GUI(){
-  // Store previous values to detect changes
-  glm::vec3 prevScale = scale;
-  glm::vec3 prevRotation = rotation;
-  glm::vec3 prevPosition = position;
-
-  ImGui::DragFloat3("Position", glm::value_ptr(position), 0.01,  -10.0, 10.0);
-  ImGui::DragFloat3("Rotation", glm::value_ptr(rotation), 1.,  -180.0, 180.0);
-  ImGui::DragFloat3("Scale", glm::value_ptr(scale), 0.1,  0.0, 10.0);
-
-  // Only update model matrix if values changed
-  if (scale != prevScale || rotation != prevRotation || position != prevPosition) {
-    UpdateModelMatrix();
-  }
-}
-
-void Entity::Draw(){
-
-}
+void Entity::Draw(){ }

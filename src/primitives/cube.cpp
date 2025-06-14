@@ -10,6 +10,8 @@ Cube::Cube(ShaderManagement::ShaderProgram &sp, glm::vec3 pos, glm::vec3 rot, gl
   rotation = rot;
   scale = sca;
 
+  name = "Cube";
+
   SetupVAO();
   SetupVBO();
   SetupVertexData();

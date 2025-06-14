@@ -25,6 +25,6 @@ namespace Editor{
         Gizmo();
 
         // TODO: Seperate gizmos
-        void Show(SimObject::Entity &entity, Projection &projection, Camera &camera);
+        void Show(SimObject::Entity *entity, Projection &projection, Camera &camera);
     };
 }

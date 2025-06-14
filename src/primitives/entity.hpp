@@ -3,6 +3,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <string>
+
 // GLM
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -22,6 +24,8 @@ namespace SimObject {
         glm::vec3 scale = glm::vec3(1.0);
 
         glm::mat4 model = glm::mat4(1.0f);
+        // TODO Gotta be some kinda id too
+        std::string name = "Entity";
         // ---------------------------------------------------------------
 
         // Transform Functions ---------------------------------------------------------------
@@ -45,6 +49,5 @@ namespace SimObject {
         // -------------------------------------------------------------------------
 
         virtual void Draw();
-        virtual void GUI();
     };
 }

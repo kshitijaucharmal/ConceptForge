@@ -20,12 +20,13 @@ ConceptForge::ConceptForge():
     // Setup Main GUI
     Editor::Gizmo gizmo;
     Editor::Inspector inspector;
-    Editor::AssetBrowser asset_browser;
+    // Editor::AssetBrowser asset_browser;
+    Editor::Hierarchy hierarchy;
     Editor::ObjectCreationMenu objCreatorMenu;
 
-    // Add an empty
+    // Add a cube
     std::unique_ptr<Cube> cube = std::make_unique<Cube>(shaderProgram);
-    entities.push_back(std::move(cube));
+    hierarchy.AddEntity(std::move(cube));
 }
 
 ConceptForge::~ConceptForge(){
@@ -65,19 +66,11 @@ void ConceptForge::CalcProjection(){
     projection.Calculate(camera, shaderProgram);
 }
 
-void ConceptForge::SetSelected(int selected){
-    if(selected < 0 || selected >= entities.size()){
-        std::cout << "Selection is wrong" << std::endl;
-        return;
-    }
-    selectedEntity = selected;
-}
-
 void ConceptForge::GUIManagement(){
     glBindFramebuffer(GL_FRAMEBUFFER, 0); // back to default
     // Remove from here
     // Send Shader Data
-    for(const auto& entity : entities) entity->Draw();
+    for(const auto& entity : hierarchy.entities) entity.second->Draw();
 
     // check and call events
     glfwPollEvents();
@@ -99,13 +92,11 @@ void ConceptForge::GUIManagement(){
     mainGui.ShowConsole();
 
     // Draw All UI
-    SimObject::Entity current_entity;
-    if(selectedEntity >= 0){
-        gizmo.Show(*entities[selectedEntity], projection, camera);
-        inspector.Show(*entities[selectedEntity], gizmo.gizmoOperation, gizmo.gizmoMode);
-    }
+    SimObject::Entity *current_entity = hierarchy.GetSelected();
+    gizmo.Show(current_entity, projection, camera);
+    inspector.Show(current_entity, gizmo.gizmoOperation, gizmo.gizmoMode);
 
-    asset_browser.Show(Const::projectDir);
+    hierarchy.Show();
     // Render
     mainGui.RenderFrame();
 

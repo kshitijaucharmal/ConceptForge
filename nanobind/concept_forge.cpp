@@ -15,6 +15,7 @@ using namespace nb::literals;
 
 #include "primitives/cube.hpp"
 #include "primitives/uv_sphere.hpp"
+#include "editor/hierarchy.hpp"
 #include "setup.hpp"
 
 using namespace Engine;
@@ -30,7 +31,7 @@ Cube* AddCube(ConceptForge &forge, glm::vec3 &pos, glm::vec3 &rot, glm::vec3 &sc
 
   // Push to entities and return pointer
   Cube* cube_ptr = cube.get();
-  forge.entities.push_back(std::move(cube));
+  forge.hierarchy.AddEntity(std::move(cube));
   return cube_ptr;
 }
 
@@ -42,7 +43,7 @@ UVSphere* AddUVSphere(ConceptForge &forge, glm::vec3 &pos, glm::vec3 &rot, glm::
 
   // Push to entities and return pointer
   UVSphere* sphere_ptr = sphere.get();
-  forge.entities.push_back(std::move(sphere));
+  forge.hierarchy.AddEntity(std::move(sphere));
   return sphere_ptr;
 }
 // -------------------------------------------------------------------------
@@ -169,6 +170,10 @@ NB_MODULE(concept_forge, m) {
                                                                    "Each element is a shared_ptr to an Entity, preserving ownership semantics."
   );
 
+  nb::class_<Editor::Hierarchy>(m, "Hierarchy")
+    .def(nb::init<>(), "Create new Hierarchy instance")
+    .def_rw("entities", &Editor::Hierarchy::entities);
+
   nb::class_<ConceptForge>(m, "ConceptForge",
                            "The main application context that manages the rendering window, input, GUI, and scene entities.\n"
                            "This class acts as the core engine loop handler and entity manager.")
@@ -210,10 +215,7 @@ NB_MODULE(concept_forge, m) {
   .def_rw("input_man", &ConceptForge::input,
           "The input manager handling keyboard and mouse states.")
 
-  .def_rw("entities", &ConceptForge::entities,
-          "A list of entities currently active in the scene (EntityVector).")
-
-  // Selection
-  .def("set_selected", &ConceptForge::SetSelected, "Set the currently selected entity in the editor.");
+  .def_rw("hierarchy", &ConceptForge::hierarchy,
+          "Hierarchy object that holds references to all entities in the scene");
 
 }
