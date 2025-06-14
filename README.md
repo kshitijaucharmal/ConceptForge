@@ -26,7 +26,7 @@ mingw32-make run # to execute
 
 ### Linux / Mac OS
 ```bash
-cmake ..
+cmake -DPython_EXECUTABLE=$(which python3.10) ..
 make
 make run # to execute
 ```

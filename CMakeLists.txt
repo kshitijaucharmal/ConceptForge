@@ -101,7 +101,7 @@ add_custom_command(TARGET concept_forge POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_SOURCE_DIR}/python-scripts"
     COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:concept_forge>" "${CMAKE_CURRENT_SOURCE_DIR}/python-scripts/"
     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}/python-scripts
-            ${Python3_EXECUTABLE} -m nanobind.stubgen -m concept_forge
+            ${Python_EXECUTABLE} -m nanobind.stubgen -m concept_forge
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/python-scripts"
     COMMENT "Copying Python module to python-scripts/ and generating .pyi stubs"
 )
