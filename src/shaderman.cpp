@@ -8,14 +8,16 @@
 #include "utilities/fileloader.hpp"
 #include "stb_image.h"
 
-
 namespace ShaderManagement {
     ShaderProgram::ShaderProgram(){
 
     }
 
-    void ShaderProgram::SetDrawMode(DrawMode mode){
+    void ShaderProgram::SetDrawMode(DrawMode mode) {
         drawMode = mode;
+    }
+
+    void ShaderProgram::ApplyDrawMode(){
         // Set Draw Mode
         switch(drawMode){
             case DrawMode::WIREFRAME:
@@ -28,11 +30,14 @@ namespace ShaderManagement {
     }
 
     void ShaderProgram::Init(DrawMode mode, std::string &vertexShaderPath, std::string &fragmentShaderPath) {
-        SetDrawMode(mode);
+        drawMode = mode;
 
         InitVertexShader(vertexShaderPath);
         InitFragmentShader(fragmentShaderPath);
         LinkShaders();
+
+        glDetachShader(shaderProgram, vertexShader);
+        glDetachShader(shaderProgram, fragmentShader);
     }
 
     void ShaderProgram::InitVertexShader(std::string &vertexShaderPath) {
@@ -92,12 +97,6 @@ namespace ShaderManagement {
             glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
             std::cerr << "ERROR::SHADER::LINKING_ERR\n" << infoLog << std::endl;
         }
-    }
-
-    // TODO: This should be called from elsewhere
-    void ShaderProgram::BindTextures(){
-        unsigned int texture1 = BindTexture(TEXTURE_DIR "/pepsilogo.png", "texture1", 0, true);
-        unsigned int texture2 = BindTexture(TEXTURE_DIR "/wall.jpg", "texture2", 1, false);
     }
 
     // Texturepath is relative to TEXTURE_DIR for now
@@ -179,6 +178,7 @@ value.w);
     void ShaderProgram::Use()
     {
         glUseProgram(shaderProgram);
+        ApplyDrawMode();
     }
 
 }

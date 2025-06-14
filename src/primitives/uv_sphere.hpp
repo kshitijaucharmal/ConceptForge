@@ -12,10 +12,10 @@ private:
     GLuint VBO;
     GLuint EBO;
     int indexCount = 0;
-    ShaderManagement::ShaderProgram shaderProgram;
+    ShaderManagement::ShaderProgram *shaderProgram;
 
 public:
-    UVSphere(ShaderManagement::ShaderProgram &sp);
+    UVSphere(ShaderManagement::ShaderProgram *sp);
 
     int sectorCount = 36;
     int stackCount = 18;

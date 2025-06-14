@@ -8,8 +8,10 @@ namespace Const {
 
     // Shader Paths
     // Shouldn't be constant I think
-    static std::string vertexShaderPath = std::string(SHADER_DIR) + "/unlit.vert";
-    static std::string fragmentShaderPath = std::string(SHADER_DIR) + "/unlit.frag";
+    static std::string unlitVert = std::string(SHADER_DIR) + "/unlit.vert";
+    static std::string unlitFrag = std::string(SHADER_DIR) + "/unlit.frag";
+    static std::string litVert = std::string(SHADER_DIR) + "/lit.vert";
+    static std::string litFrag = std::string(SHADER_DIR) + "/lit.frag";
     // Darkish blue
     static glm::vec4 clearColor(0.1, 0.1, 0.15, 1.0f);
 

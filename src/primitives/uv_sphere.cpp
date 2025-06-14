@@ -62,7 +62,7 @@ std::vector<uint> UVSphere::GenerateSphereIndices() {
     return indices;
 }
 
-UVSphere::UVSphere(ShaderManagement::ShaderProgram &sp ) : shaderProgram(sp) {
+UVSphere::UVSphere(ShaderManagement::ShaderProgram *sp ) : shaderProgram(sp) {
     position = glm::vec3(0.0);
     rotation = glm::vec3(0.0);
     scale = glm::vec3(1.0);
@@ -78,7 +78,8 @@ UVSphere::UVSphere(ShaderManagement::ShaderProgram &sp ) : shaderProgram(sp) {
 };
 
 void UVSphere::Draw() {
-  shaderProgram.setMat4("model", model);
+  shaderProgram->Use();
+  shaderProgram->setMat4("model", model);
   glBindVertexArray(VAO);
   glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
   glBindVertexArray(0); // Unbind VAO

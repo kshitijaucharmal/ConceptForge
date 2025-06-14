@@ -24,7 +24,7 @@ using namespace SimObject;
 // -------------------------------------------------------------------------
 // First arg acts as self
 Cube* AddCube(ConceptForge &forge, glm::vec3 &pos, glm::vec3 &rot, glm::vec3 &scale) {
-  std::unique_ptr<Cube> cube = std::make_unique<Cube>(forge.shaderProgram);
+  std::unique_ptr<Cube> cube = std::make_unique<Cube>(forge.shaders[ShaderType::Lit].get());
   cube->SetPosition(pos);
   cube->SetRotation(rot);
   cube->SetScale(scale);
@@ -36,7 +36,7 @@ Cube* AddCube(ConceptForge &forge, glm::vec3 &pos, glm::vec3 &rot, glm::vec3 &sc
 }
 
 UVSphere* AddUVSphere(ConceptForge &forge, glm::vec3 &pos, glm::vec3 &rot, glm::vec3 &scale) {
-  std::unique_ptr<UVSphere> sphere = std::make_unique<UVSphere>(forge.shaderProgram);
+  std::unique_ptr<UVSphere> sphere = std::make_unique<UVSphere>(forge.shaders[ShaderType::Lit].get());
   sphere->SetPosition(pos);
   sphere->SetRotation(rot);
   sphere->SetScale(scale);
@@ -151,14 +151,14 @@ NB_MODULE(concept_forge, m) {
   // Primitives
   nb::class_<Cube, Entity>(primitives, "Cube")
     .def("__repr__", [](const Cube *) { return "<Cube>"; })
-    .def(nb::init<ShaderManagement::ShaderProgram&>(), "Represents a Cube Entity")
+    .def(nb::init<ShaderManagement::ShaderProgram*>(), "Represents a Cube Entity")
     .def_static("new", &AddCube, nb::rv_policy::reference,
     "forge"_a, "position"_a, "rotation"_a, "scale"_a,
     "Create and register a Cube, returning it.");
 
   nb::class_<UVSphere, Entity>(primitives, "UVSphere")
     .def("__repr__", [](const UVSphere *) { return "<UVSphere>"; })
-    .def(nb::init<ShaderManagement::ShaderProgram&>(), "Represents a UV Coordinate Sphere Entity")
+    .def(nb::init<ShaderManagement::ShaderProgram*>(), "Represents a UV Coordinate Sphere Entity")
     .def_static("new", &AddUVSphere, nb::rv_policy::reference,
     "forge"_a, "position"_a, "rotation"_a, "scale"_a,
     "Create and register a UVSphere, returning it.");
@@ -208,9 +208,6 @@ NB_MODULE(concept_forge, m) {
   // Public members
   .def_rw("window", &ConceptForge::window,
           "The rendering window object associated with the application.")
-
-  .def_rw("shader_pg", &ConceptForge::shaderProgram,
-          "The active ShaderProgram used for rendering entities.")
 
   .def_rw("input_man", &ConceptForge::input,
           "The input manager handling keyboard and mouse states.")

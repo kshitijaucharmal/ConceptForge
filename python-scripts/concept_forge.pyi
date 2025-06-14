@@ -292,13 +292,6 @@ class ConceptForge:
     def window(self, arg: "WindowManagement::Window", /) -> None: ...
 
     @property
-    def shader_pg(self) -> "ShaderManagement::ShaderProgram":
-        """The active ShaderProgram used for rendering entities."""
-
-    @shader_pg.setter
-    def shader_pg(self, arg: "ShaderManagement::ShaderProgram", /) -> None: ...
-
-    @property
     def input_man(self) -> "InputManagement::Input":
         """The input manager handling keyboard and mouse states."""
 

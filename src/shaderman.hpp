@@ -8,7 +8,12 @@ enum DrawMode {
     FILLED
 };
 
+
 namespace ShaderManagement {
+    enum ShaderType {
+        Unlit,
+        Lit
+    };
     class ShaderProgram{
     private:
         unsigned int vertexShader;
@@ -17,6 +22,7 @@ namespace ShaderManagement {
 
         void InitVertexShader(std::string &vertexShaderPath);
         void InitFragmentShader(std::string &fragmentShaderPath);
+        void ApplyDrawMode();
 
     public:
         unsigned int shaderProgram;
@@ -28,7 +34,6 @@ namespace ShaderManagement {
         void Draw();
         void LinkShaders();
         void SendDataToShader();
-        void BindTextures();
         unsigned int BindTexture(const char* texturePath, const char* textureShaderName, unsigned int textureLoc, bool flip=true);
         // utility uniform functions
         void setBool(const std::string &name, bool value) const;

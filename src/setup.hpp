@@ -9,6 +9,7 @@
 
 #include <string>
 #include <memory>
+#include <unordered_map>
 
 // GLM
 #ifndef GLM_ENABLE_EXPERIMENTAL
@@ -30,6 +31,8 @@
 #include "editor/inspector.hpp"
 #include "editor/object_creation_menu.hpp"
 
+using namespace ShaderManagement;
+
 namespace Engine {
     class ConceptForge{
     public:
@@ -38,7 +41,7 @@ namespace Engine {
         // Projection Logic
         Camera camera;
         WindowManagement::Window window;
-        ShaderManagement::ShaderProgram shaderProgram;
+        std::unordered_map<ShaderType, std::shared_ptr<ShaderProgram>> shaders;
         InputManagement::Input input;
 
         // GUI

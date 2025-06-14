@@ -4,6 +4,7 @@
 #include "primitives/cube.hpp"
 
 using namespace Engine;
+using namespace ShaderManagement;
 
 ConceptForge::ConceptForge():
   camera(glm::vec3(7.3589f, 5.3444f, 6.9258f), glm::vec3(0.0f, 1.0f, 0.0f), -132.4f, -28.2f),
@@ -13,9 +14,25 @@ ConceptForge::ConceptForge():
     // Projection Logic - Initialize
     Projection projection;
 
-    shaderProgram.Init(DrawMode::FILLED, Const::vertexShaderPath, Const::fragmentShaderPath),
-    // Bind all textures
-    shaderProgram.BindTextures();
+    // Lit Shader
+    std::shared_ptr<ShaderProgram> litShader = std::make_shared<ShaderProgram>();
+    litShader->Init(DrawMode::FILLED, Const::litVert, Const::litFrag);
+    litShader->Use();
+    // Set the colors here
+    litShader->setVec3("lightColor",  glm::vec3(1.0f, 1.0f, 1.0f));
+    litShader->setVec3("objectColor", glm::vec3(0.0f, 1.0f, 0.31f));
+
+    shaders[ShaderType::Lit] = std::move(litShader);
+
+    // Unlit Shader
+    std::shared_ptr<ShaderProgram> unlitShader = std::make_shared<ShaderProgram>();
+    unlitShader->Init(DrawMode::WIREFRAME, Const::unlitVert, Const::unlitFrag);
+    unlitShader->Use();
+    unsigned int texture1 = unlitShader->BindTexture(TEXTURE_DIR "/pepsilogo.png", "texture1", 0, true);
+    unsigned int texture2 = unlitShader->BindTexture(TEXTURE_DIR "/wall.jpg", "texture2", 1, false);
+
+    shaders[ShaderType::Unlit] = std::move(unlitShader);
+
 
     // Setup Main GUI
     Editor::Gizmo gizmo;
@@ -25,7 +42,7 @@ ConceptForge::ConceptForge():
     Editor::ObjectCreationMenu objCreatorMenu;
 
     // Add a cube
-    std::unique_ptr<Cube> cube = std::make_unique<Cube>(shaderProgram);
+    std::unique_ptr<Cube> cube = std::make_unique<Cube>(shaders[ShaderType::Unlit].get());
     hierarchy.AddEntity(std::move(cube));
 }
 
@@ -63,7 +80,10 @@ void ConceptForge::Render(){
 }
 
 void ConceptForge::CalcProjection(){
-    projection.Calculate(camera, shaderProgram);
+    // WARNING Something is off here
+    for(auto &shader : shaders){
+        projection.Calculate(camera, *shader.second);
+    }
 }
 
 void ConceptForge::GUIManagement(){
