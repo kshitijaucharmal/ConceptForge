@@ -1,4 +1,4 @@
-from collections.abc import Iterable, Iterator
+from collections.abc import Iterator
 from typing import overload
 
 from . import primitives as primitives
@@ -153,95 +153,89 @@ class Entity:
             deltaFactor (Vec3): Scale multiplier for each axis.
         """
 
-class EntityVector:
-    """
-    A dynamic array (list) of shared Entity objects.
-
-    This class behaves like a standard Python list and can be used to store or access
-    multiple Entity instances, such as those managed by a scene or simulation system.
-
-    Each element is a shared_ptr to an Entity, preserving ownership semantics.
-    """
-
+class EntityMap:
     @overload
     def __init__(self) -> None:
         """Default constructor"""
 
     @overload
-    def __init__(self, arg: EntityVector) -> None:
+    def __init__(self, arg: EntityMap) -> None:
         """Copy constructor"""
 
     @overload
-    def __init__(self, arg: Iterable[Entity], /) -> None:
-        """Construct from an iterable object"""
+    def __init__(self, arg: dict[int, Entity], /) -> None:
+        """Construct from a dictionary"""
 
     def __len__(self) -> int: ...
 
     def __bool__(self) -> bool:
-        """Check whether the vector is nonempty"""
+        """Check whether the map is nonempty"""
 
     def __repr__(self) -> str: ...
 
-    def __iter__(self) -> Iterator[Entity]: ...
+    @overload
+    def __contains__(self, arg: int, /) -> bool: ...
 
     @overload
+    def __contains__(self, arg: object, /) -> bool: ...
+
+    def __iter__(self) -> Iterator[int]: ...
+
     def __getitem__(self, arg: int, /) -> Entity: ...
 
-    @overload
-    def __getitem__(self, arg: slice, /) -> EntityVector: ...
-
-    def clear(self) -> None:
-        """Remove all items from list."""
-
-    def append(self, arg: Entity, /) -> None:
-        """Append `arg` to the end of the list."""
-
-    def insert(self, arg0: int, arg1: Entity, /) -> None:
-        """Insert object `arg1` before index `arg0`."""
-
-    def pop(self, index: int = -1) -> Entity:
-        """Remove and return item at `index` (default last)."""
-
-    def extend(self, arg: EntityVector, /) -> None:
-        """Extend `self` by appending elements from `arg`."""
-
-    @overload
-    def __setitem__(self, arg0: int, arg1: Entity, /) -> None: ...
-
-    @overload
-    def __setitem__(self, arg0: slice, arg1: EntityVector, /) -> None: ...
-
-    @overload
     def __delitem__(self, arg: int, /) -> None: ...
 
-    @overload
-    def __delitem__(self, arg: slice, /) -> None: ...
+    def clear(self) -> None:
+        """Remove all items"""
+
+    def __setitem__(self, arg0: int, arg1: Entity, /) -> None: ...
+
+    def update(self, arg: EntityMap, /) -> None:
+        """Update the map with element from `arg`"""
 
     def __eq__(self, arg: object, /) -> bool: ...
 
     def __ne__(self, arg: object, /) -> bool: ...
 
-    @overload
-    def __contains__(self, arg: Entity, /) -> bool: ...
+    class ItemView:
+        def __len__(self) -> int: ...
 
-    @overload
-    def __contains__(self, arg: object, /) -> bool: ...
+        def __iter__(self) -> Iterator[tuple[int, Entity]]: ...
 
-    def count(self, arg: Entity, /) -> int:
-        """Return number of occurrences of `arg`."""
+    class KeyView:
+        @overload
+        def __contains__(self, arg: int, /) -> bool: ...
 
-    def remove(self, arg: Entity, /) -> None:
-        """Remove first occurrence of `arg`."""
+        @overload
+        def __contains__(self, arg: object, /) -> bool: ...
+
+        def __len__(self) -> int: ...
+
+        def __iter__(self) -> Iterator[int]: ...
+
+    class ValueView:
+        def __len__(self) -> int: ...
+
+        def __iter__(self) -> Iterator[Entity]: ...
+
+    def keys(self) -> EntityMap.KeyView:
+        """Returns an iterable view of the map's keys."""
+
+    def values(self) -> EntityMap.ValueView:
+        """Returns an iterable view of the map's values."""
+
+    def items(self) -> EntityMap.ItemView:
+        """Returns an iterable view of the map's items."""
 
 class Hierarchy:
     def __init__(self) -> None:
         """Create new Hierarchy instance"""
 
     @property
-    def entities(self) -> "std::unordered_map<unsigned int, std::shared_ptr<SimObject::Entity>, std::hash<unsigned int>, std::equal_to<unsigned int>, std::allocator<std::pair<unsigned int const, std::shared_ptr<SimObject::Entity> > > >": ...
+    def entities(self) -> EntityMap: ...
 
     @entities.setter
-    def entities(self, arg: "std::unordered_map<unsigned int, std::shared_ptr<SimObject::Entity>, std::hash<unsigned int>, std::equal_to<unsigned int>, std::allocator<std::pair<unsigned int const, std::shared_ptr<SimObject::Entity> > > >", /) -> None: ...
+    def entities(self, arg: EntityMap, /) -> None: ...
 
 class ConceptForge:
     """

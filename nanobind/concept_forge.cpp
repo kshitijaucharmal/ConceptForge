@@ -2,7 +2,8 @@
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/vector.h>
-#include <nanobind/stl/bind_vector.h>
+#include <nanobind/stl/unordered_map.h>  // <- needed for unordered_map binding
+#include <nanobind/stl/bind_map.h>
 #include <nanobind/stl/shared_ptr.h>
 // For binding glm vectors
 #include <glm/glm.hpp>
@@ -12,6 +13,7 @@ namespace nb = nanobind;
 using namespace nb::literals;
 
 #include <memory>
+#include <unordered_map>
 
 #include "primitives/cube.hpp"
 #include "primitives/uv_sphere.hpp"
@@ -47,8 +49,7 @@ UVSphere* AddUVSphere(ConceptForge &forge, glm::vec3 &pos, glm::vec3 &rot, glm::
   return sphere_ptr;
 }
 // -------------------------------------------------------------------------
-
-NB_MAKE_OPAQUE(std::vector<std::shared_ptr<SimObject::Entity>>);
+NB_MAKE_OPAQUE(std::unordered_map<EntityID, std::shared_ptr<SimObject::Entity>>);
 
 NB_MODULE(concept_forge, m) {
 
@@ -163,12 +164,10 @@ NB_MODULE(concept_forge, m) {
     "forge"_a, "position"_a, "rotation"_a, "scale"_a,
     "Create and register a UVSphere, returning it.");
 
-  nb::bind_vector<std::vector<std::shared_ptr<SimObject::Entity>>>(m, "EntityVector",
-                                                                   "A dynamic array (list) of shared Entity objects.\n\n"
-                                                                   "This class behaves like a standard Python list and can be used to store or access\n"
-                                                                   "multiple Entity instances, such as those managed by a scene or simulation system.\n\n"
-                                                                   "Each element is a shared_ptr to an Entity, preserving ownership semantics."
-  );
+  using EntityMap = std::unordered_map<EntityID, std::shared_ptr<SimObject::Entity>>;
+
+  // This binds EntityMap as a Python-compatible dict-like class
+  nb::bind_map<EntityMap>(m, "EntityMap");
 
   nb::class_<Editor::Hierarchy>(m, "Hierarchy")
     .def(nb::init<>(), "Create new Hierarchy instance")
