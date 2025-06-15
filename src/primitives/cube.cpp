@@ -3,8 +3,9 @@
 
 extern float cubeVertices[];
 
-Cube::Cube(ShaderManagement::ShaderProgram *sp, glm::vec3 pos, glm::vec3 rot, glm::vec3 sca) : shaderProgram(sp) {
+Cube::Cube(ShaderManagement::ShaderProgram *sp, glm::vec3 pos, glm::vec3 rot, glm::vec3 sca) {
 
+  shaderProgram = sp;
   position = pos;
   rotation = rot;
   scale = sca;
@@ -33,12 +34,13 @@ void Cube::SetupVBO(){
 }
 
 void Cube::SetupVertexData(){
-  // position attribute
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
+  // stride = 8 floats = 8 * sizeof(float)
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);                     // aPos
   glEnableVertexAttribArray(0);
-  // texture coord attribute
-  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));   // aTexCoord
   glEnableVertexAttribArray(1);
+  glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));   // aNormal
+  glEnableVertexAttribArray(2);
 }
 
 void Cube::Draw() {

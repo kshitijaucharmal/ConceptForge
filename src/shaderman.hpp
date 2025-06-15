@@ -12,7 +12,8 @@ enum DrawMode {
 namespace ShaderManagement {
     enum ShaderType {
         Unlit,
-        Lit
+        Lit,
+        Light
     };
     class ShaderProgram{
     private:

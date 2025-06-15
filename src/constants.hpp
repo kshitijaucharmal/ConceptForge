@@ -12,6 +12,8 @@ namespace Const {
     static std::string unlitFrag = std::string(SHADER_DIR) + "/unlit.frag";
     static std::string litVert = std::string(SHADER_DIR) + "/lit.vert";
     static std::string litFrag = std::string(SHADER_DIR) + "/lit.frag";
+    static std::string lightVert = std::string(SHADER_DIR) + "/light.vert";
+    static std::string lightFrag = std::string(SHADER_DIR) + "/light.frag";
     // Darkish blue
     static glm::vec4 clearColor(0.1, 0.1, 0.15, 1.0f);
 

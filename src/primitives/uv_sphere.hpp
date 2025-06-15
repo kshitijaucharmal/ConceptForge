@@ -12,7 +12,6 @@ private:
     GLuint VBO;
     GLuint EBO;
     int indexCount = 0;
-    ShaderManagement::ShaderProgram *shaderProgram;
 
 public:
     UVSphere(ShaderManagement::ShaderProgram *sp);

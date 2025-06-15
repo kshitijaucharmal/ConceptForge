@@ -14,6 +14,8 @@
 // For GUI
 #include "imgui.h"
 
+#include "shaderman.hpp"
+
 namespace SimObject {
     class Entity {
     public:
@@ -26,6 +28,8 @@ namespace SimObject {
         glm::mat4 model = glm::mat4(1.0f);
         // TODO Gotta be some kinda id too
         std::string name = "Entity";
+
+        ShaderManagement::ShaderProgram *shaderProgram;
         // ---------------------------------------------------------------
 
         // Transform Functions ---------------------------------------------------------------

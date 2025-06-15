@@ -59,6 +59,7 @@ namespace Engine {
         float deltaTime = 0.0f; // Time between current frame and last frame
 
         // Seperate functions
+        void SetupShaders();
         bool WindowShouldClose();
         float DeltaTimeCalc();
         void ProcessInput();

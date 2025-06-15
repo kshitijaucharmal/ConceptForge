@@ -2,13 +2,15 @@
 #include <imgui.h>
 #include "constants.hpp"
 
+#include <iostream>
+
 using namespace Editor;
 
 Hierarchy::Hierarchy() { }
 
 void Hierarchy::AddEntity(std::shared_ptr<SimObject::Entity> entity) {
     // TODO: This just gives the id in the name, regardless of type. Change this
-    entity->name += " " + std::to_string(entityCount);
+    entity->name = std::to_string(entityCount) + ". " + entity->name;
     entities[entityCount] = std::move(entity);
     entityCount++;
 }
