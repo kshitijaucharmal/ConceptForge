@@ -32,7 +32,6 @@ namespace ShaderManagement {
         void Init(DrawMode mode, std::string &vertexShaderPath, std::string &fragmentShaderPath);
         ~ShaderProgram();
         void Use();
-        void Draw();
         void LinkShaders();
         void SendDataToShader();
         unsigned int BindTexture(const char* texturePath, const char* textureShaderName, unsigned int textureLoc, bool flip=true);

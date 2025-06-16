@@ -1,4 +1,5 @@
 from collections.abc import Iterator
+import enum
 from typing import overload
 
 from . import primitives as primitives
@@ -74,6 +75,82 @@ class Vec3:
 
     def to_dict(self) -> dict:
         """Convert the vector to a Python dictionary {'x': x, 'y': y, 'z': z}."""
+
+class DrawMode(enum.Enum):
+    """Rendering mode used by shaders"""
+
+    WIREFRAME = 0
+    """Render using wireframe mode (edges only)"""
+
+    FILLED = 1
+    """Render using filled (solid) polygons"""
+
+WIREFRAME: DrawMode = DrawMode.WIREFRAME
+
+FILLED: DrawMode = DrawMode.FILLED
+
+class ShaderType(enum.Enum):
+    """Types of built-in shaders used in the engine"""
+
+    Unlit = 0
+    """Unlit shader (no lighting calculations)"""
+
+    Lit = 1
+    """Lit shader (basic lighting enabled)"""
+
+    Light = 2
+    """Light shader used for rendering light sources"""
+
+Unlit: ShaderType = ShaderType.Unlit
+
+Lit: ShaderType = ShaderType.Lit
+
+Light: ShaderType = ShaderType.Light
+
+class ShaderProgram:
+    """Encapsulates a GLSL shader program"""
+
+    def __init__(self) -> None:
+        """Create an empty ShaderProgram"""
+
+    def init(self, mode: DrawMode, vertexShaderPath: str, fragmentShaderPath: str) -> None:
+        """Compile, link and initialize the shader program"""
+
+    def set_draw_mode(self, mode: DrawMode) -> None:
+        """Set the rendering mode (wireframe or filled)"""
+
+    def use(self) -> None:
+        """Activate this shader program for subsequent draw calls"""
+
+    def link_shaders(self) -> None:
+        """Link the compiled vertex and fragment shaders into a complete program"""
+
+    def send_data_to_shader(self) -> None:
+        """Send additional required uniform data to the shader"""
+
+    def bind_texture(self, texturePath: str, textureShaderName: str, textureLoc: int, flip: bool = True) -> int:
+        """Bind a texture to the shader and upload it to a uniform sampler"""
+
+    def set_bool(self, name: str, value: bool) -> None:
+        """Set a boolean uniform"""
+
+    def set_int(self, name: str, value: int) -> None:
+        """Set an integer uniform"""
+
+    def set_float(self, name: str, value: float) -> None:
+        """Set a float uniform"""
+
+    def set_vec2(self, name: str, value: "glm::vec<2, float, (glm::qualifier)0>") -> None:
+        """Set a vec2 uniform (2D vector)"""
+
+    def set_vec3(self, name: str, value: Vec3) -> None:
+        """Set a vec3 uniform (3D vector)"""
+
+    def set_vec4(self, name: str, value: "glm::vec<4, float, (glm::qualifier)0>") -> None:
+        """Set a vec4 uniform (4D vector)"""
+
+    def set_mat4(self, name: str, value: "glm::mat<4, 4, float, (glm::qualifier)0>") -> None:
+        """Set a mat4 uniform (4x4 matrix)"""
 
 class Entity:
     """Base class representing a 3D object with position, rotation, and scale"""

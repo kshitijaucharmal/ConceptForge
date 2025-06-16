@@ -31,8 +31,15 @@ int main() {
     forge.Render();
 
     for(auto const &entity : forge.hierarchy.entities){
-      entity.second->shaderProgram->setVec3("lightPos", light_ptr->GetPosition());
-      entity.second->shaderProgram->setVec3("viewPos", forge.camera.Position);
+      auto lightingShader = entity.second->shaderProgram;
+      lightingShader->setVec3("lightPos", light_ptr->GetPosition());
+      lightingShader->setVec3("viewPos", forge.camera.Position);
+
+      // TODO: Set material using local files, and allow chaning in inspector
+      lightingShader->setVec3("material.ambient", glm::vec3(1.0f, 0.5f, 0.31f));
+      lightingShader->setVec3("material.diffuse", glm::vec3(1.0f, 0.5f, 0.31f));
+      lightingShader->setVec3("material.specular", glm::vec3(0.5f));
+      lightingShader->setFloat("material.shininess", 32.0f);
     }
 
     forge.CalcProjection();

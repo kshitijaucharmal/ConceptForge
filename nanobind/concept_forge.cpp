@@ -2,7 +2,7 @@
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/vector.h>
-#include <nanobind/stl/unordered_map.h>  // <- needed for unordered_map binding
+#include <nanobind/stl/unordered_map.h>
 #include <nanobind/stl/bind_map.h>
 #include <nanobind/stl/shared_ptr.h>
 // For binding glm vectors
@@ -17,6 +17,7 @@ using namespace nb::literals;
 
 #include "primitives/cube.hpp"
 #include "primitives/uv_sphere.hpp"
+#include "shaderman.hpp"
 #include "editor/hierarchy.hpp"
 #include "setup.hpp"
 
@@ -48,15 +49,17 @@ UVSphere* AddUVSphere(ConceptForge &forge, glm::vec3 &pos, glm::vec3 &rot, glm::
   forge.hierarchy.AddEntity(std::move(sphere));
   return sphere_ptr;
 }
-// -------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------
+
+// Complex types need to be OPAQUE
 NB_MAKE_OPAQUE(std::unordered_map<EntityID, std::shared_ptr<SimObject::Entity>>);
 
 NB_MODULE(concept_forge, m) {
+    // Submodules ----------------------------------------------------------------------------------------
+    nb::module_ primitives = m.def_submodule("primitives", "Primitive 3D objects that derive from Entity");
+    // ---------------------------------------------------------------------------------------------------
 
-  // Define all submodules here
-  nb::module_ primitives = m.def_submodule("primitives", "Primitive 3D objects that derive from Entity");
-
-  // Bind Vec3
+    // Bind Vec3 -----------------------------------------------------------------------------------------
     nb::class_<glm::vec3>(m, "Vec3", "A 3D vector with float components x, y, and z.")
     .def(nb::init<float, float, float>(),
         "Constructor with x, y, z\n\n"
@@ -97,7 +100,81 @@ NB_MODULE(concept_forge, m) {
       d["z"] = v.z;
       return d;
     }, "Convert the vector to a Python dictionary {'x': x, 'y': y, 'z': z}.");
+    // ---------------------------------------------------------------------------------------------------
 
+    // Shader Manager ------------------------------------------------------------------------------------
+
+    // --- Enum: DrawMode ---
+    nb::enum_<DrawMode>(m, "DrawMode", "Rendering mode used by shaders")
+    .value("WIREFRAME", DrawMode::WIREFRAME, "Render using wireframe mode (edges only)")
+    .value("FILLED", DrawMode::FILLED, "Render using filled (solid) polygons")
+    .export_values();
+
+    // --- Enum: ShaderType ---
+    nb::enum_<ShaderType>(m, "ShaderType", "Types of built-in shaders used in the engine")
+    .value("Unlit", ShaderType::Unlit, "Unlit shader (no lighting calculations)")
+    .value("Lit", ShaderType::Lit, "Lit shader (basic lighting enabled)")
+    .value("Light", ShaderType::Light, "Light shader used for rendering light sources")
+    .export_values();
+
+    // --- Class: ShaderProgram ---
+    nb::class_<ShaderProgram>(m, "ShaderProgram", "Encapsulates a GLSL shader program")
+    .def(nb::init<>(), "Create an empty ShaderProgram")
+
+    .def("init", &ShaderProgram::Init,
+         "Compile, link and initialize the shader program",
+         nb::arg("mode"), nb::arg("vertexShaderPath"), nb::arg("fragmentShaderPath"))
+
+    .def("set_draw_mode", &ShaderProgram::SetDrawMode,
+         "Set the rendering mode (wireframe or filled)",
+         nb::arg("mode"))
+
+    .def("use", &ShaderProgram::Use,
+         "Activate this shader program for subsequent draw calls")
+
+    .def("link_shaders", &ShaderProgram::LinkShaders,
+         "Link the compiled vertex and fragment shaders into a complete program")
+
+    .def("send_data_to_shader", &ShaderProgram::SendDataToShader,
+         "Send additional required uniform data to the shader")
+
+    .def("bind_texture", &ShaderProgram::BindTexture,
+         "Bind a texture to the shader and upload it to a uniform sampler",
+         nb::arg("texturePath"), nb::arg("textureShaderName"),
+         nb::arg("textureLoc"), nb::arg("flip") = true)
+
+    // --- Uniform setters ---
+    .def("set_bool", &ShaderProgram::setBool,
+         "Set a boolean uniform",
+         nb::arg("name"), nb::arg("value"))
+
+    .def("set_int", &ShaderProgram::setInt,
+         "Set an integer uniform",
+         nb::arg("name"), nb::arg("value"))
+
+    .def("set_float", &ShaderProgram::setFloat,
+         "Set a float uniform",
+         nb::arg("name"), nb::arg("value"))
+
+    .def("set_vec2", &ShaderProgram::setVec2,
+         "Set a vec2 uniform (2D vector)",
+         nb::arg("name"), nb::arg("value"))
+
+    .def("set_vec3", &ShaderProgram::setVec3,
+         "Set a vec3 uniform (3D vector)",
+         nb::arg("name"), nb::arg("value"))
+
+    .def("set_vec4", &ShaderProgram::setVec4,
+         "Set a vec4 uniform (4D vector)",
+         nb::arg("name"), nb::arg("value"))
+
+    .def("set_mat4", &ShaderProgram::setMat4,
+         "Set a mat4 uniform (4x4 matrix)",
+         nb::arg("name"), nb::arg("value"));
+
+    // ---------------------------------------------------------------------------------------------------
+
+    // Entity --------------------------------------------------------------------------------------------
     nb::class_<Entity>(m, "Entity", "Base class representing a 3D object with position, rotation, and scale")
     .def(nb::init<>(), "Create a new Entity with default position (0,0,0), rotation (0,0,0), and scale (1,1,1).")
 
@@ -148,8 +225,9 @@ NB_MODULE(concept_forge, m) {
          "Scale the Entity by multiplying its current scale by the given factor.\n\n"
          "Args:\n"
          "    deltaFactor (Vec3): Scale multiplier for each axis.");
+  // ---------------------------------------------------------------------------------------------------
 
-  // Primitives
+  // Primitives ----------------------------------------------------------------------------------------
   nb::class_<Cube, Entity>(primitives, "Cube")
     .def("__repr__", [](const Cube *) { return "<Cube>"; })
     .def(nb::init<ShaderManagement::ShaderProgram*>(), "Represents a Cube Entity")
@@ -163,55 +241,62 @@ NB_MODULE(concept_forge, m) {
     .def_static("new", &AddUVSphere, nb::rv_policy::reference,
     "forge"_a, "position"_a, "rotation"_a, "scale"_a,
     "Create and register a UVSphere, returning it.");
+  // ---------------------------------------------------------------------------------------------------
 
+  // Complex elements ----------------------------------------------------------------------------------
   using EntityMap = std::unordered_map<EntityID, std::shared_ptr<SimObject::Entity>>;
 
   // This binds EntityMap as a Python-compatible dict-like class
   nb::bind_map<EntityMap>(m, "EntityMap");
+  // ---------------------------------------------------------------------------------------------------
 
+  // Hierarchy -----------------------------------------------------------------------------------------
   nb::class_<Editor::Hierarchy>(m, "Hierarchy")
     .def(nb::init<>(), "Create new Hierarchy instance")
     .def_rw("entities", &Editor::Hierarchy::entities);
+  // ---------------------------------------------------------------------------------------------------
 
+  // Main Class ----------------------------------------------------------------------------------------
   nb::class_<ConceptForge>(m, "ConceptForge",
                            "The main application context that manages the rendering window, input, GUI, and scene entities.\n"
                            "This class acts as the core engine loop handler and entity manager.")
 
-  // Constructor
-  .def(nb::init<>(), "Create a new ConceptForge instance with default settings.")
+    // Constructor
+    .def(nb::init<>(), "Create a new ConceptForge instance with default settings.")
 
-  // Engine loop and rendering methods
-  .def("window_should_close", &ConceptForge::WindowShouldClose,
-       "Check if the rendering window should close (e.g. user clicked the close button).\n\n"
-       "Returns:\n"
-       "    bool: True if the window should close, False otherwise.")
+    // Engine loop and rendering methods
+    .def("window_should_close", &ConceptForge::WindowShouldClose,
+        "Check if the rendering window should close (e.g. user clicked the close button).\n\n"
+        "Returns:\n"
+        "    bool: True if the window should close, False otherwise.")
 
-  .def("dt", &ConceptForge::DeltaTimeCalc,
-       "Return the time elapsed between the current and previous frame.\n\n"
-       "Useful for time-based animation and physics.\n\n"
-       "Returns:\n"
-       "    float: Delta time in seconds.")
+    .def("dt", &ConceptForge::DeltaTimeCalc,
+        "Return the time elapsed between the current and previous frame.\n\n"
+        "Useful for time-based animation and physics.\n\n"
+        "Returns:\n"
+        "    float: Delta time in seconds.")
 
-  .def("process_input", &ConceptForge::ProcessInput,
-       "Poll and process input events from the window (keyboard, mouse, etc).")
+    .def("process_input", &ConceptForge::ProcessInput,
+        "Poll and process input events from the window (keyboard, mouse, etc).")
 
-  .def("render", &ConceptForge::Render,
-       "Clear the screen and render all registered entities.")
+    .def("render", &ConceptForge::Render,
+        "Clear the screen and render all registered entities.")
 
-  .def("calc_projection", &ConceptForge::CalcProjection,
-       "Recalculate the camera projection matrix based on current parameters like field of view, aspect ratio, etc.")
+    .def("calc_projection", &ConceptForge::CalcProjection,
+        "Recalculate the camera projection matrix based on current parameters like field of view, aspect ratio, etc.")
 
-  .def("gui_management", &ConceptForge::GUIManagement,
-       "Render the GUI (e.g. ImGui windows for editor features).")
+    .def("gui_management", &ConceptForge::GUIManagement,
+        "Render the GUI (e.g. ImGui windows for editor features).")
 
-  // Public members
-  .def_rw("window", &ConceptForge::window,
-          "The rendering window object associated with the application.")
+    // Public members
+    .def_rw("window", &ConceptForge::window,
+            "The rendering window object associated with the application.")
 
-  .def_rw("input_man", &ConceptForge::input,
-          "The input manager handling keyboard and mouse states.")
+    .def_rw("input_man", &ConceptForge::input,
+            "The input manager handling keyboard and mouse states.")
 
-  .def_rw("hierarchy", &ConceptForge::hierarchy,
-          "Hierarchy object that holds references to all entities in the scene");
+    .def_rw("hierarchy", &ConceptForge::hierarchy,
+            "Hierarchy object that holds references to all entities in the scene");
 
+  // ---------------------------------------------------------------------------------------------------
 }
