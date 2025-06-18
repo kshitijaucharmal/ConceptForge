@@ -28,14 +28,18 @@ void ConceptForge::SetupShaders(){
     // Lit Shader
     std::shared_ptr<ShaderProgram> litShader = std::make_shared<ShaderProgram>();
     litShader->Init(DrawMode::FILLED, Const::litVert, Const::litFrag);
+    litShader->BindTexture(TEXTURE_DIR "/container2.png", "texture1", 0, true);
+    litShader->BindTexture(TEXTURE_DIR "/container2_specular.png", "texture2", 1, false);
+    litShader->setInt("material.diffuse", 0);
+    litShader->setInt("material.specular", 1);
     shaders[ShaderType::Lit] = std::move(litShader);
 
     // Unlit Shader
     std::shared_ptr<ShaderProgram> unlitShader = std::make_shared<ShaderProgram>();
     unlitShader->Init(DrawMode::WIREFRAME, Const::unlitVert, Const::unlitFrag);
     unlitShader->Use();
-    unsigned int texture1 = unlitShader->BindTexture(TEXTURE_DIR "/pepsilogo.png", "texture1", 0, true);
-    unsigned int texture2 = unlitShader->BindTexture(TEXTURE_DIR "/wall.jpg", "texture2", 1, false);
+    // unsigned int texture1 = unlitShader->BindTexture(TEXTURE_DIR "/container2.png", "texture1", 0, true);
+    // unsigned int texture2 = unlitShader->BindTexture(TEXTURE_DIR "/container2_specular.png", "texture2", 1, false);
 
     shaders[ShaderType::Unlit] = std::move(unlitShader);
 

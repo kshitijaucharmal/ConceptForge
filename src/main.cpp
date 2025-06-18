@@ -38,8 +38,8 @@ int main() {
       lightingShader->setVec3("light.specular", glm::vec3(1.0f));
 
       // TODO: Set material using local files, and allow chaning in inspector
-      lightingShader->setVec3("material.ambient", glm::vec3(1.0f, 0.31f, 0.5f));
-      lightingShader->setVec3("material.diffuse", glm::vec3(1.0f, 0.31f, 0.5f));
+      lightingShader->setVec3("material.ambient", glm::vec3(0.31f, 1.0f, 0.5f));
+      lightingShader->setVec3("material.diffuse", glm::vec3(0.31f, 1.0f, 0.5f));
       lightingShader->setVec3("material.specular", glm::vec3(0.5f));
       lightingShader->setFloat("material.shininess", 16.0f);
     }
