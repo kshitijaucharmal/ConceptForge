@@ -160,6 +160,12 @@ class Entity:
         Create a new Entity with default position (0,0,0), rotation (0,0,0), and scale (1,1,1).
         """
 
+    @property
+    def shader(self) -> ShaderProgram: ...
+
+    @shader.setter
+    def shader(self, arg: ShaderProgram, /) -> None: ...
+
     def get_position(self) -> Vec3:
         """Return the current position of the Entity as a Vec3 (x, y, z)."""
 

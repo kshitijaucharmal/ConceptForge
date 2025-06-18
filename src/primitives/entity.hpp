@@ -29,7 +29,7 @@ namespace SimObject {
         // TODO Gotta be some kinda id too
         std::string name = "Entity";
 
-        ShaderManagement::ShaderProgram *shaderProgram;
+        ShaderManagement::ShaderProgram *shader;
         // ---------------------------------------------------------------
 
         // Transform Functions ---------------------------------------------------------------

@@ -5,7 +5,7 @@ extern float cubeVertices[];
 
 Cube::Cube(ShaderManagement::ShaderProgram *sp, glm::vec3 pos, glm::vec3 rot, glm::vec3 sca) {
 
-  shaderProgram = sp;
+  shader = sp;
   position = pos;
   rotation = rot;
   scale = sca;
@@ -44,8 +44,8 @@ void Cube::SetupVertexData(){
 }
 
 void Cube::Draw() {
-  shaderProgram->Use();
-  shaderProgram->setMat4("model", model);
+  shader->Use();
+  shader->setMat4("model", model);
   glBindVertexArray(VAO);
   glDrawArrays(GL_TRIANGLES, 0, 36);
   glBindVertexArray(0);

@@ -71,24 +71,31 @@ std::vector<uint> UVSphere::GenerateSphereIndices() {
 }
 
 UVSphere::UVSphere(ShaderManagement::ShaderProgram *sp ) {
-    shaderProgram = sp;
+    shader = sp;
     position = glm::vec3(0.0);
     rotation = glm::vec3(0.0);
     scale = glm::vec3(1.0);
 
     name = "UV Sphere";
 
+    Init();
+};
+
+void UVSphere::Init(int sectorCount, int stackCount, float radius){
+    this->sectorCount = sectorCount;
+    this->stackCount = stackCount;
+    this->radius = radius;
     std::vector<float> sphereVertices = GenerateSphere();
     std::vector<unsigned int> sphereIndices = GenerateSphereIndices();
     CreateSphereVAO(sphereVertices, sphereIndices);
     indexCount = sphereIndices.size();
 
     UpdateModelMatrix();
-};
+}
 
 void UVSphere::Draw() {
-  shaderProgram->Use();
-  shaderProgram->setMat4("model", model);
+  shader->Use();
+  shader->setMat4("model", model);
   glBindVertexArray(VAO);
   glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
   glBindVertexArray(0); // Unbind VAO

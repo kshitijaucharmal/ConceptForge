@@ -15,10 +15,11 @@ private:
 
 public:
     UVSphere(ShaderManagement::ShaderProgram *sp);
+    void Init(int sectorCount=36, int stackCount=18, float radius=0.5);
 
-    int sectorCount = 36;
-    int stackCount = 18;
-    float radius = 0.5f;
+    int sectorCount;
+    int stackCount;
+    float radius;
 
     std::vector<float> GenerateSphere();
     std::vector<uint> GenerateSphereIndices();

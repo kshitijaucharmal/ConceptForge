@@ -178,6 +178,8 @@ NB_MODULE(concept_forge, m) {
     nb::class_<Entity>(m, "Entity", "Base class representing a 3D object with position, rotation, and scale")
     .def(nb::init<>(), "Create a new Entity with default position (0,0,0), rotation (0,0,0), and scale (1,1,1).")
 
+    .def_rw("shader", &Entity::shader)
+
     // Getters
     .def("get_position", &Entity::GetPosition,
          "Return the current position of the Entity as a Vec3 (x, y, z).")
