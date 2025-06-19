@@ -21,7 +21,7 @@ int main() {
   ConceptForge forge;
 
   std::unique_ptr<UVSphere> light = std::make_unique<UVSphere>(forge.shaders[ShaderType::Light].get());
-  light->SetPosition(glm::vec3(1.3, 100, 4));
+  light->SetPosition(glm::vec3(0, 4, 0));
   light->SetRotation(glm::vec3(-0.2f, -1.0f, -0.3f));
   light->SetScale(glm::vec3(0.2));
   light->name = "Light";
@@ -52,8 +52,8 @@ int main() {
 
     for(auto const &entity : forge.hierarchy.entities){
       auto shader = entity.second->shader;
-      // shader->setVec3("viewPos", forge.camera.Position);
-      // shader->setVec3("light.direction",  light_ptr->GetRotation());
+      shader->setVec3("viewPos", forge.camera.Position);
+      shader->setVec3("light.position",  light_ptr->GetPosition());
 
       // TODO: Set material using local files, and allow chaning in inspector
       shader->setFloat("material.shininess", 32.0f);
