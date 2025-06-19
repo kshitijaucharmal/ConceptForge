@@ -89,7 +89,6 @@ bool ConceptForge::WindowShouldClose() {
     return glfwWindowShouldClose(window.window);
 }
 
-
 void ConceptForge::ProcessInput(){
     // input processing
     input.processInput(window.window, camera, deltaTime);
@@ -101,11 +100,6 @@ void ConceptForge::Render(){
     glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
-
-    shaders[ShaderType::Lit]->Use();
-    // Set the colors here
-    shaders[ShaderType::Lit]->setVec3("lightColor",  glm::vec3(1.0f, 1.0f, 1.0f));
-    shaders[ShaderType::Lit]->setVec3("objectColor", glm::vec3(0.0f, 1.0f, 0.31f));
 
     window.RenderToFBO();
 }
