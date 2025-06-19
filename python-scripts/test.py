@@ -24,9 +24,8 @@ while not forge.window_should_close():
     dt = forge.dt()
     forge.calc_projection()
 
-    sphere.rotate(200 * dt, Vec3(0, 1, 0))
-    cube.rotate(-200 * dt, Vec3(0, 1, 0))
-
+    # sphere.rotate(200 * dt, Vec3(0, 1, 0))
+    # cube.rotate(-200 * dt, Vec3(0, 1, 0))
     cube.set_position(Vec3(0, sin(time.time() * 2) * 2, 0))
 
     forge.gui_management()

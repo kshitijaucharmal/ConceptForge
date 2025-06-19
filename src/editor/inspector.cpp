@@ -37,7 +37,7 @@ void Inspector::Show(SimObject::Entity *entity, ImGuizmo::OPERATION &operation, 
         glm::vec3 prevScale = entity->scale;
 
         ImGui::DragFloat3("Position", glm::value_ptr(entity->position), 0.01,  -10.0, 10.0);
-        ImGui::DragFloat3("Rotation", glm::value_ptr(entity->rotation), 1.,  -180.0, 180.0);
+        ImGui::DragFloat3("Rotation", glm::value_ptr(entity->rotation), .05,  -180.0, 180.0);
         ImGui::DragFloat3("Scale", glm::value_ptr(entity->scale), 0.1,  0.0, 100.0);
 
         // Only update model matrix if values changed

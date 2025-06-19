@@ -15,7 +15,7 @@ namespace Const {
     static std::string lightVert = std::string(SHADER_DIR) + "/light.vert";
     static std::string lightFrag = std::string(SHADER_DIR) + "/light.frag";
     // Darkish blue
-    static glm::vec4 clearColor(0.1, 0.1, 0.15, 1.0f);
+    static glm::vec4 clearColor(0.03, 0.03, 0.035, 1.0f);
 
     // Constants
     static const int WIDTH = 1600;

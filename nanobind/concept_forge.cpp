@@ -20,14 +20,16 @@ using namespace nb::literals;
 #include "shaderman.hpp"
 #include "editor/hierarchy.hpp"
 #include "setup.hpp"
+#include "camera.hpp"
 
 using namespace Engine;
 using namespace SimObject;
 
 // -------------------------------------------------------------------------
 // First arg acts as self
-Cube* AddCube(ConceptForge &forge, glm::vec3 &pos, glm::vec3 &rot, glm::vec3 &scale) {
-  std::unique_ptr<Cube> cube = std::make_unique<Cube>(forge.shaders[ShaderType::Lit].get());
+Cube* AddCube(ConceptForge &forge, glm::vec3 &pos, glm::vec3 &rot, glm::vec3 &scale, ShaderType shaderType=ShaderType::Lit) {
+  auto shader = forge.shaders[shaderType].get();
+  std::unique_ptr<Cube> cube = std::make_unique<Cube>(shader);
   cube->SetPosition(pos);
   cube->SetRotation(rot);
   cube->SetScale(scale);
@@ -234,7 +236,7 @@ NB_MODULE(concept_forge, m) {
     .def("__repr__", [](const Cube *) { return "<Cube>"; })
     .def(nb::init<ShaderManagement::ShaderProgram*>(), "Represents a Cube Entity")
     .def_static("new", &AddCube, nb::rv_policy::reference,
-    "forge"_a, "position"_a, "rotation"_a, "scale"_a,
+    "forge"_a, "position"_a, "rotation"_a, "scale"_a, "shader"_a = ShaderType::Lit,
     "Create and register a Cube, returning it.");
 
   nb::class_<UVSphere, Entity>(primitives, "UVSphere")

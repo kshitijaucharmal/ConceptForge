@@ -52,6 +52,7 @@ namespace Engine {
         Editor::Hierarchy hierarchy;
         Editor::ObjectCreationMenu objCreatorMenu;
         Projection projection;
+        GLuint pointLightSSBO;
 
         ConceptForge();
         ~ConceptForge();
