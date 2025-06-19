@@ -1,6 +1,6 @@
 # Concept Forge - OpenGL Game Engine
 
-
+[![Bees and Bombs algorithm in ConceptForge](./assets/github/bees-and-bombs-lighting.mp4)]
 *Above: A demo of early simulation logic running in Concept Forge.*
 
 ---
