@@ -20,6 +20,7 @@ using namespace nb::literals;
 #include "shaderman.hpp"
 #include "editor/hierarchy.hpp"
 #include "setup.hpp"
+#include "camera.hpp"
 
 using namespace Engine;
 using namespace SimObject;

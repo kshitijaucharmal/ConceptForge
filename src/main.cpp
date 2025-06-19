@@ -1,6 +1,7 @@
 #include "setup.hpp"
 #include "primitives/uv_sphere.hpp"
 #include "primitives/cube.hpp"
+#include "primitives/light_ssbo.hpp"
 
 using namespace Engine;
 
@@ -21,11 +22,17 @@ int main() {
   ConceptForge forge;
 
   std::unique_ptr<UVSphere> light = std::make_unique<UVSphere>(forge.shaders[ShaderType::Light].get());
-  light->SetPosition(glm::vec3(0, 4, 0));
-  light->SetRotation(glm::vec3(-0.2f, -1.0f, -0.3f));
+  light->SetPosition(glm::vec3(0.7f,  0.2f,  2.0f));
   light->SetScale(glm::vec3(0.2));
   light->name = "Light";
-  UVSphere* light_ptr = light.get();
+  UVSphere* light_ptr1 = light.get();
+  forge.hierarchy.AddEntity(std::move(light));
+
+  light = std::make_unique<UVSphere>(forge.shaders[ShaderType::Light].get());
+  light->SetPosition(glm::vec3(2.3f, -3.3f, -4.0f));
+  light->SetScale(glm::vec3(0.2));
+  light->name = "Light2";
+  UVSphere* light_ptr2 = light.get();
   forge.hierarchy.AddEntity(std::move(light));
 
   // Add a sphere and a Cube
@@ -44,6 +51,10 @@ int main() {
     forge.hierarchy.AddEntity(std::move(cube));
 
   }
+  std::vector<PointLight> pointLights = {
+      PointLight(glm::vec3(1,4,3), glm::vec3(0.05), glm::vec3(1.0), glm::vec3(1.0)),
+      PointLight(glm::vec3(-2,10,0), glm::vec3(0.05), glm::vec3(0.8), glm::vec3(1.0))
+  };
 
   // Render Loop
   while (!forge.WindowShouldClose()) {
@@ -53,10 +64,12 @@ int main() {
     for(auto const &entity : forge.hierarchy.entities){
       auto shader = entity.second->shader;
       shader->setVec3("viewPos", forge.camera.Position);
-      shader->setVec3("light.position",  light_ptr->GetPosition());
+      pointLights[0].position = light_ptr1->GetPosition();
+      pointLights[1].position = light_ptr2->GetPosition();
 
-      // TODO: Set material using local files, and allow chaning in inspector
-      shader->setFloat("material.shininess", 32.0f);
+      glBindBuffer(GL_SHADER_STORAGE_BUFFER, forge.pointLightSSBO);
+      glBufferData(GL_SHADER_STORAGE_BUFFER, pointLights.size() * sizeof(PointLight), pointLights.data(), GL_DYNAMIC_DRAW);
+      glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     }
 
     forge.CalcProjection();
