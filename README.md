@@ -1,10 +1,16 @@
 # Concept Forge - OpenGL Game Engine
 
+
 *Above: A demo of early simulation logic running in Concept Forge.*
 
 ---
 
-**Concept Forge** is a lightweight, modular game/simulation engine built using modern **C++**, **OpenGL**, and **Python**. Designed for performance, flexibility, and expressiveness, it allows you to prototype and build everything from real-time simulations to experimental gameplay systems — with full control from both C++ and Python.
+**Concept Forge** is a lightweight, modular game/simulation engine built using modern **C++**, **OpenGL**, and **Python**.
+Designed for performance, flexibility, and expressiveness, it allows you to prototype and
+build everything from real-time simulations to experimental gameplay systems — with full control from both C++ and Python, and the
+main thing, **Natural Langauge!!**
+
+Just say the word, and it'll do it for you.
 
 Built in public. Built to scale.  
 An evolving foundation for creative and technical experiments.
@@ -13,6 +19,7 @@ An evolving foundation for creative and technical experiments.
 
 ## Features
 
+- **AI Focused**: Built to include AI Generation from the ground up.
 - **Custom Engine Core**: Built from scratch with modern C++ and OpenGL.
 - **Python Scripting Layer**: Bindings via [`nanobind`](https://github.com/wjakob/nanobind) let you control the engine from Python.
 - **Hybrid Architecture**: Use C++ for speed, Python for iteration.
