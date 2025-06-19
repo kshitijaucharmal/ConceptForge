@@ -9,12 +9,17 @@ struct Material {
 // --------------------------------------------
 struct DirLight {
   vec3 direction;
+  float pad1;
 
   vec3 ambient;
+  float pad2;
+
   vec3 diffuse;
+  float pad3;
+
   vec3 specular;
+  float pad4;
 };
-uniform DirLight dirLight;
 // --------------------------------------------
 struct PointLight {
   vec3 position;
@@ -30,8 +35,12 @@ struct PointLight {
   float pad; // Declared to keep 16 byte aligned (vec3 + float = 4 float = 16 bytes)
 };
 
+// SSBOs -------------------------------------
 layout(std430, binding = 1) buffer PointLights {
   PointLight pointLights[];
+};
+layout(std430, binding = 2) buffer DirLightsBuffer {
+  DirLight dirLights[];
 };
 
 // --------------------------------------------
@@ -57,10 +66,13 @@ void main() {
   vec3 result = vec3(0.0);
 
   // phase 1: Directional lighting
-  result += CalcDirLight(dirLight, norm, viewDir);
+  for(int i = 0; i < dirLights.length(); i++){
+    result += CalcDirLight(dirLights[i], norm, viewDir);
+  }
   // phase 2: Point lights
-  for(int i = 0; i < pointLights.length(); i++)
+  for(int i = 0; i < pointLights.length(); i++){
     result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
+  }
   // phase 3: Spot light
   //result += CalcSpotLight(spotLight, norm, FragPos, viewDir);
 
@@ -77,7 +89,7 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir) {
   // combine results
   vec3 ambient  = light.ambient  * vec3(texture(material.diffuse, TexCoords));
   vec3 diffuse  = light.diffuse  * diff * vec3(texture(material.diffuse, TexCoords));
-  vec3 specular = light.specular * spec;
+  vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));
   return (ambient + diffuse + specular);
 }
 

@@ -53,6 +53,10 @@ namespace Engine {
         Editor::Hierarchy hierarchy;
         Editor::ObjectCreationMenu objCreatorMenu;
         Projection projection;
+
+        // Lights SSBOs
+        GLuint dirLightSSBO;
+        std::vector<DirectionalLight> dirLights;
         GLuint pointLightSSBO;
         std::vector<PointLight> pointLights;
 

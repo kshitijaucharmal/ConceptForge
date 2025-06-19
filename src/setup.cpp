@@ -17,10 +17,17 @@ ConceptForge::ConceptForge():
     glGenBuffers(1, &pointLightSSBO);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, pointLightSSBO); // match binding = 1
 
+    glGenBuffers(1, &dirLightSSBO);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, dirLightSSBO);
+
     pointLights = {
         PointLight(glm::vec3(0), glm::vec3(0.05), glm::vec3(3.0, 0.1, 0.0), glm::vec3(3.0, 0.1, 0.0)),
         PointLight(glm::vec3(0), glm::vec3(0.05), glm::vec3(0, 2.0, 0.3), glm::vec3(0., 2.0, 0.3)),
         PointLight(glm::vec3(0), glm::vec3(0.05), glm::vec3(0., 0., 3.0), glm::vec3(0., 0., 3.0))
+    };
+
+    dirLights = {
+        DirectionalLight(glm::vec3(-34.f, -1.0f, -0.3f), glm::vec3(0.1f), glm::vec3(0.4f), glm::vec3(0.5f))
     };
 
     SetupShaders();
@@ -37,21 +44,17 @@ void ConceptForge::SetupShaders(){
     // Lit Shader
     std::shared_ptr<ShaderProgram> litShader = std::make_shared<ShaderProgram>();
     litShader->Init(DrawMode::FILLED, Const::litVert, Const::litFrag);
+
+    // Material
     litShader->BindTexture(TEXTURE_DIR "/container2.png", "material.diffuse", 0, true);
     litShader->BindTexture(TEXTURE_DIR "/container2_specular.png", "material.specular", 1, false);
     litShader->setFloat("material.shininess", 32.0f);
-
-    // directional light
-    litShader->setVec3("dirLight.direction", glm::vec3(-34.f, -1.0f, -0.3f));
-    litShader->setVec3("dirLight.ambient", glm::vec3(0.1f));
-    litShader->setVec3("dirLight.diffuse", glm::vec3(0.4f));
-    litShader->setVec3("dirLight.specular", glm::vec3(0.5f));
 
     shaders[ShaderType::Lit] = std::move(litShader);
 
     // Unlit Shader
     std::shared_ptr<ShaderProgram> unlitShader = std::make_shared<ShaderProgram>();
-    unlitShader->Init(DrawMode::WIREFRAME, Const::unlitVert, Const::unlitFrag);
+    unlitShader->Init(DrawMode::FILLED, Const::unlitVert, Const::unlitFrag);
     unlitShader->Use();
     // unsigned int texture1 = unlitShader->BindTexture(TEXTURE_DIR "/container2.png", "texture1", 0, true);
     // unsigned int texture2 = unlitShader->BindTexture(TEXTURE_DIR "/container2_specular.png", "texture2", 1, false);
@@ -89,8 +92,14 @@ void ConceptForge::Render(){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
 
+    // Point Lights
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, pointLightSSBO);
     glBufferData(GL_SHADER_STORAGE_BUFFER, pointLights.size() * sizeof(PointLight), pointLights.data(), GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+    // Directional Lights
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, dirLightSSBO);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, dirLights.size() * sizeof(DirectionalLight), dirLights.data(), GL_DYNAMIC_DRAW);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
     window.RenderToFBO();
