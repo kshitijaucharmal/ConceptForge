@@ -52,11 +52,8 @@ int main() {
 
     for(auto const &entity : forge.hierarchy.entities){
       auto shader = entity.second->shader;
-      shader->setVec3("viewPos", forge.camera.Position);
-      shader->setVec3("light.direction",  light_ptr->GetRotation());
-      shader->setVec3("light.ambient",  glm::vec3(0.1f));
-      shader->setVec3("light.diffuse",  glm::vec3(0.5f));
-      shader->setVec3("light.specular", glm::vec3(1.0f));
+      // shader->setVec3("viewPos", forge.camera.Position);
+      // shader->setVec3("light.direction",  light_ptr->GetRotation());
 
       // TODO: Set material using local files, and allow chaning in inspector
       shader->setFloat("material.shininess", 32.0f);

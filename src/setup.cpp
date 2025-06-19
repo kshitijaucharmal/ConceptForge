@@ -28,10 +28,12 @@ void ConceptForge::SetupShaders(){
     // Lit Shader
     std::shared_ptr<ShaderProgram> litShader = std::make_shared<ShaderProgram>();
     litShader->Init(DrawMode::FILLED, Const::litVert, Const::litFrag);
-    litShader->BindTexture(TEXTURE_DIR "/container2.png", "texture1", 0, true);
-    litShader->BindTexture(TEXTURE_DIR "/container2_specular.png", "texture2", 1, false);
-    litShader->setInt("material.diffuse", 0);
-    litShader->setInt("material.specular", 1);
+    litShader->BindTexture(TEXTURE_DIR "/container2.png", "material.diffuse", 0, true);
+    litShader->BindTexture(TEXTURE_DIR "/container2_specular.png", "material.specular", 1, false);
+    litShader->setVec3("light.direction",  glm::vec3(-0.2f, -1.0f, -0.3f));
+    litShader->setVec3("light.ambient",  glm::vec3(0.1f));
+    litShader->setVec3("light.diffuse",  glm::vec3(0.5f));
+    litShader->setVec3("light.specular", glm::vec3(1.0f));
     shaders[ShaderType::Lit] = std::move(litShader);
 
     // Unlit Shader

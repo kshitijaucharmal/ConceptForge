@@ -3,7 +3,7 @@ from math import sin, cos, pi
 import time
 import random
 
-from concept_forge import Entity, Vec3
+from concept_forge import Entity, Vec3, ShaderType
 from concept_forge.primitives import Cube, UVSphere
 
 forge = cf.ConceptForge()
