@@ -2,11 +2,9 @@
 
 #include "primitives/uv_sphere.hpp"
 #include "primitives/cube.hpp"
-#include "primitives/light_ssbo.hpp"
 
 using namespace Engine;
 using namespace ShaderManagement;
-
 
 ConceptForge::ConceptForge():
   camera(glm::vec3(7.3589f, 7.3444f, 6.9258f), glm::vec3(0.0f, 1.0f, 0.0f), -132.4f, -28.2f),
@@ -18,6 +16,12 @@ ConceptForge::ConceptForge():
     // Creating the SSBO at startup
     glGenBuffers(1, &pointLightSSBO);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, pointLightSSBO); // match binding = 1
+
+    pointLights = {
+        PointLight(glm::vec3(0), glm::vec3(0.05), glm::vec3(3.0, 0.1, 0.0), glm::vec3(3.0, 0.1, 0.0)),
+        PointLight(glm::vec3(0), glm::vec3(0.05), glm::vec3(0, 2.0, 0.3), glm::vec3(0., 2.0, 0.3)),
+        PointLight(glm::vec3(0), glm::vec3(0.05), glm::vec3(0., 0., 3.0), glm::vec3(0., 0., 3.0))
+    };
 
     SetupShaders();
 
@@ -39,25 +43,9 @@ void ConceptForge::SetupShaders(){
 
     // directional light
     litShader->setVec3("dirLight.direction", glm::vec3(-34.f, -1.0f, -0.3f));
-    litShader->setVec3("dirLight.ambient", glm::vec3(0.01));
+    litShader->setVec3("dirLight.ambient", glm::vec3(0.1f));
     litShader->setVec3("dirLight.diffuse", glm::vec3(0.4f));
     litShader->setVec3("dirLight.specular", glm::vec3(0.5f));
-
-    // litShader->setVec3("pointLights[0].position", glm::vec3(0.7f,  0.2f,  2.0f));
-    // litShader->setVec3("pointLights[0].ambient", glm::vec3(0.05f, 0.05f, 0.05f));
-    // litShader->setVec3("pointLights[0].diffuse", glm::vec3(0.8f, 0.8f, 0.8f));
-    // litShader->setVec3("pointLights[0].specular", glm::vec3(1.0f, 1.0f, 1.0f));
-    // litShader->setFloat("pointLights[0].constant", 1.0f);
-    // litShader->setFloat("pointLights[0].linear", 0.09f);
-    // litShader->setFloat("pointLights[0].quadratic", 0.032f);
-    // // point light 2
-    // litShader->setVec3("pointLights[1].position", glm::vec3(2.3f, -3.3f, -4.0f));
-    // litShader->setVec3("pointLights[1].ambient", glm::vec3(0.05));
-    // litShader->setVec3("pointLights[1].diffuse", glm::vec3(0.8f));
-    // litShader->setVec3("pointLights[1].specular", glm::vec3(1.0));
-    // litShader->setFloat("pointLights[1].constant", 1.0f);
-    // litShader->setFloat("pointLights[1].linear", 0.09f);
-    // litShader->setFloat("pointLights[1].quadratic", 0.032f);
 
     shaders[ShaderType::Lit] = std::move(litShader);
 
@@ -100,6 +88,10 @@ void ConceptForge::Render(){
     glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
+
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, pointLightSSBO);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, pointLights.size() * sizeof(PointLight), pointLights.data(), GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
     window.RenderToFBO();
 }

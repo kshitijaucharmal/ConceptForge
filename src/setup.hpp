@@ -24,6 +24,7 @@
 #include "editor/gui.hpp"
 
 #include "primitives/entity.hpp"
+#include "primitives/light_ssbo.hpp"
 
 #include "editor/asset_browser.hpp"
 #include "editor/hierarchy.hpp"
@@ -53,6 +54,7 @@ namespace Engine {
         Editor::ObjectCreationMenu objCreatorMenu;
         Projection projection;
         GLuint pointLightSSBO;
+        std::vector<PointLight> pointLights;
 
         ConceptForge();
         ~ConceptForge();
