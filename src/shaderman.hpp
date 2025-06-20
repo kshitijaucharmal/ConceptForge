@@ -34,7 +34,8 @@ namespace ShaderManagement {
         void Use();
         void LinkShaders();
         void SendDataToShader();
-        unsigned int BindTexture(const char* texturePath, const char* textureShaderName, unsigned int textureLoc, bool flip=true);
+        void BindTexture(unsigned int textureID);
+        unsigned int LoadTexture(const char* texturePath, const char* textureShaderName, unsigned int textureLoc, bool flip=true);
         // utility uniform functions
         void setBool(const std::string &name, bool value) const;
         void setInt(const std::string &name, int value) const;

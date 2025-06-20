@@ -10,7 +10,7 @@
 
 namespace ShaderManagement {
     ShaderProgram::ShaderProgram(){
-
+        // Empty Contructor
     }
 
     void ShaderProgram::SetDrawMode(DrawMode mode) {
@@ -97,21 +97,27 @@ namespace ShaderManagement {
             glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
             std::cerr << "ERROR::SHADER::LINKING_ERR\n" << infoLog << std::endl;
         }
+
     }
 
     // Texturepath is relative to TEXTURE_DIR for now
-    unsigned int ShaderProgram::BindTexture(const char* texturePath, const char* textureShaderName, unsigned int textureLoc, bool flip){
-        unsigned int texture;
-        glGenTextures(1, &texture);
+    unsigned int ShaderProgram::LoadTexture(
+        const char* texturePath,
+        const char* textureShaderName,
+        unsigned int textureLoc,
+        bool flip
+    ){
+        unsigned int textureID;
+        glGenTextures(1, &textureID);
         glActiveTexture(GL_TEXTURE0 + textureLoc);
-        glBindTexture(GL_TEXTURE_2D, texture);
-        // set the texture wrapping/filtering options (on the currently bound texture object)
+        glBindTexture(GL_TEXTURE_2D, textureID);
+        // set the textureID wrapping/filtering options (on the currently bound texture object)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        stbi_set_flip_vertically_on_load(flip);
 
+        stbi_set_flip_vertically_on_load(flip);
         int width, height, nrChannels;
         unsigned char *data = stbi_load(texturePath, &width, &height, &nrChannels, 0);
         if (data) {
@@ -121,13 +127,24 @@ namespace ShaderManagement {
             glGenerateMipmap(GL_TEXTURE_2D);
         }
         else{
-            std::cerr << "Failed to load texture\n";
+            std::cerr << "Failed to load textureID\n";
         }
         stbi_image_free(data);
 
         glUseProgram(shaderProgram);
+        glBindTexture(GL_TEXTURE_2D, textureID);
+
+        // Send to shader
         setInt(textureShaderName, textureLoc);
-        return texture;
+        // glBindTexture(GL_TEXTURE_2D, 0);
+
+        return textureID;
+    }
+
+    void ShaderProgram::BindTexture(unsigned int textureID){
+        glUseProgram(shaderProgram);
+        glBindTexture(GL_TEXTURE_2D, textureID);
+        // setInt(textureShaderName, textureLoc);
     }
 
     void ShaderProgram::SendDataToShader(){

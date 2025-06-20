@@ -43,7 +43,7 @@ int main() {
   forge.hierarchy.AddEntity(std::move(light));
 
   // Add a sphere and a Cube
-  std::unique_ptr<UVSphere> sphere = std::make_unique<UVSphere>(forge.shaders[ShaderType::Lit].get());
+  std::unique_ptr<UVSphere> sphere = std::make_unique<UVSphere>(forge.shaders[ShaderType::Unlit].get());
   sphere->SetPosition(glm::vec3(0, 3, 0));
   sphere->SetRotation(glm::vec3(-34, -2, 88));
   sphere->SetScale(glm::vec3(1, 1, 1));

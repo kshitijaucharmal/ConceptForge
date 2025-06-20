@@ -1,8 +1,5 @@
 #include "setup.hpp"
 
-#include "primitives/uv_sphere.hpp"
-#include "primitives/cube.hpp"
-
 using namespace Engine;
 using namespace ShaderManagement;
 
@@ -21,8 +18,8 @@ ConceptForge::ConceptForge():
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, dirLightSSBO);
 
     pointLights = {
-        PointLight(glm::vec3(0), glm::vec3(0.05), glm::vec3(3.0, 0.1, 0.0), glm::vec3(3.0, 0.1, 0.0)),
-        PointLight(glm::vec3(0), glm::vec3(0.05), glm::vec3(0, 2.0, 0.3), glm::vec3(0., 2.0, 0.3)),
+        PointLight(glm::vec3(0), glm::vec3(0.05), glm::vec3(3.0, 0.0, 0.0), glm::vec3(3.0, 0.0, 0.0)),
+        PointLight(glm::vec3(0), glm::vec3(0.05), glm::vec3(0, 3.0, 0), glm::vec3(0., 3.0, 0)),
         PointLight(glm::vec3(0), glm::vec3(0.05), glm::vec3(0., 0., 3.0), glm::vec3(0., 0., 3.0))
     };
 
@@ -46,8 +43,8 @@ void ConceptForge::SetupShaders(){
     litShader->Init(DrawMode::FILLED, Const::litVert, Const::litFrag);
 
     // Material
-    litShader->BindTexture(TEXTURE_DIR "/container2.png", "material.diffuse", 0, true);
-    litShader->BindTexture(TEXTURE_DIR "/container2_specular.png", "material.specular", 1, false);
+    litShader->LoadTexture(TEXTURE_DIR "/container2.png", "material.diffuse", 0, true);
+    litShader->LoadTexture(TEXTURE_DIR "/container2_specular.png", "material.specular", 1, false);
     litShader->setFloat("material.shininess", 32.0f);
 
     shaders[ShaderType::Lit] = std::move(litShader);
@@ -55,7 +52,7 @@ void ConceptForge::SetupShaders(){
     // Unlit Shader
     std::shared_ptr<ShaderProgram> unlitShader = std::make_shared<ShaderProgram>();
     unlitShader->Init(DrawMode::FILLED, Const::unlitVert, Const::unlitFrag);
-    unlitShader->Use();
+    // unlitShader->Use();
     // unsigned int texture1 = unlitShader->BindTexture(TEXTURE_DIR "/container2.png", "texture1", 0, true);
     // unsigned int texture2 = unlitShader->BindTexture(TEXTURE_DIR "/container2_specular.png", "texture2", 1, false);
 
@@ -87,10 +84,10 @@ void ConceptForge::ProcessInput(){
 void ConceptForge::Render(){
     // rendering commands
     // Clear Screen with this color
-    auto clearColor = Const::clearColor;
-    glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClearColor(Const::clearColor.x, Const::clearColor.y, Const::clearColor.z, Const::clearColor.w);
+    // Clear Color Buffer and Depth Buffer
     glEnable(GL_DEPTH_TEST);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Point Lights
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, pointLightSSBO);
@@ -102,23 +99,24 @@ void ConceptForge::Render(){
     glBufferData(GL_SHADER_STORAGE_BUFFER, dirLights.size() * sizeof(DirectionalLight), dirLights.data(), GL_DYNAMIC_DRAW);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
-    window.RenderToFBO();
-}
-
-void ConceptForge::CalcProjection(){
-    // WARNING Something is off here
-    for(auto &shader : shaders){
-        projection.Calculate(camera, *shader.second);
-    }
-}
-
-void ConceptForge::GUIManagement(){
-    glBindFramebuffer(GL_FRAMEBUFFER, 0); // back to default
     // Remove from here
     // Send Shader Data
     for(const auto& entity : hierarchy.entities) {
         entity.second->Draw();
     }
+}
+
+void ConceptForge::CalcProjection(){
+    // Caculate once
+    projection.Calculate(camera);
+    // Circulate to all shaders
+    for(auto &shader_pair : shaders){
+        projection.UpdateShader(*shader_pair.second);
+    }
+}
+
+void ConceptForge::GUIManagement(){
+    glBindFramebuffer(GL_FRAMEBUFFER, 0); // back to default
 
     // check and call events
     glfwPollEvents();

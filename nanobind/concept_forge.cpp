@@ -140,11 +140,6 @@ NB_MODULE(concept_forge, m) {
     .def("send_data_to_shader", &ShaderProgram::SendDataToShader,
          "Send additional required uniform data to the shader")
 
-    .def("bind_texture", &ShaderProgram::BindTexture,
-         "Bind a texture to the shader and upload it to a uniform sampler",
-         nb::arg("texturePath"), nb::arg("textureShaderName"),
-         nb::arg("textureLoc"), nb::arg("flip") = true)
-
     // --- Uniform setters ---
     .def("set_bool", &ShaderProgram::setBool,
          "Set a boolean uniform",

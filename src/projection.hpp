@@ -15,6 +15,7 @@ public:
     // Constructor
     Projection();
 
-    void Calculate(Camera &camera, ShaderManagement::ShaderProgram &shaderProgram);
+    void Calculate(Camera &camera);
+    void UpdateShader(ShaderManagement::ShaderProgram &sp);
 };
 
