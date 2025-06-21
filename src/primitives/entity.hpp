@@ -14,7 +14,7 @@
 // For GUI
 #include "imgui.h"
 
-#include "shaderman.hpp"
+#include "material.hpp"
 
 namespace SimObject {
     class Entity {
@@ -29,7 +29,7 @@ namespace SimObject {
         // TODO Gotta be some kinda id too
         std::string name = "Entity";
 
-        ShaderManagement::ShaderProgram *shader;
+        std::vector<std::shared_ptr<Material>> materials;
         // ---------------------------------------------------------------
 
         // Transform Functions ---------------------------------------------------------------

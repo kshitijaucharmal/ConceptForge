@@ -3,6 +3,19 @@
 #include <vector>
 #include <cmath>
 
+UVSphere::UVSphere() {
+    position = glm::vec3(0.0);
+    rotation = glm::vec3(0.0);
+    scale = glm::vec3(1.0);
+
+    name = "UV Sphere";
+
+    std::shared_ptr<Material> mat = std::make_shared<Material>();
+    materials.push_back(mat);
+
+    Init();
+};
+
 std::vector<float> UVSphere::GenerateSphere() {
     std::vector<float> vertices;
     float x, y, z, u, v, nx, ny, nz;
@@ -70,16 +83,6 @@ std::vector<uint> UVSphere::GenerateSphereIndices() {
     return indices;
 }
 
-UVSphere::UVSphere(ShaderManagement::ShaderProgram *sp ) {
-    shader = sp;
-    position = glm::vec3(0.0);
-    rotation = glm::vec3(0.0);
-    scale = glm::vec3(1.0);
-
-    name = "UV Sphere";
-
-    Init();
-};
 
 void UVSphere::Init(int sectorCount, int stackCount, float radius){
     this->sectorCount = sectorCount;
@@ -94,11 +97,13 @@ void UVSphere::Init(int sectorCount, int stackCount, float radius){
 }
 
 void UVSphere::Draw() {
-  shader->Use();
-  shader->setMat4("model", model);
-  glBindVertexArray(VAO);
-  glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
-  glBindVertexArray(0); // Unbind VAO
+    for(auto &material : materials){
+        material->shader->Use();
+        material->shader->setMat4("model", model);
+    }
+    glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0); // Unbind VAO
 }
 
 void UVSphere::CreateSphereVAO(const std::vector<float>& vertices, const std::vector<uint>& indices) {

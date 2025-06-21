@@ -22,7 +22,7 @@ for i in range(grid_size):
         pos = Vec3(x, 0, z)
         rot = Vec3(0, 0, 0)
         scale = Vec3(spacing, spacing, spacing)  # Make cubes smaller
-        cube = Cube.new(forge, pos, rot, scale)
+        cube = Cube.new(forge, pos, rot, scale, ShaderType.Lit)
         cubes.append(cube)
 
 while not forge.window_should_close():
