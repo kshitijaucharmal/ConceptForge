@@ -33,6 +33,8 @@ include_directories(
   src
   external/stb_image
   external/IconFont
+  # EnTT
+  external/entt/single_include
 )
 
 # Gather source files
