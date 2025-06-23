@@ -2,12 +2,12 @@
 #include <string>
 #include "glm/glm.hpp"
 #include "glm/gtc/type_ptr.hpp"
+#include <unordered_map>
 
 enum DrawMode {
     WIREFRAME,
     FILLED
 };
-
 
 namespace ShaderManagement {
     enum ShaderType {
@@ -21,12 +21,14 @@ namespace ShaderManagement {
         unsigned int fragmentShader;
         DrawMode drawMode;
 
+        // Textures
+
         void InitVertexShader(std::string &vertexShaderPath);
         void InitFragmentShader(std::string &fragmentShaderPath);
         void ApplyDrawMode();
 
     public:
-        unsigned int shaderProgram;
+        unsigned int shaderID;
         ShaderProgram();
         void SetDrawMode(DrawMode mode);
         void Init(DrawMode mode, std::string &vertexShaderPath, std::string &fragmentShaderPath);
@@ -34,7 +36,6 @@ namespace ShaderManagement {
         void Use();
         void LinkShaders();
         void SendDataToShader();
-        unsigned int BindTexture(const char* texturePath, const char* textureShaderName, unsigned int textureLoc, bool flip=true);
         // utility uniform functions
         void setBool(const std::string &name, bool value) const;
         void setInt(const std::string &name, int value) const;

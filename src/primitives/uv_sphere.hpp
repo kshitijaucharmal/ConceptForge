@@ -14,7 +14,7 @@ private:
     int indexCount = 0;
 
 public:
-    UVSphere(ShaderManagement::ShaderProgram *sp);
+    UVSphere();
     void Init(int sectorCount=36, int stackCount=18, float radius=0.5);
 
     int sectorCount;

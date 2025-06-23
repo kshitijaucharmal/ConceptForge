@@ -21,3 +21,21 @@ struct PointLight {
     : position(pos), ambient(amb), diffuse(diff), specular(spec),
     constant(constant), linear(linear), quadratic(quadratic) {}
 };
+
+struct DirectionalLight {
+    glm::vec3 direction;
+    float pad1; // padding for alignment
+
+    glm::vec3 ambient;
+    float pad2;
+
+    glm::vec3 diffuse;
+    float pad3;
+
+    glm::vec3 specular;
+    float pad4;
+
+    // Constructor for convenience
+    DirectionalLight(glm::vec3 dir, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec)
+    : direction(dir), ambient(amb), diffuse(diff), specular(spec) {}
+};

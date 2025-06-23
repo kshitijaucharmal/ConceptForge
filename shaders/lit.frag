@@ -2,19 +2,27 @@
 
 // --------------------------------------------
 struct Material {
-  sampler2D diffuse;
-  sampler2D specular;
+  sampler2D diffuseMap;
+  sampler2D specularMap;
+
+  vec3 diffuseColor;
+  vec3 specularColor;
   float shininess;
 };
 // --------------------------------------------
 struct DirLight {
   vec3 direction;
+  float pad1;
 
   vec3 ambient;
+  float pad2;
+
   vec3 diffuse;
+  float pad3;
+
   vec3 specular;
+  float pad4;
 };
-uniform DirLight dirLight;
 // --------------------------------------------
 struct PointLight {
   vec3 position;
@@ -30,8 +38,12 @@ struct PointLight {
   float pad; // Declared to keep 16 byte aligned (vec3 + float = 4 float = 16 bytes)
 };
 
+// SSBOs -------------------------------------
 layout(std430, binding = 1) buffer PointLights {
   PointLight pointLights[];
+};
+layout(std430, binding = 2) buffer DirLightsBuffer {
+  DirLight dirLights[];
 };
 
 // --------------------------------------------
@@ -57,10 +69,13 @@ void main() {
   vec3 result = vec3(0.0);
 
   // phase 1: Directional lighting
-  result += CalcDirLight(dirLight, norm, viewDir);
+  for(int i = 0; i < dirLights.length(); i++){
+    result += CalcDirLight(dirLights[i], norm, viewDir);
+  }
   // phase 2: Point lights
-  for(int i = 0; i < pointLights.length(); i++)
+  for(int i = 0; i < pointLights.length(); i++){
     result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
+  }
   // phase 3: Spot light
   //result += CalcSpotLight(spotLight, norm, FragPos, viewDir);
 
@@ -69,34 +84,44 @@ void main() {
 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir) {
   vec3 lightDir = normalize(-light.direction);
+
   // diffuse shading
   float diff = max(dot(normal, lightDir), 0.0);
+
   // specular shading
   vec3 reflectDir = reflect(-lightDir, normal);
   float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+
   // combine results
-  vec3 ambient  = light.ambient  * vec3(texture(material.diffuse, TexCoords));
-  vec3 diffuse  = light.diffuse  * diff * vec3(texture(material.diffuse, TexCoords));
-  vec3 specular = light.specular * spec;
+  vec3 ambient  = light.ambient  * vec3(texture(material.diffuseMap, TexCoords));
+  vec3 diffuse  = light.diffuse  * diff * vec3(texture(material.diffuseMap, TexCoords));
+  vec3 specular = light.specular * spec * vec3(texture(material.specularMap, TexCoords));
   return (ambient + diffuse + specular);
 }
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir) {
   vec3 lightDir = normalize(light.position - fragPos);
+
   // diffuse shading
   float diff = max(dot(normal, lightDir), 0.0);
+
   // specular shading
   vec3 reflectDir = reflect(-lightDir, normal);
   float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+
   // attenuation
   float distance    = length(light.position - fragPos);
   float attenuation = 1.0 / max(light.constant + light.linear * distance + light.quadratic * (distance * distance), 0.0001);
+
   // combine results
-  vec3 ambient  = light.ambient  * vec3(texture(material.diffuse, TexCoords));
-  vec3 diffuse  = light.diffuse  * diff * vec3(texture(material.diffuse, TexCoords));
-  vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));
+  vec3 ambient  = light.ambient  * vec3(texture(material.diffuseMap, TexCoords));
+  vec3 diffuse  = light.diffuse  * diff * vec3(texture(material.diffuseMap, TexCoords));
+  vec3 specular = light.specular * spec * vec3(texture(material.specularMap, TexCoords));
+
+  // Apply attenuation
   ambient  *= attenuation;
   diffuse  *= attenuation;
   specular *= attenuation;
+
   return (ambient + diffuse + specular);
 }

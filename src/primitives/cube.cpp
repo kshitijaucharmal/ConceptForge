@@ -3,14 +3,15 @@
 
 extern float cubeVertices[];
 
-Cube::Cube(ShaderManagement::ShaderProgram *sp, glm::vec3 pos, glm::vec3 rot, glm::vec3 sca) {
-
-  shader = sp;
+Cube::Cube(glm::vec3 pos, glm::vec3 rot, glm::vec3 sca) {
   position = pos;
   rotation = rot;
   scale = sca;
 
   name = "Cube";
+
+  std::shared_ptr<Material> mat = std::make_shared<Material>();
+  materials.push_back(mat);
 
   SetupVAO();
   SetupVBO();
@@ -44,8 +45,12 @@ void Cube::SetupVertexData(){
 }
 
 void Cube::Draw() {
-  shader->Use();
-  shader->setMat4("model", model);
+  for(auto &material : materials){
+    material->shader->Use();
+    material->shader->setMat4("model", model);
+  }
+
+  // Draw
   glBindVertexArray(VAO);
   glDrawArrays(GL_TRIANGLES, 0, 36);
   glBindVertexArray(0);

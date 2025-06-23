@@ -5,7 +5,6 @@
 
 #include "input.hpp"
 
-#include "shaderman.hpp"
 
 #include <string>
 #include <memory>
@@ -32,6 +31,8 @@
 #include "editor/inspector.hpp"
 #include "editor/object_creation_menu.hpp"
 
+#include "material.hpp"
+
 using namespace ShaderManagement;
 
 namespace Engine {
@@ -42,7 +43,6 @@ namespace Engine {
         // Projection Logic
         Camera camera;
         WindowManagement::Window window;
-        std::unordered_map<ShaderType, std::shared_ptr<ShaderProgram>> shaders;
         InputManagement::Input input;
 
         // GUI
@@ -53,6 +53,10 @@ namespace Engine {
         Editor::Hierarchy hierarchy;
         Editor::ObjectCreationMenu objCreatorMenu;
         Projection projection;
+
+        // Lights SSBOs
+        GLuint dirLightSSBO;
+        std::vector<DirectionalLight> dirLights;
         GLuint pointLightSSBO;
         std::vector<PointLight> pointLights;
 
@@ -62,7 +66,6 @@ namespace Engine {
         float deltaTime = 0.0f; // Time between current frame and last frame
 
         // Seperate functions
-        void SetupShaders();
         bool WindowShouldClose();
         float DeltaTimeCalc();
         void ProcessInput();

@@ -128,9 +128,6 @@ class ShaderProgram:
     def send_data_to_shader(self) -> None:
         """Send additional required uniform data to the shader"""
 
-    def bind_texture(self, texturePath: str, textureShaderName: str, textureLoc: int, flip: bool = True) -> int:
-        """Bind a texture to the shader and upload it to a uniform sampler"""
-
     def set_bool(self, name: str, value: bool) -> None:
         """Set a boolean uniform"""
 

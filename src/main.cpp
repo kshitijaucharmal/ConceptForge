@@ -21,21 +21,21 @@ glm::vec3 cubePositions[] = {
 int main() {
   ConceptForge forge;
 
-  std::unique_ptr<UVSphere> light = std::make_unique<UVSphere>(forge.shaders[ShaderType::Light].get());
+  std::unique_ptr<UVSphere> light = std::make_unique<UVSphere>();
   light->SetPosition(glm::vec3(0.7f,  0.2f,  2.0f));
   light->SetScale(glm::vec3(0.2));
   light->name = "Light";
   UVSphere* light_ptr1 = light.get();
   forge.hierarchy.AddEntity(std::move(light));
 
-  light = std::make_unique<UVSphere>(forge.shaders[ShaderType::Light].get());
+  light = std::make_unique<UVSphere>();
   light->SetPosition(glm::vec3(2.3f, 0.0f, 0.0f));
   light->SetScale(glm::vec3(0.2));
   light->name = "Light2";
   UVSphere* light_ptr2 = light.get();
   forge.hierarchy.AddEntity(std::move(light));
 
-  light = std::make_unique<UVSphere>(forge.shaders[ShaderType::Light].get());
+  light = std::make_unique<UVSphere>();
   light->SetPosition(glm::vec3(4.f, 3.3f, 0.0f));
   light->SetScale(glm::vec3(0.2));
   light->name = "Light3";
@@ -43,7 +43,7 @@ int main() {
   forge.hierarchy.AddEntity(std::move(light));
 
   // Add a sphere and a Cube
-  std::unique_ptr<UVSphere> sphere = std::make_unique<UVSphere>(forge.shaders[ShaderType::Lit].get());
+  std::unique_ptr<UVSphere> sphere = std::make_unique<UVSphere>();
   sphere->SetPosition(glm::vec3(0, 3, 0));
   sphere->SetRotation(glm::vec3(-34, -2, 88));
   sphere->SetScale(glm::vec3(1, 1, 1));
@@ -51,7 +51,7 @@ int main() {
 
   // Many Cubes
   for(unsigned int i = 0; i < 10; i++) {
-    std::unique_ptr<Cube> cube = std::make_unique<Cube>(forge.shaders[ShaderType::Lit].get());
+    std::unique_ptr<Cube> cube = std::make_unique<Cube>();
     cube->SetPosition(cubePositions[i]);
     float angle = 20.0f * i;
     cube->Rotate(angle, glm::vec3(1.0f, 0.3f, 0.5f));
@@ -59,17 +59,21 @@ int main() {
 
   }
 
+
   // Render Loop
   while (!forge.WindowShouldClose()) {
     forge.DeltaTimeCalc();
     forge.ProcessInput();
 
     for(auto const &entity : forge.hierarchy.entities){
-      auto shader = entity.second->shader;
-      shader->setVec3("viewPos", forge.camera.Position);
+
+      for(auto &mat : entity.second->materials){
+        mat->shader->setVec3("viewPos", forge.camera.Position);
+      }
+
       forge.pointLights[0].position = light_ptr1->GetPosition();
-      forge.pointLights[1].position = light_ptr2->GetPosition();
-      forge.pointLights[2].position = light_ptr3->GetPosition();
+      // forge.pointLights[1].position = light_ptr2->GetPosition();
+      // forge.pointLights[2].position = light_ptr3->GetPosition();
     }
 
     forge.CalcProjection();

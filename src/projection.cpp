@@ -7,17 +7,15 @@ Projection::Projection() {
     view = glm::mat4(1.0);
 }
 
-void Projection::Calculate(Camera &camera, ShaderManagement::ShaderProgram &shaderProgram) {
-    // Use a ShaderProgram
-    shaderProgram.Use();
-
+void Projection::Calculate(Camera &camera){
     // Projection Matrix
     projection = glm::perspective(glm::radians(camera.fov), Const::ASPECTRATIO, 0.01f, 100.0f);
-    shaderProgram.setMat4("projection", projection);
-
-    // Camera
-    // Vector from position to origin
     view = camera.GetViewMatrix();
-    shaderProgram.setMat4("view", view);
+}
+
+void Projection::UpdateShader(ShaderManagement::ShaderProgram &sp){
+    sp.Use();
+    sp.setMat4("projection", projection);
+    sp.setMat4("view", view);
 }
 
