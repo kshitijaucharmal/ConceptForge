@@ -18,61 +18,54 @@ UVSphere::UVSphere() {
 
 std::vector<float> UVSphere::GenerateSphere() {
     std::vector<float> vertices;
-    float x, y, z, u, v, nx, ny, nz;
+
     float sectorStep = 2 * M_PI / sectorCount;
     float stackStep = M_PI / stackCount;
-    float sectorAngle, stackAngle;
 
     for (int i = 0; i <= stackCount; ++i) {
-        stackAngle = M_PI / 2 - i * stackStep;
+        float stackAngle = M_PI / 2 - i * stackStep; // from pi/2 to -pi/2
         float xy = radius * cosf(stackAngle);
-        y = radius * sinf(stackAngle);
+        float y = radius * sinf(stackAngle);
 
         for (int j = 0; j <= sectorCount; ++j) {
-            sectorAngle = j * sectorStep;
+            float sectorAngle = j * sectorStep;
 
-            x = xy * cosf(sectorAngle);
-            z = xy * sinf(sectorAngle);
+            float x = xy * cosf(sectorAngle);
+            float z = xy * sinf(sectorAngle);
 
-            u = static_cast<float>(j) / sectorCount;
-            v = static_cast<float>(i) / stackCount;
+            // normalized normal
+            glm::vec3 norm = glm::normalize(glm::vec3(x, y, z));
 
-            // Normal = position normalized (since sphere is centered at origin)
-            nx = x / radius;
-            ny = y / radius;
-            nz = z / radius;
+            // texture coords (u, v)
+            float u = static_cast<float>(j) / sectorCount;
+            float v = static_cast<float>(i) / stackCount;
 
-            vertices.push_back(x);
-            vertices.push_back(y);
-            vertices.push_back(z);
-            vertices.push_back(u);
-            vertices.push_back(v);
-            vertices.push_back(nx);
-            vertices.push_back(ny);
-            vertices.push_back(nz);
+            // Push in position, texcoord, normal
+            vertices.insert(vertices.end(), {x, y, z, u, v, norm.x, norm.y, norm.z});
         }
     }
 
     return vertices;
 }
 
-
 std::vector<uint> UVSphere::GenerateSphereIndices() {
     std::vector<uint> indices;
 
+    int k1, k2;
     for (int i = 0; i < stackCount; ++i) {
-        int k1 = i * (sectorCount + 1);     // start of current stack
-        int k2 = k1 + sectorCount + 1;      // start of next stack
+        k1 = i * (sectorCount + 1);     // beginning of current stack
+        k2 = k1 + sectorCount + 1;      // beginning of next stack
 
         for (int j = 0; j < sectorCount; ++j, ++k1, ++k2) {
-            // Two triangles per quad
             if (i != 0) {
+                // First triangle (k1 -> k2 -> k1+1)
                 indices.push_back(k1);
                 indices.push_back(k2);
                 indices.push_back(k1 + 1);
             }
 
             if (i != (stackCount - 1)) {
+                // Second triangle (k1+1 -> k2 -> k2+1)
                 indices.push_back(k1 + 1);
                 indices.push_back(k2);
                 indices.push_back(k2 + 1);
@@ -82,7 +75,6 @@ std::vector<uint> UVSphere::GenerateSphereIndices() {
 
     return indices;
 }
-
 
 void UVSphere::Init(int sectorCount, int stackCount, float radius){
     this->sectorCount = sectorCount;

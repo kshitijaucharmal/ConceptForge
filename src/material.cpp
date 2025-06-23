@@ -34,8 +34,8 @@ void Material::InitDefaultLit(){
     litShader->Init(DrawMode::FILLED, Const::litVert, Const::litFrag);
 
     litShader->Use();
-    unsigned int container2Tex = litShader->LoadTexture(TEXTURE_DIR "/container2.png", "material.diffuseMap", 0, true);
-    unsigned int container2_specularTex = litShader->LoadTexture(TEXTURE_DIR "/container2_specular.png", "material.specularMap", 1, false);
+    // unsigned int container2Tex = litShader->LoadTexture(TEXTURE_DIR "/container2.png", "material.diffuseMap", 0, true);
+    // unsigned int container2_specularTex = litShader->LoadTexture(TEXTURE_DIR "/container2_specular.png", "material.specularMap", 1, false);
     litShader->setFloat("material.shininess", 32.0f);
 
     shader = std::move(litShader);
