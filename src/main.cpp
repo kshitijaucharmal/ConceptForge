@@ -27,20 +27,6 @@ int main(){
     registry.ctx().emplace<EventSystem::LateUpdateQueue>();
     registry.ctx().emplace<GUISystem::ImGuiDrawQueue>();
 
-    // Shaders
-    entt::entity basicShader = registry.create();
-    registry.emplace<Shader>(basicShader, Shader{
-        .vertexShaderPath = constants.SP_LIT_VERT,
-        .fragmentShaderPath = constants.SP_LIT_FRAG
-    });
-
-    entt::entity mat1 = registry.create();
-    registry.emplace<Material>(mat1, basicShader);
-
-    ShaderSystem::InitShaders(registry);
-    // MaterialSystem::InitMaterials(registry);
-
-    return 0;
 
     // Camera ----------------------------------------------------------
     // Create camera (Can be many, but one for now)
@@ -61,6 +47,23 @@ int main(){
     // Window -----------------------------------------------------------
     // initialize window
     Window window(registry, 1600, 900, "ConceptForge");
+    // ------------------------------------------------------------------
+
+    // Shader System ----------------------------------------------------
+    // Shaders
+    entt::entity basicShader = registry.create();
+    registry.emplace<Shader>(basicShader, Shader{
+        .vertexShaderPath = constants.SP_LIT_VERT,
+        .fragmentShaderPath = constants.SP_LIT_FRAG
+    });
+
+    // Materials
+    entt::entity mat1 = registry.create();
+    registry.emplace<Material>(mat1, basicShader);
+
+    // initialize
+    ShaderSystem::InitShaders(registry);
+    MaterialSystem::InitMaterials(registry);
     // ------------------------------------------------------------------
 
     // ImGUI ------------------------------------------------------------

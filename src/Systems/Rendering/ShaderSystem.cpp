@@ -9,14 +9,11 @@ namespace ShaderSystem {
         auto view = registry.view<Shader>();
 
         for (auto entity : view) {
-            std::cout << "Start\n";
             auto& shader = view.get<Shader>(entity);
 
             if (shader.initialized){
-                std::cout << "Skipped\n";
                 continue;
             }
-            std::cout << "Will do\n";
 
             InitVertexShader(shader, shader.vertexShaderPath);
             InitFragmentShader(shader, shader.fragmentShaderPath);
