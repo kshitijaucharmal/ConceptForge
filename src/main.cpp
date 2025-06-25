@@ -1,85 +1,118 @@
-#include "setup.hpp"
-#include "primitives/uv_sphere.hpp"
-#include "primitives/cube.hpp"
-#include "primitives/light_ssbo.hpp"
+#include <entt/entt.hpp>
+#include <iostream>
 
-using namespace Engine;
+#include "Core/WindowManager.hpp"
+#include "Core/GUISystem.hpp"
+#include "Core/EventSystem.hpp"
 
-glm::vec3 cubePositions[] = {
-  glm::vec3( 0.0f,  0.0f,  0.0f),
-  glm::vec3( 2.0f,  5.0f, -15.0f),
-  glm::vec3(-1.5f, -2.2f, -2.5f),
-  glm::vec3(-3.8f, -2.0f, -12.3f),
-  glm::vec3( 2.4f, -0.4f, -3.5f),
-  glm::vec3(-1.7f,  3.0f, -7.5f),
-  glm::vec3( 1.3f, -2.0f, -2.5f),
-  glm::vec3( 1.5f,  2.0f, -2.5f),
-  glm::vec3( 1.5f,  0.2f, -1.5f),
-  glm::vec3(-1.3f,  1.0f, -1.5f)
-};
+#include "Components/Camera.hpp"
+#include "Components/Constants.hpp"
+#include "Components/Time.hpp"
 
-int main() {
-  ConceptForge forge;
+#include "Systems/CameraSystem.hpp"
+#include "Systems/TimeSystem.hpp"
+#include "Systems/Rendering/MaterialSystem.hpp"
+#include "Systems/Rendering/ShaderSystem.hpp"
 
-  std::unique_ptr<UVSphere> light = std::make_unique<UVSphere>();
-  light->SetPosition(glm::vec3(0.7f,  0.2f,  2.0f));
-  light->SetScale(glm::vec3(0.2));
-  light->name = "Light";
-  UVSphere* light_ptr1 = light.get();
-  forge.hierarchy.AddEntity(std::move(light));
+int main(){
+    entt::registry registry;
 
-  light = std::make_unique<UVSphere>();
-  light->SetPosition(glm::vec3(2.3f, 0.0f, 0.0f));
-  light->SetScale(glm::vec3(0.2));
-  light->name = "Light2";
-  UVSphere* light_ptr2 = light.get();
-  forge.hierarchy.AddEntity(std::move(light));
+    // Setup Global Constants (Might be changed)
+    auto constants = registry.ctx().emplace<Constants>();
 
-  light = std::make_unique<UVSphere>();
-  light->SetPosition(glm::vec3(4.f, 3.3f, 0.0f));
-  light->SetScale(glm::vec3(0.2));
-  light->name = "Light3";
-  UVSphere* light_ptr3 = light.get();
-  forge.hierarchy.AddEntity(std::move(light));
+    // Global Values required (like Time)
+    registry.ctx().emplace<Time>();
+    registry.ctx().emplace<EventSystem::AwakeQueue>();
+    registry.ctx().emplace<EventSystem::UpdateQueue>();
+    registry.ctx().emplace<EventSystem::LateUpdateQueue>();
+    registry.ctx().emplace<GUISystem::ImGuiDrawQueue>();
 
-  // Add a sphere and a Cube
-  std::unique_ptr<UVSphere> sphere = std::make_unique<UVSphere>();
-  sphere->SetPosition(glm::vec3(0, 3, 0));
-  sphere->SetRotation(glm::vec3(-34, -2, 88));
-  sphere->SetScale(glm::vec3(1, 1, 1));
-  forge.hierarchy.AddEntity(std::move(sphere));
+    // Shaders
+    entt::entity basicShader = registry.create();
+    registry.emplace<Shader>(basicShader, Shader{
+        .vertexShaderPath = constants.SP_LIT_VERT,
+        .fragmentShaderPath = constants.SP_LIT_FRAG
+    });
 
-  // Many Cubes
-  for(unsigned int i = 0; i < 10; i++) {
-    std::unique_ptr<Cube> cube = std::make_unique<Cube>();
-    cube->SetPosition(cubePositions[i]);
-    float angle = 20.0f * i;
-    cube->Rotate(angle, glm::vec3(1.0f, 0.3f, 0.5f));
-    forge.hierarchy.AddEntity(std::move(cube));
+    entt::entity mat1 = registry.create();
+    registry.emplace<Material>(mat1, basicShader);
 
-  }
+    ShaderSystem::InitShaders(registry);
+    // MaterialSystem::InitMaterials(registry);
 
+    return 0;
 
-  // Render Loop
-  while (!forge.WindowShouldClose()) {
-    forge.DeltaTimeCalc();
-    forge.ProcessInput();
+    // Camera ----------------------------------------------------------
+    // Create camera (Can be many, but one for now)
+    auto camera = registry.create();
+    registry.emplace<Camera>(camera, Camera{
+        .Position = glm::vec3(7.3589f, 7.3444f, 6.9258f),
+        .Yaw = -132.4,
+        .Pitch = -28.2f,
+        .MovementSpeed = 3.0f,
+        .Fov = 75.0f
+        // More settings can be changed
+    });
 
-    for(auto const &entity : forge.hierarchy.entities){
+    // Only initialize _this_ camera
+    InitCamera(registry, camera);
+    // ------------------------------------------------------------------
 
-      for(auto &mat : entity.second->materials){
-        mat->shader->setVec3("viewPos", forge.camera.Position);
-      }
+    // Window -----------------------------------------------------------
+    // initialize window
+    Window window(registry, 1600, 900, "ConceptForge");
+    // ------------------------------------------------------------------
 
-      forge.pointLights[0].position = light_ptr1->GetPosition();
-      // forge.pointLights[1].position = light_ptr2->GetPosition();
-      // forge.pointLights[2].position = light_ptr3->GetPosition();
+    // ImGUI ------------------------------------------------------------
+    // Setting up ImGUI
+    GUISystem::InitImGUI(registry, window.window);
+    // ------------------------------------------------------------------
+
+    // Awake
+    auto &awakeQueue = registry.ctx().get<EventSystem::AwakeQueue>();
+    for (auto &fn : awakeQueue.functions) fn();
+
+    // Main Loop --------------------------------------------------------
+    while(!glfwWindowShouldClose(window.window)){
+        // Update here --------------------------------------------------
+        CalculateDeltaTime(registry);
+        CalculateProjection(registry);
+
+        // Call every System in Update/LateUpdate
+        // Update
+        auto &updateQueue = registry.ctx().get<EventSystem::UpdateQueue>();
+        for (auto &fn : updateQueue.functions) fn();
+
+        // Late Update
+        auto &lateUpdateQueue = registry.ctx().get<EventSystem::LateUpdateQueue>();
+        for (auto &fn : lateUpdateQueue.functions) fn();
+        // --------------------------------------------------------------
+
+        // Before drawing anything, clear screen
+        window.ScreenClearFlags(registry);
+
+        // Render here --------------------------------------------------
+
+        // --------------------------------------------------------------
+
+        // UI here ------------------------------------------------------
+        GUISystem::NewFrame();
+
+        // Show Every window in the Draw Queue
+        auto &imguiQueue = registry.ctx().get<GUISystem::ImGuiDrawQueue>();
+        for (auto &fn : imguiQueue) fn();
+
+        GUISystem::RenderFrame();
+
+        // Clear queue for next frame
+        imguiQueue.clear();
+        // --------------------------------------------------------------
+
+        // check and call events
+        glfwPollEvents();
+        glfwSwapBuffers(window.window);
+
     }
-
-    forge.CalcProjection();
-    forge.GUIManagement();
-    forge.Render();
-  }
-
-  return 0;
+    // ------------------------------------------------------------------
+    GUISystem::Destroy();
 }
