@@ -1,5 +1,7 @@
 
 #include "CameraSystem.hpp"
+#include "Components/Rendering/Shader.hpp"
+#include "Systems/Rendering/ShaderSystem.hpp"
 
 void InitCamera(entt::registry &reg, entt::entity &entity){
     auto cam = reg.get<Camera>(entity);
@@ -89,14 +91,38 @@ glm::mat4 GetViewMatrix(Camera &cam)
     return glm::lookAt(cam.Position, cam.Position + cam.Front, cam.Up);
 }
 
+#include <iomanip>
+
+
+void printMat4(const glm::mat4& mat, const std::string& label = "mat4") {
+    std::cout << label << ":\n";
+    for (int row = 0; row < 4; ++row) {
+        std::cout << "| ";
+        for (int col = 0; col < 4; ++col) {
+            std::cout << std::setw(10) << mat[col][row] << " ";
+        }
+        std::cout << "|\n";
+    }
+}
+
 void CalculateProjection(entt::registry &registry){
     auto constants = registry.ctx().get<Constants>();
 
-    auto view = registry.view<Camera>();
-    for(auto entity : view){
-        auto &cam = view.get<Camera>(entity);
-        // Doing this in update to update in realtime when Fov changes
-        cam.projection = glm::perspective(glm::radians(cam.Fov), constants.ASPECT_RATIO, 0.01f, 100.0f);
-        cam.view = GetViewMatrix(cam);
+    // get Active camera
+    auto &camEntity = registry.ctx().get<ActiveCamera>().camera;
+    auto &activeCamera = registry.get<Camera>(camEntity);
+
+    // Calculate projection
+    activeCamera.projection = glm::perspective(glm::radians(activeCamera.Fov), constants.ASPECT_RATIO, 0.01f, 100.0f);
+    activeCamera.view = GetViewMatrix(activeCamera);
+
+    // Send to All shaders
+    auto shaderView = registry.view<Shader>();
+    for(auto entity : shaderView){
+        auto &shader = shaderView.get<Shader>(entity);
+        ShaderSystem::Use(shader);
+        ShaderSystem::setMat4(shader, "projection", activeCamera.projection);
+        ShaderSystem::setMat4(shader, "view", activeCamera.view);
     }
+
 }

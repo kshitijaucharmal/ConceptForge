@@ -12,7 +12,7 @@ enum CameraMovement{
 struct Camera {
     // camera Attributes
     glm::vec3 Position      = glm::vec3();
-    glm::vec3 Front         = glm::vec3();
+    glm::vec3 Front         = glm::vec3(0.0f, 0.0f, -1.0f);
     glm::vec3 Up            = glm::vec3(0.0f, 1.0f, 0.0f);
     glm::vec3 Right         = glm::vec3();
     glm::vec3 WorldUp       = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -29,4 +29,8 @@ struct Camera {
     // Projection
     glm::mat4 projection    = glm::mat4(1.0);
     glm::mat4 view          = glm::mat4(1.0);
+};
+
+struct ActiveCamera {
+    entt::entity camera;
 };
