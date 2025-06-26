@@ -9,6 +9,8 @@
 #include "Components/Primitives/ActiveObject.hpp"
 #include "Components/Constants.hpp"
 #include "Components/Time.hpp"
+#include "Components/Rendering/FrameBuffer.hpp"
+#include "Components/Rendering/GizmoControls.hpp"
 
 #include "Systems/CameraSystem.hpp"
 #include "Systems/TimeSystem.hpp"
@@ -18,6 +20,8 @@
 #include "Systems/Primitives/CubeSystem.hpp"
 #include "Systems/SimObjectSystem.hpp"
 #include "Systems/Primitives/GizmoSystem.hpp"
+
+#include "Core/EditorWindows/Inspector.hpp"
 
 int main(){
     entt::registry registry;
@@ -34,10 +38,14 @@ int main(){
     registry.ctx().emplace<EventSystem::LateUpdateQueue>();
     registry.ctx().emplace<MaterialSystem::WhiteTexture>();
     registry.ctx().emplace<GUISystem::ImGuiDrawQueue>();
+    registry.ctx().emplace<FrameBuffer>();
+    registry.ctx().emplace<GizmoControls>();
 
     // Window -----------------------------------------------------------
     // initialize window (and OpenGL)
     Window window(registry, 1600, 900, "ConceptForge");
+    // Initialize the FrameBuffer
+    RenderSystem::Init(registry);
     // ------------------------------------------------------------------
 
     // Camera ----------------------------------------------------------
@@ -126,7 +134,6 @@ int main(){
         // --------------------------------------------------------------
 
         // Push To Draw Queue -------------------------------------------
-
         // --------------------------------------------------------------
 
         // UI here ------------------------------------------------------
@@ -136,10 +143,9 @@ int main(){
         auto &imguiQueue = registry.ctx().get<GUISystem::ImGuiDrawQueue>();
         for (auto &fn : imguiQueue) fn();
 
-        ImGui::ShowMetricsWindow();
+        Inspector::Show(registry);
 
-        // Show Gizmos
-        GizmoSystem::Render(registry);
+        RenderSystem::ShowSceneTexture(registry);
 
         GUISystem::RenderFrame();
 

@@ -26,7 +26,8 @@ struct Constants{
 
     // Editor
     // Inspector
-    const int INSPECTOR_WIDTH = 350; // height determined by window size
-    const int CONSOLE_HEIGHT = 500;
-    const int ASSET_BROWSER_WIDTH = 300;
+    const int SCENE_X = 300;
+    const int SCENE_Y = 0;
+    const int SCENE_WIDTH = 992;
+    const int SCENE_HEIGHT = 558;
 };
