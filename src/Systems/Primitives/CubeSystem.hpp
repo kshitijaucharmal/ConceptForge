@@ -6,7 +6,9 @@
 #include <iostream>
 
 #include "Components/Rendering/Material.hpp"
-#include "Components/Rendering/Renderer.hpp"
+#include "Components/Rendering/Mesh.hpp"
+#include "Components/Rendering/MeshFilter.hpp"
+#include "Components/Rendering/MeshRenderer.hpp"
 #include "Components/Primitives/Transform.hpp"
 
 namespace CubeSystem {

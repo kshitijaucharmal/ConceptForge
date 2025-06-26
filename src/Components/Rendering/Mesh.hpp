@@ -2,7 +2,6 @@
 
 #include <entt/entt.hpp>
 #include <glad/glad.h>
-#include <string>
 
 struct Mesh {
     GLuint VAO = 0;
@@ -10,9 +9,3 @@ struct Mesh {
     GLsizei indexCount = 0;
     bool initialized = false;
 };
-
-struct MeshFilter {
-    entt::entity meshEntity = entt::null;
-};
-
-struct MeshRenderer {};

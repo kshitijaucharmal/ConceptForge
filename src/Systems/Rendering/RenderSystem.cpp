@@ -1,9 +1,12 @@
 #include "RenderSystem.hpp"
 
 #include "Components/Primitives/Transform.hpp"
-#include "Components/Rendering/Renderer.hpp"
 #include "Components/Rendering/Material.hpp"
 #include "Components/Rendering/Shader.hpp"
+
+#include "Components/Rendering/Mesh.hpp"
+#include "Components/Rendering/MeshFilter.hpp"
+#include "Components/Rendering/MeshRenderer.hpp"
 
 #include "Systems/SimObjectSystem.hpp"
 

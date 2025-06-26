@@ -6,6 +6,7 @@
 #include "Core/EventSystem.hpp"
 
 #include "Components/Camera.hpp"
+#include "Components/Primitives/ActiveObject.hpp"
 #include "Components/Constants.hpp"
 #include "Components/Time.hpp"
 
@@ -16,6 +17,7 @@
 #include "Systems/Rendering/RenderSystem.hpp"
 #include "Systems/Primitives/CubeSystem.hpp"
 #include "Systems/SimObjectSystem.hpp"
+#include "Systems/Primitives/GizmoSystem.hpp"
 
 int main(){
     entt::registry registry;
@@ -26,6 +28,7 @@ int main(){
     // Global Values (Context)
     registry.ctx().emplace<Time>();
     registry.ctx().emplace<ActiveCamera>();
+    registry.ctx().emplace<ActiveObject>();  // Selected object
     registry.ctx().emplace<EventSystem::AwakeQueue>();
     registry.ctx().emplace<EventSystem::UpdateQueue>();
     registry.ctx().emplace<EventSystem::LateUpdateQueue>();
@@ -83,8 +86,11 @@ int main(){
         .name = "Cube2",
         .position = glm::vec3(0.0, -2.0, 0.0)
     };
-    CubeSystem::CreateCubeObject(registry, transform2, litShader);
-    CubeSystem::CreateCubeObject(registry, transform, unlitShader);
+    auto cube1 = CubeSystem::CreateCubeObject(registry, transform2, litShader);
+    auto cube2 = CubeSystem::CreateCubeObject(registry, transform, unlitShader);
+
+    // Set cube1 to be the selected object
+    registry.ctx().insert_or_assign<ActiveObject>({cube2});
     // ------------------------------------------------------------------
 
     // ImGUI ------------------------------------------------------------
@@ -131,6 +137,9 @@ int main(){
         for (auto &fn : imguiQueue) fn();
 
         ImGui::ShowMetricsWindow();
+
+        // Show Gizmos
+        GizmoSystem::Render(registry);
 
         GUISystem::RenderFrame();
 
