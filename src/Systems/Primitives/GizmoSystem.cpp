@@ -10,7 +10,6 @@
 #include "Systems/SimObjectSystem.hpp"
 
 namespace GizmoSystem {
-
     void Render(entt::registry &registry) {
         auto activeObject = registry.ctx().get<Hierarchy::Hierarchy>().selectedEntity;
         // Return if nothing selected
@@ -40,6 +39,7 @@ namespace GizmoSystem {
         // Get ActiveCamera
         auto &camEntity = registry.ctx().get<ActiveCamera>().camera;
         auto &activeCamera = registry.get<Camera>(camEntity);
+        auto &activeCameraTransform = registry.get<Transform>(camEntity);
 
         auto &transform = registry.get<Transform>(activeObject);
 
@@ -52,16 +52,7 @@ namespace GizmoSystem {
                              nullptr,
                              nullptr);
 
-        // Modify camera
-        glm::mat4 cameraMatrix = glm::inverse(activeCamera.view);
-        glm::vec3 position = glm::vec3(cameraMatrix[3]);
-        glm::vec3 forward  = -glm::vec3(cameraMatrix[2]);
-        glm::vec3 up       = glm::vec3(cameraMatrix[1]);
-
-        SetTransform(activeCamera, position, up);
-        LookAt(activeCamera, position + forward);
-
-        activeCamera.view = GetViewMatrix(activeCamera);
+        activeCamera.view = CameraSystem::GetViewMatrix(activeCamera, activeCameraTransform);
 
         // If the gizmo was used, decompose the result and update
         if (ImGuizmo::IsUsing()) {
@@ -70,7 +61,7 @@ namespace GizmoSystem {
             glm::quat rotQuat;
 
             glm::decompose(model, transform.scale, rotQuat, transform.position, skew, perspective);
-            transform.rotation = glm::degrees(glm::eulerAngles(rotQuat)); // Convert to Euler angles
+            transform.rotation = glm::normalize(rotQuat);
         }
 
         ImGui::PopClipRect();

@@ -36,8 +36,13 @@ namespace Inspector {
 
             auto &transform = registry.get<Transform>(selectedObject);
 
-            ImGui::DragFloat3("Position", glm::value_ptr(transform.position), 0.01,  -10.0, 10.0);
-            ImGui::DragFloat3("Rotation", glm::value_ptr(transform.rotation), .05,  -180.0, 180.0);
+            ImGui::DragFloat3("Position", glm::value_ptr(transform.position), 0.01,  -1000.0, 1000.0);
+
+            glm::vec3 eulerAngles = glm::degrees(glm::eulerAngles(transform.rotation));
+            if (ImGui::DragFloat3("Rotation", glm::value_ptr(eulerAngles), .05,  -180.0, 180.0) ){
+                transform.rotation = glm::quat(glm::radians(eulerAngles));
+            }
+
             ImGui::DragFloat3("Scale", glm::value_ptr(transform.scale), 0.1,  0.0, 100.0);
         }
 

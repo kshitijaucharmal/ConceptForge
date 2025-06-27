@@ -50,24 +50,10 @@ int main(){
 
     // Camera ----------------------------------------------------------
     // Create camera (Can be many, but one for now)
-    auto camera = registry.create();
-    registry.emplace<Camera>(camera, Camera{
-        .Position = glm::vec3(7.3589f, 7.3444f, 6.9258f),
-        .Yaw = -132.4,
-        .Pitch = -28.2f,
-        .MovementSpeed = 3.0f,
-        .Fov = 55.0f
-        // More settings can be changed
-    });
-    glm::vec3 origin = glm::vec3(0.0);
-    glm::vec3 front = glm::vec3(0.0, 0.0, -1.0);
-    LookAt(registry.get<Camera>(camera), origin + front);
+    auto camera = CameraSystem::CreateCamera(registry, "Main Camera");
 
     // Set it as the active camera
     registry.ctx().insert_or_assign<ActiveCamera>({camera});
-
-    // Only initialize _this_ camera
-    InitCamera(registry, camera);
     // ------------------------------------------------------------------
 
     // Shader System ----------------------------------------------------
@@ -113,7 +99,7 @@ int main(){
     while(!glfwWindowShouldClose(window.window)){
         // Update here --------------------------------------------------
         CalculateDeltaTime(registry);
-        CalculateProjection(registry);
+        CameraSystem::CalculateProjection(registry);
 
         // Call every System in Update/LateUpdate
         // Update

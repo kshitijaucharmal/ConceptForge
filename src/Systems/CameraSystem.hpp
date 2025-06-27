@@ -7,17 +7,24 @@
 #include <entt/entt.hpp>
 #include <Components/Constants.hpp>
 #include <Components/Camera.hpp>
+#include <Components/Primitives/Transform.hpp>
 
 // For single camera (takes a reference)
-void InitCamera(entt::registry &reg, entt::entity &entity);
-void UpdateCameraVectors(Camera &cam);
-glm::mat4 GetViewMatrix(Camera &cam);
-void SetTransform(Camera &cam, glm::vec3 position, glm::vec3 up);
-void LookAt(Camera &cam, glm::vec3 target);
-void ProcessKeyboard(Camera &cam, CameraMovement direction, float deltaTime);
-void ProcessMouseMovement(Camera &cam, float xoffset, float yoffset, bool constrainPitch);
-void ProcessMouseScroll(Camera &cam, float yoffset);
+namespace CameraSystem {
+    entt::entity CreateCamera(entt::registry &registry, std::string name);
+    void InitCamera(entt::registry &reg, entt::entity &entity);
 
-// Projection (Used to be its own class)
-// Calculate for ALL Cameras
-void CalculateProjection(entt::registry &registry);
+    void UpdateCameraVectors(Camera &cam, const Transform &transform);
+    glm::mat4 GetViewMatrix(Camera &cam, Transform &transform);
+
+    void SetTransform(Transform &transform, glm::vec3 position, glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f));
+    void LookAt(Transform &transform, glm::vec3 target);
+
+    void ProcessKeyboard(Camera &cam, Transform &transform, CameraMovement direction, float deltaTime);
+    void ProcessMouseMovement(Camera &cam, Transform &transform, float xoffset, float yoffset, bool constrainPitch);
+    void ProcessMouseScroll(Camera &cam, float yoffset);
+
+    // Projection (Used to be its own class)
+    // Calculate for ALL Cameras
+    void CalculateProjection(entt::registry &registry);
+}
