@@ -1,9 +1,10 @@
 
 #include "GizmoSystem.hpp"
 #include "Components/Constants.hpp"
-#include "Components/Primitives/ActiveObject.hpp"
 #include "Components/Primitives/Transform.hpp"
 #include "Components/Rendering/GizmoControls.hpp"
+
+#include "Core/EditorWindows/Hierarchy.hpp"
 
 #include "Systems/CameraSystem.hpp"
 #include "Systems/SimObjectSystem.hpp"
@@ -11,6 +12,10 @@
 namespace GizmoSystem {
 
     void Render(entt::registry &registry) {
+        auto activeObject = registry.ctx().get<Hierarchy::Hierarchy>().selectedEntity;
+        // Return if nothing selected
+        if(activeObject == entt::null) return;
+
         ImGui::Begin("SceneGizmoOverlay", nullptr,
                      ImGuiWindowFlags_NoTitleBar |
                      ImGuiWindowFlags_NoResize |
@@ -22,8 +27,6 @@ namespace GizmoSystem {
                      ImGuiWindowFlags_NoBackground);
 
         auto constants = registry.ctx().get<Constants>();
-
-        // Default
         auto &gizmoControls = registry.ctx().get<GizmoControls>();
 
         ImVec2 scenePos = ImGui::GetCursorScreenPos();
@@ -32,21 +35,12 @@ namespace GizmoSystem {
         ImGuizmo::SetOrthographic(false);
         ImGuizmo::SetDrawlist(ImGui::GetForegroundDrawList());
         ImGuizmo::SetRect(scenePos.x, scenePos.y, sceneSize.x, sceneSize.y);
-
-        // ImVec2 windowPos  = ImGui::GetWindowPos();             // Top-left of the "Scene" window
-        // ImVec2 contentMin = ImGui::GetWindowContentRegionMin(); // Offset inside window
-        // ImVec2 contentMax = ImGui::GetWindowContentRegionMax();
-        // ImVec2 sceneRectMin = ImVec2(windowPos.x + contentMin.x, windowPos.y + contentMin.y);
-        // ImVec2 sceneSize     = ImVec2(contentMax.x - contentMin.x, contentMax.y - contentMin.y);
-
-        // ImGuizmo::SetRect(sceneRectMin.x, sceneRectMin.y, sceneSize.x, sceneSize.y);
         ImGuizmo::BeginFrame();
 
         // Get ActiveCamera
         auto &camEntity = registry.ctx().get<ActiveCamera>().camera;
         auto &activeCamera = registry.get<Camera>(camEntity);
 
-        auto &activeObject = registry.ctx().get<ActiveObject>().entity;
         auto &transform = registry.get<Transform>(activeObject);
 
         auto model = SimObject::ComposeTransform(transform);

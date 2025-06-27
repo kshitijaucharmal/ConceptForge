@@ -1,9 +1,9 @@
-
 #include "Inspector.hpp"
-#include "Components/Primitives/ActiveObject.hpp"
 #include "Components/Primitives/Transform.hpp"
 #include "Components/Rendering/GizmoControls.hpp"
 #include "Components/Constants.hpp"
+
+#include "Core/EditorWindows/Hierarchy.hpp"
 
 #include "imgui.h"
 #include "ImGuizmo.h"
@@ -11,11 +11,7 @@
 
 namespace Inspector {
     void Show(entt::registry &registry) {
-        auto &selectedObject = registry.ctx().get<ActiveObject>().entity;
-        if(selectedObject == entt::null) {
-            // Nothing selected, return for now
-            return;
-        }
+        auto &selectedObject = registry.ctx().get<Hierarchy::Hierarchy>().selectedEntity;
 
         auto &constants = registry.ctx().get<Constants>();
         auto &gc = registry.ctx().get<GizmoControls>();
@@ -36,7 +32,7 @@ namespace Inspector {
             if (ImGui::RadioButton("Global", gc.mode == ImGuizmo::WORLD)) gc.mode = ImGuizmo::WORLD;
         }
 
-        if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
+        if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen) && selectedObject != entt::null) {
 
             auto &transform = registry.get<Transform>(selectedObject);
 

@@ -6,7 +6,6 @@
 #include "Core/EventSystem.hpp"
 
 #include "Components/Camera.hpp"
-#include "Components/Primitives/ActiveObject.hpp"
 #include "Components/Constants.hpp"
 #include "Components/Time.hpp"
 #include "Components/Rendering/FrameBuffer.hpp"
@@ -22,6 +21,7 @@
 #include "Systems/Primitives/GizmoSystem.hpp"
 
 #include "Core/EditorWindows/Inspector.hpp"
+#include "Core/EditorWindows/Hierarchy.hpp"
 
 int main(){
     entt::registry registry;
@@ -30,9 +30,9 @@ int main(){
     auto constants = registry.ctx().emplace<Constants>();
 
     // Global Values (Context)
+    registry.ctx().emplace<Hierarchy::Hierarchy>();
     registry.ctx().emplace<Time>();
     registry.ctx().emplace<ActiveCamera>();
-    registry.ctx().emplace<ActiveObject>();  // Selected object
     registry.ctx().emplace<EventSystem::AwakeQueue>();
     registry.ctx().emplace<EventSystem::UpdateQueue>();
     registry.ctx().emplace<EventSystem::LateUpdateQueue>();
@@ -96,9 +96,8 @@ int main(){
     };
     auto cube1 = CubeSystem::CreateCubeObject(registry, transform2, litShader);
     auto cube2 = CubeSystem::CreateCubeObject(registry, transform, unlitShader);
+    auto cube3 = CubeSystem::CreateCubeObject(registry, transform, unlitShader);
 
-    // Set cube1 to be the selected object
-    registry.ctx().insert_or_assign<ActiveObject>({cube2});
     // ------------------------------------------------------------------
 
     // ImGUI ------------------------------------------------------------
@@ -143,6 +142,7 @@ int main(){
         auto &imguiQueue = registry.ctx().get<GUISystem::ImGuiDrawQueue>();
         for (auto &fn : imguiQueue) fn();
 
+        Hierarchy::Show(registry);
         Inspector::Show(registry);
 
         RenderSystem::ShowSceneTexture(registry);
