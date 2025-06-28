@@ -1,9 +1,9 @@
 #include "TimeSystem.hpp"
 
 void CalculateDeltaTime(entt::registry &registry){
-    float currentTime = glfwGetTime();
+    const float currentTime = glfwGetTime();
 
-    auto time = registry.ctx().get<Time>();
-    time.deltaTime = currentTime - time.lastTime;
-    time.lastTime = currentTime;
+    auto [deltaTime, lastTime] = registry.ctx().get<Time>();
+    deltaTime = currentTime - lastTime;
+    lastTime = currentTime;
 }

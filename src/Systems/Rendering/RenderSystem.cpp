@@ -55,11 +55,18 @@ namespace RenderSystem {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
-    void Render(entt::registry& registry){
-        auto constants = registry.ctx().get<Constants>();
-        auto &framebuffer = registry.ctx().get<FrameBuffer>();
-
+    void BindFramebuffer(entt::registry &registry) {
+        const auto &framebuffer = registry.ctx().get<FrameBuffer>();
         glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.frameBufferID);
+    }
+
+    void UnbindFramebuffer() {
+        glBindFramebuffer(GL_FRAMEBUFFER,0);
+    }
+
+    void Render(entt::registry& registry){
+        const auto constants = registry.ctx().get<Constants>();
+
         glViewport(0, 0, constants.WINDOW_WIDTH, constants.WINDOW_HEIGHT);
         glEnable(GL_DEPTH_TEST);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -69,15 +76,13 @@ namespace RenderSystem {
                         constants.CLEAR_COLOR.a);
         // Clear Color Buffer and Depth Buffer
 
-        auto view = registry.view<Transform, MeshFilter, MeshRenderer, Material>();
-
-        for (auto entity : view) {
+        for (const auto view = registry.view<Transform, MeshFilter, MeshRenderer, Material>(); const auto entity : view) {
             auto& t = view.get<Transform>(entity);
             auto& f = view.get<MeshFilter>(entity);
             auto& m = view.get<Material>(entity);
 
-            Shader* shader = registry.try_get<Shader>(m.shader);
-            Mesh* mesh = registry.try_get<Mesh>(f.meshEntity);
+            const Shader* shader = registry.try_get<Shader>(m.shader);
+            const Mesh* mesh = registry.try_get<Mesh>(f.meshEntity);
             if (!shader || !mesh || !shader->initialized || !mesh->initialized) continue;
 
             // Replace with helpers
@@ -88,9 +93,6 @@ namespace RenderSystem {
             glDrawArrays(GL_TRIANGLES, 0, mesh->indexCount);
             glBindVertexArray(0);
         }
-
-        // Unbind framebuffer
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     }
 

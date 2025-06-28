@@ -1,5 +1,7 @@
 #include "WindowManager.hpp"
 
+#include <utility>
+
 void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
     glViewport(0, 0, width, height);
 }
@@ -8,8 +10,8 @@ Window::Window(entt::registry &registry, int w, int h, std::string name, bool fu
     auto constants = registry.ctx().get<Constants>();
     constants.WINDOW_WIDTH = w;
     constants.WINDOW_HEIGHT = h;
-    constants.ASPECT_RATIO = (float)w / (float)h;
-    constants.WINDOW_NAME = name;
+    constants.ASPECT_RATIO = static_cast<float>(w) / static_cast<float>(h);
+    constants.WINDOW_NAME = std::move(name);
     constants.FULLSCREEN = fullscreen;
 
     glfwInit();
@@ -25,10 +27,10 @@ Window::Window(entt::registry &registry, int w, int h, std::string name, bool fu
         // Init window
         constants.WINDOW_WIDTH = mode->width;
         constants.WINDOW_HEIGHT = mode->height;
-        window = glfwCreateWindow(mode->width, mode->height, constants.WINDOW_NAME.c_str(), monitor, NULL);
+        window = glfwCreateWindow(mode->width, mode->height, constants.WINDOW_NAME.c_str(), monitor, nullptr);
     }
     else{
-        window = glfwCreateWindow(constants.WINDOW_WIDTH, constants.WINDOW_HEIGHT, constants.WINDOW_NAME.c_str(), NULL, NULL);
+        window = glfwCreateWindow(constants.WINDOW_WIDTH, constants.WINDOW_HEIGHT, constants.WINDOW_NAME.c_str(), nullptr, nullptr);
     }
     if (!window) {
         glfwTerminate();
@@ -39,7 +41,7 @@ Window::Window(entt::registry &registry, int w, int h, std::string name, bool fu
     glfwMakeContextCurrent(window);
 
     // GLAD manages function pointers for OpenGL
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+    if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
         std::cerr << "Failed to initialize GLAD" << std::endl;
         return;
     }
@@ -56,14 +58,14 @@ Window::~Window() {
     glfwTerminate();
 }
 
-void Window::ScreenClearFlags(entt::registry &registry){
-    auto constants = registry.ctx().get<Constants>();
+auto Window::ScreenClearFlags(entt::registry &registry) -> void {
+    const auto constants = registry.ctx().get<Constants>();
     // Clear Screen with this color
-    glClearColor(constants.CLEAR_COLOR.r,
-                    constants.CLEAR_COLOR.g,
-                    constants.CLEAR_COLOR.b,
-                    constants.CLEAR_COLOR.a);
     // Clear Color Buffer and Depth Buffer
     glEnable(GL_DEPTH_TEST);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClearColor(constants.BACKGROUND_COLOR.r,
+                    constants.BACKGROUND_COLOR.g,
+                    constants.BACKGROUND_COLOR.b,
+                    constants.BACKGROUND_COLOR.a);
 }

@@ -1,8 +1,14 @@
 #include "GUISystem.hpp"
 
+#include "Components/Constants.hpp"
+
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
 namespace GUISystem {
 void InitImGUI(entt::registry &registry, GLFWwindow* window) {
-    auto constants = registry.ctx().get<Constants>();
+    const auto constants = registry.ctx().get<Constants>();
 
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -28,7 +34,7 @@ void InitImGUI(entt::registry &registry, GLFWwindow* window) {
     io.Fonts->AddFontFromFileTTF(FONT_DIR "/TextFont.ttf", 16.0f);
 
     // Load icon font (e.g., FontAwesome)
-    static const ImWchar icons_ranges[] = { 0xf000, 0xf3ff, 0 };
+    static constexpr ImWchar icons_ranges[] = { 0xf000, 0xf3ff, 0 };
     io.Fonts->AddFontFromFileTTF(FONT_DIR "/fa-solid-900.ttf", 16.0f, &config, icons_ranges);
 
     // Setup Dear ImGui style
@@ -50,8 +56,7 @@ void RenderFrame(){
     // Update and Render additional Platform Windows
     // (Platform functions may change the current OpenGL context, so we save/restore it to make it
     //  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
-    auto io = ImGui::GetIO();
-    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+    if (const auto io = ImGui::GetIO(); io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
         GLFWwindow* backup_current_context = glfwGetCurrentContext();
         ImGui::UpdatePlatformWindows();
         ImGui::RenderPlatformWindowsDefault();

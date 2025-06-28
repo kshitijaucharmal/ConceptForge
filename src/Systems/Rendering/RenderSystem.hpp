@@ -7,4 +7,6 @@ namespace RenderSystem {
     void Init(entt::registry &registry);
     void Render(entt::registry& registry);
     void ShowSceneTexture(entt::registry &registry);
+    void BindFramebuffer(entt::registry &registry);
+    void UnbindFramebuffer();
 }

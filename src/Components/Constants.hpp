@@ -17,17 +17,18 @@ struct Constants{
 
     // Darkish blue
     glm::vec4 CLEAR_COLOR{0.04f, 0.04f, 0.045f, 1.0f};
+    glm::vec4 BACKGROUND_COLOR{0.04f, 0.04f, 0.045f, 1.0f};
 
     int WINDOW_WIDTH = 1600;
     int WINDOW_HEIGHT = 900;
-    float ASPECT_RATIO = (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT;
+    float ASPECT_RATIO = static_cast<float>(WINDOW_WIDTH) / static_cast<float>(WINDOW_HEIGHT);
     std::string WINDOW_NAME = "ConceptForge";
     bool FULLSCREEN = false;
 
     // Editor
     // Inspector
-    const int SCENE_X = 300;
-    const int SCENE_Y = 0;
+    const int SCENE_X = 302;
+    const int SCENE_Y = 2;
     const int SCENE_WIDTH = 992;
     const int SCENE_HEIGHT = 558;
 };

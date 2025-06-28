@@ -11,31 +11,38 @@
 
 namespace Inspector {
     void Show(entt::registry &registry) {
-        auto &selectedObject = registry.ctx().get<Hierarchy::Hierarchy>().selectedEntity;
+        const auto &selectedObject = registry.ctx().get<Hierarchy::Hierarchy>().selectedEntity;
 
-        auto &constants = registry.ctx().get<Constants>();
-        auto &gc = registry.ctx().get<GizmoControls>();
+        const auto &constants = registry.ctx().get<Constants>();
+        auto &[operation, mode] = registry.ctx().get<GizmoControls>();
 
         ImGui::SetNextWindowPos(ImVec2(constants.SCENE_X + constants.SCENE_WIDTH, 0), ImGuiCond_Always);
         ImGui::SetNextWindowSize(ImVec2(constants.WINDOW_WIDTH - (constants.SCENE_WIDTH + constants.SCENE_X), constants.WINDOW_HEIGHT), ImGuiCond_Always);
         ImGui::Begin("Inspector", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 
         if (ImGui::CollapsingHeader("Gizmo Controls", ImGuiTreeNodeFlags_DefaultOpen)) {
-            if (ImGui::RadioButton("Translate", gc.operation == ImGuizmo::TRANSLATE)) gc.operation = ImGuizmo::TRANSLATE;
+            if (ImGui::RadioButton("Translate", operation == ImGuizmo::TRANSLATE)) operation = ImGuizmo::TRANSLATE;
             ImGui::SameLine();
-            if (ImGui::RadioButton("Rotate", gc.operation == ImGuizmo::ROTATE)) gc.operation = ImGuizmo::ROTATE;
+            if (ImGui::RadioButton("Rotate", operation == ImGuizmo::ROTATE)) operation = ImGuizmo::ROTATE;
             ImGui::SameLine();
-            if (ImGui::RadioButton("Scale", gc.operation == ImGuizmo::SCALE)) gc.operation = ImGuizmo::SCALE;
+            if (ImGui::RadioButton("Scale", operation == ImGuizmo::SCALE)) operation = ImGuizmo::SCALE;
 
-            if (ImGui::RadioButton("Local", gc.mode == ImGuizmo::LOCAL)) gc.mode = ImGuizmo::LOCAL;
+            if (ImGui::RadioButton("Local", mode == ImGuizmo::LOCAL)) mode = ImGuizmo::LOCAL;
             ImGui::SameLine();
-            if (ImGui::RadioButton("Global", gc.mode == ImGuizmo::WORLD)) gc.mode = ImGuizmo::WORLD;
+            if (ImGui::RadioButton("Global", mode == ImGuizmo::WORLD)) mode = ImGuizmo::WORLD;
         }
 
         if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen) && selectedObject != entt::null) {
 
             auto &transform = registry.get<Transform>(selectedObject);
 
+            static char nameBuf[128];
+            strncpy(nameBuf, transform.name.c_str(), sizeof(nameBuf));
+            nameBuf[sizeof(nameBuf) - 1] = '\0';
+
+            if (ImGui::InputText("Name", nameBuf, sizeof(nameBuf))) {
+                transform.name = nameBuf;
+            }
             ImGui::DragFloat3("Position", glm::value_ptr(transform.position), 0.01,  -1000.0, 1000.0);
 
             glm::vec3 eulerAngles = glm::degrees(glm::eulerAngles(transform.rotation));

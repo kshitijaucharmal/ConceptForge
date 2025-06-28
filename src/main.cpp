@@ -1,5 +1,4 @@
 #include <entt/entt.hpp>
-#include <iostream>
 
 #include "Core/WindowManager.hpp"
 #include "Core/GUISystem.hpp"
@@ -17,11 +16,11 @@
 #include "Systems/Rendering/ShaderSystem.hpp"
 #include "Systems/Rendering/RenderSystem.hpp"
 #include "Systems/Primitives/CubeSystem.hpp"
-#include "Systems/SimObjectSystem.hpp"
 #include "Systems/Primitives/GizmoSystem.hpp"
 
 #include "Core/EditorWindows/Inspector.hpp"
 #include "Core/EditorWindows/Hierarchy.hpp"
+#include "Systems/Primitives/GridSystem.hpp"
 
 int main(){
     entt::registry registry;
@@ -50,7 +49,7 @@ int main(){
 
     // Camera ----------------------------------------------------------
     // Create camera (Can be many, but one for now)
-    auto camera = CameraSystem::CreateCamera(registry, "Main Camera");
+    const auto camera = CameraSystem::CreateCamera(registry, "Main Camera");
 
     // Set it as the active camera
     registry.ctx().insert_or_assign<ActiveCamera>({camera});
@@ -58,6 +57,12 @@ int main(){
 
     // Shader System ----------------------------------------------------
     // Shaders
+    entt::entity gridShader = registry.create();
+    registry.emplace<Shader>(gridShader, Shader{
+        .vertexShaderPath = SHADER_DIR "/grid.vert",
+        .fragmentShaderPath = SHADER_DIR "/grid.frag"
+    });
+
     entt::entity litShader = registry.create();
     registry.emplace<Shader>(litShader, Shader{
         .vertexShaderPath = constants.SP_LIT_VERT,
@@ -71,19 +76,21 @@ int main(){
     });
     ShaderSystem::InitShaders(registry);
 
-    // Cube Object
-    auto transform = Transform{
-        .name = "Cube",
-        .position = glm::vec3(0.0, 2.0, 0.0)
-    };
-    auto transform2 = Transform{
-        .name = "Cube2",
-        .position = glm::vec3(0.0, -2.0, 0.0)
-    };
-    auto cube1 = CubeSystem::CreateCubeObject(registry, transform2, litShader);
-    auto cube2 = CubeSystem::CreateCubeObject(registry, transform, unlitShader);
-    auto cube3 = CubeSystem::CreateCubeObject(registry, transform, unlitShader);
+    // Grid
+    auto grid = GridSystem::CreateGrid(registry, gridShader, "Grid");
 
+    // Cube Objects
+    auto cube1 = CubeSystem::CreateCubeObject(registry,
+        Transform{
+            .name = "Cube 1",
+            .position = glm::vec3(2.0, 2.0, 0.0)
+        }, litShader);
+    auto cube2 = CubeSystem::CreateCubeObject(registry,
+        Transform{
+            .name = "Cube 2",
+            .position = glm::vec3(-2.0, 2.0, 0.0)
+    }, litShader);
+    auto cube3 = CubeSystem::CreateCubeObject(registry, Transform{.name = "Cube 3"}, unlitShader);
     // ------------------------------------------------------------------
 
     // ImGUI ------------------------------------------------------------
@@ -112,10 +119,16 @@ int main(){
         // --------------------------------------------------------------
 
         // Before drawing anything, clear screen
-        window.ScreenClearFlags(registry);
+        Window::ScreenClearFlags(registry);
 
         // Render here --------------------------------------------------
+        // Anything inside framebuffer draws to the Scene window
+        RenderSystem::BindFramebuffer(registry);
+
         RenderSystem::Render(registry);
+        GridSystem::Render(registry, grid, registry.get<Shader>(gridShader));
+
+        RenderSystem::UnbindFramebuffer();
         // --------------------------------------------------------------
 
         // Push To Draw Queue -------------------------------------------
@@ -124,14 +137,14 @@ int main(){
         // UI here ------------------------------------------------------
         GUISystem::NewFrame();
 
-        // Show Every window in the Draw Queue
-        auto &imguiQueue = registry.ctx().get<GUISystem::ImGuiDrawQueue>();
-        for (auto &fn : imguiQueue) fn();
-
+        RenderSystem::ShowSceneTexture(registry);
+        // Editor Windows
         Hierarchy::Show(registry);
         Inspector::Show(registry);
 
-        RenderSystem::ShowSceneTexture(registry);
+        // Custom Windows
+        auto &imguiQueue = registry.ctx().get<GUISystem::ImGuiDrawQueue>();
+        for (auto &fn : imguiQueue) fn();
 
         GUISystem::RenderFrame();
 

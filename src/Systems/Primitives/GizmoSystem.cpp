@@ -11,7 +11,7 @@
 
 namespace GizmoSystem {
     void Render(entt::registry &registry) {
-        auto activeObject = registry.ctx().get<Hierarchy::Hierarchy>().selectedEntity;
+        const auto activeObject = registry.ctx().get<Hierarchy::Hierarchy>().selectedEntity;
         // Return if nothing selected
         if(activeObject == entt::null) return;
 
@@ -26,10 +26,11 @@ namespace GizmoSystem {
                      ImGuiWindowFlags_NoBackground);
 
         auto constants = registry.ctx().get<Constants>();
-        auto &gizmoControls = registry.ctx().get<GizmoControls>();
+        const auto &[operation, mode] = registry.ctx().get<GizmoControls>();
 
-        ImVec2 scenePos = ImGui::GetCursorScreenPos();
-        ImVec2 sceneSize = ImGui::GetContentRegionAvail();
+        const ImVec2 scenePos = ImGui::GetCursorScreenPos();
+        const ImVec2 sceneSize = ImGui::GetContentRegionAvail();
+
         ImGui::PushClipRect(scenePos, ImVec2(scenePos.x + sceneSize.x, scenePos.y + sceneSize.y), true);
         ImGuizmo::SetOrthographic(false);
         ImGuizmo::SetDrawlist(ImGui::GetForegroundDrawList());
@@ -37,7 +38,7 @@ namespace GizmoSystem {
         ImGuizmo::BeginFrame();
 
         // Get ActiveCamera
-        auto &camEntity = registry.ctx().get<ActiveCamera>().camera;
+        const auto &camEntity = registry.ctx().get<ActiveCamera>().camera;
         auto &activeCamera = registry.get<Camera>(camEntity);
         auto &activeCameraTransform = registry.get<Transform>(camEntity);
 
@@ -46,8 +47,8 @@ namespace GizmoSystem {
         auto model = SimObject::ComposeTransform(transform);
         ImGuizmo::Manipulate(glm::value_ptr(activeCamera.view),
                              glm::value_ptr(activeCamera.projection),
-                             gizmoControls.operation,
-                             gizmoControls.mode,
+                             operation,
+                             mode,
                              glm::value_ptr(model),
                              nullptr,
                              nullptr);

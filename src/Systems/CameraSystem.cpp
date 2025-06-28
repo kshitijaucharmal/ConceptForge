@@ -1,28 +1,22 @@
-
 #include "CameraSystem.hpp"
+
+#include <utility>
 #include "Components/Rendering/Shader.hpp"
 #include "Systems/Rendering/ShaderSystem.hpp"
 
 namespace CameraSystem {
 
-
 entt::entity CreateCamera(entt::registry &registry, std::string name="Camera"){
     auto camera = registry.create();
     registry.emplace<Transform>(camera, Transform{
-        .name = name,
-        .position = glm::vec3(7.3589f, 7.3444f, 6.9258f),
-        .rotation = glm::vec3(-28.2f, -132.4f, 0.0f) // Pitch (X), Yaw (Y), Roll (Z)
+        .name = std::move(name),
+        .position = glm::vec3(0.0, 2.0, 10.0f),
     });
     registry.emplace<Camera>(camera, Camera{
         .MovementSpeed = 3.0f,
-        .Fov = 55.0f,
+        .Fov = 60.0f,
         .Zoom = 55.0f
     });
-
-    auto& camTransform = registry.get<Transform>(camera);
-    glm::vec3 origin = glm::vec3(0.0f);
-    glm::vec3 front  = glm::vec3(0.0f, 0.0f, -1.0f);
-    CameraSystem::LookAt(camTransform, origin + front);
 
     // Only initialize _this_ camera
     CameraSystem::InitCamera(registry, camera);
@@ -32,7 +26,7 @@ entt::entity CreateCamera(entt::registry &registry, std::string name="Camera"){
 
 void InitCamera(entt::registry &reg, entt::entity &entity){
     auto cam = reg.get<Camera>(entity);
-    auto transform = reg.get<Transform>(entity);
+    const auto transform = reg.get<Transform>(entity);
     UpdateCameraVectors(cam, transform);
 }
 
@@ -50,17 +44,17 @@ void SetTransform(Transform &transform, glm::vec3 position, glm::vec3 up) {
     // but typically Up is always (0, 1, 0) and handled via cross products.
 }
 
-void LookAt(Transform &transform, glm::vec3 target) {
-    glm::vec3 direction = glm::normalize(target - transform.position);
-    glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+void LookAt(Transform &transform, const glm::vec3 target) {
+    const auto direction = glm::normalize(target - transform.position);
+    const auto up = glm::vec3(0.0f, 1.0f, 0.0f);
 
     // Create quaternion that rotates Z to look at direction
     transform.rotation = glm::quatLookAt(direction, up);
 }
 
 // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-void ProcessKeyboard(Camera &cam, Transform &transform, CameraMovement direction, float deltaTime) {
-    float velocity = cam.MovementSpeed * deltaTime;
+void ProcessKeyboard(Camera &cam, Transform &transform, const CameraMovement direction, const float deltaTime) {
+    const float velocity = cam.MovementSpeed * deltaTime;
 
     UpdateCameraVectors(cam, transform); // Ensure directions are up-to-date
 
@@ -81,8 +75,8 @@ void ProcessMouseMovement(Camera &cam, Transform &transform, float xoffset, floa
     yoffset *= cam.MouseSensitivity;
 
     // Create pitch and yaw quaternions
-    glm::quat yawQuat   = glm::angleAxis(glm::radians(-xoffset), glm::vec3(0, 1, 0));
-    glm::quat pitchQuat = glm::angleAxis(glm::radians(-yoffset), glm::vec3(1, 0, 0));
+    const glm::quat yawQuat   = glm::angleAxis(glm::radians(-xoffset), glm::vec3(0, 1, 0));
+    const glm::quat pitchQuat = glm::angleAxis(glm::radians(-yoffset), glm::vec3(1, 0, 0));
 
     // Apply relative rotation: note order matters
     transform.rotation = glm::normalize(yawQuat * transform.rotation);   // Yaw: around world Y
@@ -91,10 +85,10 @@ void ProcessMouseMovement(Camera &cam, Transform &transform, float xoffset, floa
     // Optionally clamp pitch (a bit tricky with quaternions, skip unless needed)
 }
 
-// processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
-void ProcessMouseScroll(Camera &cam, float yoffset)
+// processes input received from a mouse scroll-wheel event. Only requires to be input on the vertical wheel-axis
+void ProcessMouseScroll(Camera &cam, const float yoffset)
 {
-    cam.Zoom -= (float)yoffset;
+    cam.Zoom -= static_cast<float>(yoffset);
     if (cam.Zoom < 1.0f)
         cam.Zoom = 1.0f;
     if (cam.Zoom > 45.0f)
@@ -108,7 +102,7 @@ glm::mat4 GetViewMatrix(Camera &cam, Transform &transform) {
 }
 
 void CalculateProjection(entt::registry &registry){
-    auto constants = registry.ctx().get<Constants>();
+    const auto constants = registry.ctx().get<Constants>();
 
     // Get Active Camera Entity
     auto camEntity = registry.ctx().get<ActiveCamera>().camera;
@@ -118,8 +112,7 @@ void CalculateProjection(entt::registry &registry){
     camera.projection = glm::perspective(glm::radians(camera.Fov), constants.ASPECT_RATIO, 0.01f, 100.0f);
     camera.view = GetViewMatrix(camera, transform);
 
-    auto shaderView = registry.view<Shader>();
-    for (auto entity : shaderView) {
+    for (const auto shaderView = registry.view<Shader>(); const auto entity : shaderView) {
         auto &shader = shaderView.get<Shader>(entity);
         ShaderSystem::Use(shader);
         ShaderSystem::setMat4(shader, "projection", camera.projection);
