@@ -24,6 +24,7 @@ struct Constants{
     float ASPECT_RATIO = static_cast<float>(WINDOW_WIDTH) / static_cast<float>(WINDOW_HEIGHT);
     std::string WINDOW_NAME = "ConceptForge";
     bool FULLSCREEN = false;
+    bool MouseCaptured = false;
 
     // Editor
     // Inspector

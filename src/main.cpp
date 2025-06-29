@@ -1,11 +1,14 @@
 #include <entt/entt.hpp>
+#include <Systems/InputSystem.hpp>
 
 #include "Core/WindowManager.hpp"
 #include "Core/GUISystem.hpp"
 #include "Core/EventSystem.hpp"
+#include "Core/SSBOManager.hpp"
 
 #include "Components/Camera.hpp"
 #include "Components/Constants.hpp"
+#include "Components/SSBOHolder.hpp"
 #include "Components/Time.hpp"
 #include "Components/Rendering/FrameBuffer.hpp"
 #include "Components/Rendering/GizmoControls.hpp"
@@ -21,6 +24,8 @@
 #include "Core/EditorWindows/Inspector.hpp"
 #include "Core/EditorWindows/Hierarchy.hpp"
 #include "Systems/Primitives/GridSystem.hpp"
+#include "Systems/Rendering/LightSystem.hpp"
+
 
 int main(){
     entt::registry registry;
@@ -35,9 +40,13 @@ int main(){
     registry.ctx().emplace<EventSystem::AwakeQueue>();
     registry.ctx().emplace<EventSystem::UpdateQueue>();
     registry.ctx().emplace<EventSystem::LateUpdateQueue>();
-    registry.ctx().emplace<MaterialSystem::WhiteTexture>();
+    registry.ctx().emplace<MaterialSystem::WhiteTexture>(0);
     registry.ctx().emplace<GUISystem::ImGuiDrawQueue>();
     registry.ctx().emplace<FrameBuffer>();
+    registry.ctx().emplace<ShaderStore>();
+    registry.ctx().emplace<SSBOHolder>();
+    registry.ctx().emplace<LightSystem::PointLightsHandle>();
+    registry.ctx().emplace<LightSystem::DirectionalLightsHandle>();
     registry.ctx().emplace<GizmoControls>();
 
     // Window -----------------------------------------------------------
@@ -45,52 +54,77 @@ int main(){
     Window window(registry, 1600, 900, "ConceptForge");
     // Initialize the FrameBuffer
     RenderSystem::Init(registry);
+    // Init SSBOs
+    SSBOManager::AddAndInit(registry, "pointLights", 1);
+    SSBOManager::AddAndInit(registry, "dirLights", 2);
     // ------------------------------------------------------------------
 
     // Camera ----------------------------------------------------------
     // Create camera (Can be many, but one for now)
-    const auto camera = CameraSystem::CreateCamera(registry, "Main Camera");
+    auto camera = CameraSystem::CreateCamera(registry, "Main Camera");
 
     // Set it as the active camera
     registry.ctx().insert_or_assign<ActiveCamera>({camera});
     // ------------------------------------------------------------------
 
+
     // Shader System ----------------------------------------------------
     // Shaders
+    auto &shaderStore = registry.ctx().get<ShaderStore>();
     entt::entity gridShader = registry.create();
     registry.emplace<Shader>(gridShader, Shader{
         .vertexShaderPath = SHADER_DIR "/grid.vert",
         .fragmentShaderPath = SHADER_DIR "/grid.frag"
     });
+    shaderStore.shaders["GridShader"] = gridShader;
 
     entt::entity litShader = registry.create();
     registry.emplace<Shader>(litShader, Shader{
         .vertexShaderPath = constants.SP_LIT_VERT,
         .fragmentShaderPath = constants.SP_LIT_FRAG
     });
+    shaderStore.shaders["LitShader"] = litShader;
 
     entt::entity unlitShader = registry.create();
     registry.emplace<Shader>(unlitShader, Shader{
         .vertexShaderPath = constants.SP_UNLIT_VERT,
         .fragmentShaderPath = constants.SP_UNLIT_FRAG
     });
+    shaderStore.shaders["UnlitShader"] = unlitShader;
+    MaterialSystem::InitWhiteTexture(registry);
     ShaderSystem::InitShaders(registry);
 
     // Grid
-    auto grid = GridSystem::CreateGrid(registry, gridShader, "Grid");
+    const auto grid = GridSystem::CreateGrid(registry, gridShader, "Grid");
+
+    // Light
+    LightSystem::AddDirectionalLight(registry,
+        Transform{
+            .name = "Directional Light",
+            .position = glm::vec3(0.0, 30.0, 3.0),
+            .rotation = glm::quat(glm::radians(glm::vec3(180.0f, -30.0f, -60.0f))),
+            .scale = glm::vec3(0.4)
+        });
+    LightSystem::AddPointLight(registry,
+        Transform{
+            .name = "Point Light",
+            .position = glm::vec3(0.0, 4.0, 3.0),
+            .scale = glm::vec3(0.4)
+        });
 
     // Cube Objects
     auto cube1 = CubeSystem::CreateCubeObject(registry,
         Transform{
             .name = "Cube 1",
-            .position = glm::vec3(2.0, 2.0, 0.0)
+            .position = glm::vec3(2.0, 1.0, -2.0),
+            .scale = glm::vec3(2.0)
         }, litShader);
     auto cube2 = CubeSystem::CreateCubeObject(registry,
         Transform{
             .name = "Cube 2",
-            .position = glm::vec3(-2.0, 2.0, 0.0)
+            .position = glm::vec3(-2.0, 1.0, -2.0),
+            .scale = glm::vec3(2.0)
     }, litShader);
-    auto cube3 = CubeSystem::CreateCubeObject(registry, Transform{.name = "Cube 3"}, unlitShader);
     // ------------------------------------------------------------------
 
     // ImGUI ------------------------------------------------------------
@@ -106,7 +140,9 @@ int main(){
     while(!glfwWindowShouldClose(window.window)){
         // Update here --------------------------------------------------
         CalculateDeltaTime(registry);
+        InputSystem::ProcessInput(registry, window.window);
         CameraSystem::CalculateProjection(registry);
+        CameraSystem::SetView(registry);
 
         // Call every System in Update/LateUpdate
         // Update
@@ -126,7 +162,12 @@ int main(){
         RenderSystem::BindFramebuffer(registry);
 
         RenderSystem::Render(registry);
+
+        // Grid
         GridSystem::Render(registry, grid, registry.get<Shader>(gridShader));
+        // Lights
+        LightSystem::RenderPointLights(registry);
+        LightSystem::RenderDirectionalLights(registry);
 
         RenderSystem::UnbindFramebuffer();
         // --------------------------------------------------------------
@@ -137,7 +178,6 @@ int main(){
         // UI here ------------------------------------------------------
         GUISystem::NewFrame();
 
-        RenderSystem::ShowSceneTexture(registry);
         // Editor Windows
         Hierarchy::Show(registry);
         Inspector::Show(registry);
@@ -146,6 +186,7 @@ int main(){
         auto &imguiQueue = registry.ctx().get<GUISystem::ImGuiDrawQueue>();
         for (auto &fn : imguiQueue) fn();
 
+        RenderSystem::ShowSceneTexture(registry, window.window);
         GUISystem::RenderFrame();
 
         // Clear queue for next frame

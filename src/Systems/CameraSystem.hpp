@@ -20,11 +20,12 @@ namespace CameraSystem {
     void SetTransform(Transform &transform, glm::vec3 position, glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f));
     void LookAt(Transform &transform, glm::vec3 target);
 
-    void ProcessKeyboard(Camera &cam, Transform &transform, CameraMovement direction, float deltaTime);
+    void ProcessKeyboard(Camera &cam, Transform &transform, glm::vec3 direction, float deltaTime);
     void ProcessMouseMovement(Camera &cam, Transform &transform, float xoffset, float yoffset, bool constrainPitch);
     void ProcessMouseScroll(Camera &cam, float yoffset);
 
     // Projection (Used to be its own class)
     // Calculate for ALL Cameras
     void CalculateProjection(entt::registry &registry);
+    void SetView(entt::registry &registry);
 }

@@ -7,15 +7,14 @@
 namespace CameraSystem {
 
 entt::entity CreateCamera(entt::registry &registry, std::string name="Camera"){
+    auto &constants = registry.ctx().get<Constants>();
     auto camera = registry.create();
     registry.emplace<Transform>(camera, Transform{
         .name = std::move(name),
         .position = glm::vec3(0.0, 2.0, 10.0f),
     });
     registry.emplace<Camera>(camera, Camera{
-        .MovementSpeed = 3.0f,
         .Fov = 60.0f,
-        .Zoom = 55.0f
     });
 
     // Only initialize _this_ camera
@@ -53,19 +52,17 @@ void LookAt(Transform &transform, const glm::vec3 target) {
 }
 
 // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-void ProcessKeyboard(Camera &cam, Transform &transform, const CameraMovement direction, const float deltaTime) {
+void ProcessKeyboard(Camera &cam, Transform &transform, glm::vec3 direction, const float deltaTime) {
     const float velocity = cam.MovementSpeed * deltaTime;
 
-    UpdateCameraVectors(cam, transform); // Ensure directions are up-to-date
+    if (glm::length(direction) < 0.01f)
+        return;
 
-    if (direction == FORWARD)
-        transform.position += cam.Front * velocity;
-    if (direction == BACKWARD)
-        transform.position -= cam.Front * velocity;
-    if (direction == LEFT)
-        transform.position -= cam.Right * velocity;
-    if (direction == RIGHT)
-        transform.position += cam.Right * velocity;
+    direction = glm::normalize(direction);
+
+    UpdateCameraVectors(cam, transform); // Ensure directions are up-to-date
+    const auto move = glm::normalize(cam.Right * direction.x + cam.Up * direction.y + cam.Front * direction.z) * velocity;
+    transform.position += move;
 }
 
 
@@ -120,5 +117,15 @@ void CalculateProjection(entt::registry &registry){
     }
 }
 
-
+void SetView(entt::registry &registry) {
+    auto &shaderStore = registry.ctx().get<ShaderStore>();
+    auto &camera = registry.ctx().get<ActiveCamera>().camera;
+    auto &camTransform = registry.get<Transform>(camera);
+    for (auto &[name, shaderEntity] : shaderStore.shaders) {
+        auto &shader = registry.get<Shader>(shaderEntity);
+        ShaderSystem::Use(shader);
+        ShaderSystem::setVec3(shader, "viewPos", camTransform.position);
+        ShaderSystem::setFloat(shader, "material.shininess", 32.0f);
+    }
+}
 }

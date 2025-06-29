@@ -1,5 +1,7 @@
 #pragma once
 #include <string>
+#include <unordered_map>
+#include <entt/entt.hpp>
 
 // ShaderType
 enum ShaderType {
@@ -26,4 +28,8 @@ struct Shader {
 
     DrawMode drawMode = DrawMode::FILLED;
     ShaderType type = ShaderType::LIT;
+};
+
+struct ShaderStore {
+    std::unordered_map<std::string, entt::entity> shaders;
 };

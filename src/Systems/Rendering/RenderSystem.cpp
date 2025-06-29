@@ -15,13 +15,14 @@
 
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
+#include <Components/Camera.hpp>
 
 namespace RenderSystem {
     void Init(entt::registry &registry){
-        auto constants = registry.ctx().get<Constants>();
+        const auto &constants = registry.ctx().get<Constants>();
 
-        int width = constants.WINDOW_WIDTH;
-        int height = constants.WINDOW_HEIGHT;
+        const int width = constants.WINDOW_WIDTH;
+        const int height = constants.WINDOW_HEIGHT;
 
         GLuint framebufferID, colorTexture, depthBuffer;
 
@@ -96,11 +97,11 @@ namespace RenderSystem {
 
     }
 
-    void ShowSceneTexture(entt::registry &registry) {
+    void ShowSceneTexture(entt::registry &registry, GLFWwindow* window) {
         auto &constants = registry.ctx().get<Constants>();
         // Fixed Screen Position
-        ImGui::SetNextWindowPos(ImVec2(constants.SCENE_X, constants.SCENE_Y));
-        ImGui::SetNextWindowSize(ImVec2(constants.SCENE_WIDTH, constants.SCENE_HEIGHT));
+        ImGui::SetNextWindowPos(ImVec2(constants.SCENE_X, constants.SCENE_Y), ImGuiCond_Appearing);
+        ImGui::SetNextWindowSize(ImVec2(constants.SCENE_WIDTH, constants.SCENE_HEIGHT), ImGuiCond_Appearing);
         ImGui::Begin("Scene",
                      nullptr,
                      ImGuiWindowFlags_NoMouseInputs |
@@ -111,12 +112,11 @@ namespace RenderSystem {
                      ImGuiWindowFlags_NoSavedSettings |
                      ImGuiWindowFlags_NoCollapse
                      );
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0)); // No padding
 
         auto &framebuffer = registry.ctx().get<FrameBuffer>();
 
-        ImVec2 avail = ImGui::GetContentRegionAvail();
-        float aspect = (float)constants.WINDOW_WIDTH / (float)constants.WINDOW_HEIGHT;
+        const auto avail = ImGui::GetContentRegionAvail();
+        const auto aspect = static_cast<float>(constants.WINDOW_WIDTH) / static_cast<float>(constants.WINDOW_HEIGHT);
         float finalWidth = avail.x;
         float finalHeight = finalWidth / aspect;
         if (finalHeight > avail.y) {
@@ -124,17 +124,44 @@ namespace RenderSystem {
             finalWidth = finalHeight * aspect;
         }
 
-        ImVec2 scenePos = ImGui::GetCursorScreenPos();
-        ImVec2 sceneSize = ImGui::GetContentRegionAvail();
+        const auto scenePos = ImGui::GetCursorScreenPos();
+        const auto sceneSize = avail;
 
+        ImGui::PushID("SceneViewport");
+
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0)); // No padding
         ImDrawList* drawList = ImGui::GetBackgroundDrawList();
         drawList->AddImage(
-            (ImTextureID)(uintptr_t)framebuffer.colorTexture,
+            (ImTextureID)static_cast<uintptr_t>(framebuffer.colorTexture),
                            scenePos,
                            ImVec2(scenePos.x + sceneSize.x, scenePos.y + sceneSize.y),
                            ImVec2(0, 1), ImVec2(1, 0)  // UVs (flip vertically if needed)
         );
         ImGui::PopStyleVar(); // Pop padding
+
+        const auto &activeCam = registry.ctx().get<ActiveCamera>().camera;
+        auto &camera = registry.get<Camera>(activeCam);
+        ImVec2 sceneEnd  = ImVec2(scenePos.x + sceneSize.x, scenePos.y + sceneSize.y);
+
+        // Check if the mouse is inside the image rectangle
+        if (!ImGui::GetIO().WantCaptureMouse) {
+            ImVec2 mousePos = ImGui::GetIO().MousePos;
+
+            if (ImGui::IsMouseHoveringRect(scenePos, sceneEnd) &&
+                ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                constants.MouseCaptured = true;
+                camera.firstMouse = true;
+                }
+        }
+
+        // Unlock with Escape
+        if (constants.MouseCaptured && glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            constants.MouseCaptured = false;
+        }
+        ImGui::PopID();
+
         ImGui::End();
 
         // Show Gizmos

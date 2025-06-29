@@ -12,12 +12,16 @@ enum CameraMovement{
 
 struct Camera {
     // Camera behavior settings
-    float MovementSpeed    = 2.5f;
+    float MovementSpeed    = 10.5f;
     float MouseSensitivity = 0.1f;
 
     // Projection parameters
     float Fov              = 45.0f;
-    float Zoom             = 45.0f;
+    float Zoom             = 1.0f;
+
+    float lastX             = 400.0f;  // Center of screen (change to your window size / 2)
+    float lastY             = 300.0f;
+    bool firstMouse         = true;
 
     // Cached direction vectors (computed per frame from Transform)
     glm::vec3 Front = glm::vec3(0.0f, 0.0f, -1.0f);

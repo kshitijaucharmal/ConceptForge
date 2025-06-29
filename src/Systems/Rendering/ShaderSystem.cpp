@@ -6,11 +6,9 @@
 
 namespace ShaderSystem {
     void InitShaders(entt::registry &registry){
-        auto view = registry.view<Shader>();
-
-        for (auto entity : view) {
-            auto& shader = view.get<Shader>(entity);
-
+        auto shaders = registry.ctx().get<ShaderStore>().shaders;
+        for (auto &shaderPair : shaders) {
+            auto &shader = registry.get<Shader>(shaderPair.second);
             if (shader.initialized){
                 continue;
             }

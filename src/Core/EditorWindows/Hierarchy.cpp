@@ -20,11 +20,11 @@ namespace Hierarchy {
 
         const auto &c = registry.ctx().get<Constants>();
 
-        ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
+        ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Appearing);
         const int width = c.WINDOW_WIDTH - (c.SCENE_WIDTH + c.SCENE_X);
         const int height = c.SCENE_HEIGHT;
-        ImGui::SetNextWindowSize(ImVec2(width, height), ImGuiCond_Always);
-        ImGui::Begin("Hierarchy", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+        ImGui::SetNextWindowSize(ImVec2(width, height), ImGuiCond_Appearing);
+        ImGui::Begin("Hierarchy");
 
         bool scrollToSelection = false;
         if (ImGui::IsWindowFocused() && !ImGui::IsAnyItemActive()) {

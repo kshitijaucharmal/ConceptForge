@@ -6,16 +6,13 @@
 
 #include <iostream>
 #include <Components/Primitives/Transform.hpp>
-#include <utility>
 #include <Components/Rendering/Material.hpp>
 
 #include "Components/Primitives/Grid.hpp"
 #include <glad/glad.h>
-#include <glm/gtc/type_ptr.inl>
-#include <Systems/SimObjectSystem.hpp>
+#include <Systems/Rendering/ShaderSystem.hpp>
 
 #include "Components/Rendering/MeshFilter.hpp"
-#include "Components/Rendering/MeshRenderer.hpp"
 #include "Components/Rendering/Mesh.hpp"
 
 namespace GridSystem {
@@ -71,13 +68,14 @@ namespace GridSystem {
         const auto camera = registry.get<Camera>(cameraEntity);
         const auto camTransform = registry.get<Transform>(cameraEntity);
 
-        glUseProgram(shader.shaderID); // your simple line shader
-        glm::mat4 MVP = camera.projection * camera.view;
-        glUniformMatrix4fv(glGetUniformLocation(shader.shaderID, "MVP"), 1, GL_FALSE, glm::value_ptr(MVP));
-        glUniform3fv(glGetUniformLocation(shader.shaderID, "uColor"), 1, glm::value_ptr(grid.color));
+        auto MVP = camera.projection * camera.view;
         auto camXZ = glm::vec3(camTransform.position.x, 0.0f, camTransform.position.z);
         auto snappedOffset = glm::floor(camXZ / grid.spacing) * grid.spacing;
-        glUniform3fv(glGetUniformLocation(shader.shaderID, "gridOffset"), 1, glm::value_ptr(snappedOffset));
+
+        ShaderSystem::Use(shader);
+        ShaderSystem::setMat4(shader, "MVP", MVP);
+        ShaderSystem::setVec3(shader, "uColor", grid.color);
+        ShaderSystem::setVec3(shader, "gridOffset", snappedOffset);
 
         glBindVertexArray(mesh.VAO);
         glDrawArrays(GL_LINES, 0, mesh.indexCount);

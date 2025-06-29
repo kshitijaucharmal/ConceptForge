@@ -1,5 +1,8 @@
 
 #include "GizmoSystem.hpp"
+
+#include <imgui_internal.h>
+
 #include "Components/Constants.hpp"
 #include "Components/Primitives/Transform.hpp"
 #include "Components/Rendering/GizmoControls.hpp"

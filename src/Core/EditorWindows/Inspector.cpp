@@ -16,9 +16,9 @@ namespace Inspector {
         const auto &constants = registry.ctx().get<Constants>();
         auto &[operation, mode] = registry.ctx().get<GizmoControls>();
 
-        ImGui::SetNextWindowPos(ImVec2(constants.SCENE_X + constants.SCENE_WIDTH, 0), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(constants.WINDOW_WIDTH - (constants.SCENE_WIDTH + constants.SCENE_X), constants.WINDOW_HEIGHT), ImGuiCond_Always);
-        ImGui::Begin("Inspector", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
+        ImGui::SetNextWindowPos(ImVec2(constants.SCENE_X + constants.SCENE_WIDTH, 0), ImGuiCond_Appearing);
+        ImGui::SetNextWindowSize(ImVec2(constants.WINDOW_WIDTH - (constants.SCENE_WIDTH + constants.SCENE_X), constants.WINDOW_HEIGHT), ImGuiCond_Appearing);
+        ImGui::Begin("Inspector");
 
         if (ImGui::CollapsingHeader("Gizmo Controls", ImGuiTreeNodeFlags_DefaultOpen)) {
             if (ImGui::RadioButton("Translate", operation == ImGuizmo::TRANSLATE)) operation = ImGuizmo::TRANSLATE;
@@ -46,7 +46,7 @@ namespace Inspector {
             ImGui::DragFloat3("Position", glm::value_ptr(transform.position), 0.01,  -1000.0, 1000.0);
 
             glm::vec3 eulerAngles = glm::degrees(glm::eulerAngles(transform.rotation));
-            if (ImGui::DragFloat3("Rotation", glm::value_ptr(eulerAngles), .05,  -180.0, 180.0) ){
+            if (ImGui::DragFloat3("Rotation", glm::value_ptr(eulerAngles), .5,  -180.0, 180.0) ){
                 transform.rotation = glm::quat(glm::radians(eulerAngles));
             }
 
