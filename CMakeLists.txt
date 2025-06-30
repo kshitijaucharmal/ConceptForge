@@ -41,12 +41,6 @@ include_directories(
 # Gather source files
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 file(GLOB_RECURSE NB_SOURCES "nanobind/*.cpp")
-file(GLOB_RECURSE BULLET_SRC
-    CONFIGURE_DEPENDS
-    src/LinearMath/*.cpp
-    src/BulletCollision/*.cpp
-    src/BulletDynamics/*.cpp
-)
 
 # Add external libraries
 add_subdirectory(external/glm)
@@ -57,11 +51,6 @@ add_subdirectory(external/bullet)
 # Build glad
 add_library(glad STATIC external/glad/src/glad.c)
 target_include_directories(glad PUBLIC external/glad/include)
-
-# Build Bullet
-add_library(Bullet STATIC ${BULLET_SRC})
-
-target_include_directories(Bullet PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 # Build ImGui
 add_library(imgui STATIC
@@ -87,7 +76,7 @@ target_link_libraries(ImGuizmo PUBLIC imgui)
 # Main executable
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_link_libraries(${PROJECT_NAME}
-  PRIVATE OpenGL::GL imgui ImGuizmo glad glfw glm
+  PRIVATE OpenGL::GL imgui ImGuizmo glad glfw glm BulletDynamics BulletCollision LinearMath
 )
 
 # Custom target to run the app
