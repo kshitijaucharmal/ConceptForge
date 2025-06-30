@@ -1,6 +1,9 @@
 #include "LightSystem.hpp"
 
 #include <Components/SSBOHolder.hpp>
+#include <Components/Rendering/Material.hpp>
+#include <Components/Rendering/MeshFilter.hpp>
+#include <Components/Rendering/MeshRenderer.hpp>
 #include <Components/Rendering/Shader.hpp>
 #include <glad/glad.h>
 #include <Systems/Primitives/CubeSystem.hpp>
@@ -12,7 +15,15 @@ namespace LightSystem {
     void AddPointLight(entt::registry &registry, Transform transform) {
         // Create a cube with unlit shader
         auto &shaderStore = registry.ctx().get<ShaderStore>().shaders;
-        auto lightEntity = CubeSystem::CreateCubeObject(registry, transform, shaderStore["UnlitShader"]);
+        const entt::entity lightEntity = registry.create();
+        registry.emplace<Transform>(lightEntity, transform);
+        registry.emplace<Material>(lightEntity, Material {
+            .shader = shaderStore["UnlitShader"],
+            .initialized = true
+        });
+        const entt::entity mesh = CubeSystem::CreateCubeMesh(registry);
+        registry.emplace<MeshFilter>(lightEntity, mesh);
+        registry.emplace<MeshRenderer>(lightEntity);
         registry.emplace<PointLight>(lightEntity, PointLight{
             .position = transform.position,
         });
@@ -23,9 +34,21 @@ namespace LightSystem {
     void AddDirectionalLight(entt::registry &registry, Transform transform) {
         // Create a cube with unlit shader
         auto &shaderStore = registry.ctx().get<ShaderStore>().shaders;
-        auto lightEntity = CubeSystem::CreateCubeObject(registry, transform, shaderStore["UnlitShader"]);
+
+        const entt::entity lightEntity = registry.create();
+        registry.emplace<Transform>(lightEntity, transform);
+
+        // See it visually
+        registry.emplace<Material>(lightEntity, Material {
+            .shader = shaderStore["UnlitShader"],
+            .initialized = true
+        });
+        const entt::entity mesh = CubeSystem::CreateCubeMesh(registry);
+        registry.emplace<MeshFilter>(lightEntity, mesh);
+        registry.emplace<MeshRenderer>(lightEntity);
+
         registry.emplace<DirectionalLight>(lightEntity, DirectionalLight{
-            .direction = glm::eulerAngles(transform.rotation)
+            .direction = glm::eulerAngles(transform.rotation),
         });
         auto &handle = registry.ctx().get<DirectionalLightsHandle>();
         handle.entities.push_back(lightEntity);

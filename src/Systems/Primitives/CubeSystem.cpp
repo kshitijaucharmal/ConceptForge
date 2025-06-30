@@ -1,11 +1,15 @@
 #include "CubeSystem.hpp"
 
+#include <iostream>
+
 #include "Components/Rendering/Material.hpp"
 #include "Components/Rendering/Mesh.hpp"
 #include "Components/Rendering/MeshFilter.hpp"
 #include "Components/Rendering/MeshRenderer.hpp"
 
 #include "VertexData.hpp"
+#include "../../../external/bullet/src/BulletCollision/CollisionShapes/btBoxShape.h"
+#include "../../Core/Physics/PhysicsSystem.hpp"
 
 namespace CubeSystem {
     entt::entity CreateCubeMesh(entt::registry &registry) {
@@ -40,7 +44,7 @@ namespace CubeSystem {
         return cubeMesh;
     }
 
-    entt::entity CreateCubeObject(entt::registry& registry, Transform transform, entt::entity &shader) {
+    entt::entity CreateCubeObject(entt::registry& registry, Transform transform, entt::entity &shader, bool movable) {
         const entt::entity e = registry.create();
         registry.emplace<Transform>(e, transform);
         registry.emplace<Material>(e, Material {
@@ -51,6 +55,16 @@ namespace CubeSystem {
         registry.emplace<MeshFilter>(e, mesh);
         registry.emplace<MeshRenderer>(e);
         registry.emplace<Cube>(e);
+
+        // Add Rigidbody
+        const auto scale = btVector3(transform.scale.x, transform.scale.y, transform.scale.z);
+        const auto halfScale = btVector3(scale.x()/2, scale.y()/2, scale.z()/2);
+        auto* shape = new btBoxShape(btVector3(1, 1, 1));
+        shape->setLocalScaling(halfScale); // box half extents
+
+        const auto mass = movable ? 1.0f : 0.0f;
+        BulletPhysicsSystem::AddRigidbody(e, registry, mass, shape); // mass = 1 -> dynamic
+
         return e;
     }
 }

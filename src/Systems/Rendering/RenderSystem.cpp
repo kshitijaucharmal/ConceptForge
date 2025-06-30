@@ -15,7 +15,16 @@
 
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
+#include <BulletInverseDynamics/details/MultiBodyTreeImpl.hpp>
 #include <Components/Camera.hpp>
+#include <Components/Physics/Rigidbody.hpp>
+#include <Core/GameState.hpp>
+#include <Core/Physics/PhysicsSystem.hpp>
+
+// Font Awesome icon defines (or use full glyphs)
+#define ICON_FA_PLAY  "\xef\x81\x8b"  // f04b
+#define ICON_FA_PAUSE "\xef\x81\x8c"  // f04c
+#define ICON_FA_STEP  "\xef\x81\x91"  // f051 (Step Forward)
 
 namespace RenderSystem {
     void Init(entt::registry &registry){
@@ -110,7 +119,8 @@ namespace RenderSystem {
                      ImGuiWindowFlags_NoScrollWithMouse |
                      ImGuiWindowFlags_NoResize |
                      ImGuiWindowFlags_NoSavedSettings |
-                     ImGuiWindowFlags_NoCollapse
+                     ImGuiWindowFlags_NoCollapse |
+                     ImGuiWindowFlags_NoTitleBar
                      );
 
         auto &framebuffer = registry.ctx().get<FrameBuffer>();
@@ -143,26 +153,65 @@ namespace RenderSystem {
         auto &camera = registry.get<Camera>(activeCam);
         ImVec2 sceneEnd  = ImVec2(scenePos.x + sceneSize.x, scenePos.y + sceneSize.y);
 
+        auto &io = ImGui::GetIO();
         // Check if the mouse is inside the image rectangle
-        if (!ImGui::GetIO().WantCaptureMouse) {
-            ImVec2 mousePos = ImGui::GetIO().MousePos;
-
-            if (ImGui::IsMouseHoveringRect(scenePos, sceneEnd) &&
-                ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-                constants.MouseCaptured = true;
-                camera.firstMouse = true;
+        if (!io.WantCaptureMouse) {
+            if (ImGui::IsMouseHoveringRect(scenePos, sceneEnd) && ImGui::IsMouseDragging(ImGuiMouseButton_Right)) {
+                if (!constants.MouseCaptured) {
+                    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                    constants.MouseCaptured = true;
+                    camera.firstMouse = true;
                 }
-        }
-
-        // Unlock with Escape
-        if (constants.MouseCaptured && glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-            constants.MouseCaptured = false;
+            }
+            else {
+                constants.MouseCaptured = false;
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            }
         }
         ImGui::PopID();
 
         ImGui::End();
+
+        {
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 4));
+            ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+
+            ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x / 2.0f, 10), ImGuiCond_Always, ImVec2(0.5f, 0.0f));
+            ImGui::SetNextWindowBgAlpha(0.4f);
+
+            const ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration |
+                                     ImGuiWindowFlags_AlwaysAutoResize |
+                                     ImGuiWindowFlags_NoMove |
+                                     ImGuiWindowFlags_NoSavedSettings |
+                                     ImGuiWindowFlags_NoFocusOnAppearing |
+                                     ImGuiWindowFlags_NoNav;
+
+            if (ImGui::Begin("##ControlBar", nullptr, flags)) {
+                auto &gameState = registry.ctx().get<GameState>();
+                if (ImGui::Button(ICON_FA_PLAY)) {
+                    gameState.isPlaying = true;
+                    auto view = registry.view<Transform, Rigidbody>();
+                    for (auto &entity : view) {
+                        auto &transform = view.get<Transform>(entity);
+                        auto &rb = view.get<Rigidbody>(entity);
+                        BulletPhysicsSystem::SetBulletTransformFromVisual(transform, rb);
+                    }
+                }
+
+                ImGui::SameLine();
+                if (ImGui::Button(ICON_FA_PAUSE)) {
+                    gameState.isPlaying = false;
+                }
+                ImGui::SameLine();
+                if (ImGui::Button(ICON_FA_STEP)) {
+                    // Step
+                }
+            }
+            ImGui::End();
+
+            ImGui::PopStyleVar(3);
+        }
 
         // Show Gizmos
         ImGui::SetNextWindowPos(scenePos);

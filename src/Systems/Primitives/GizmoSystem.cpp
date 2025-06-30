@@ -2,7 +2,10 @@
 #include "GizmoSystem.hpp"
 
 #include <imgui_internal.h>
+#include <Core/GameState.hpp>
 
+#include "../../Components/Physics/Rigidbody.hpp"
+#include "../../Core/Physics/PhysicsSystem.hpp"
 #include "Components/Constants.hpp"
 #include "Components/Primitives/Transform.hpp"
 #include "Components/Rendering/GizmoControls.hpp"
@@ -14,6 +17,11 @@
 
 namespace GizmoSystem {
     void Render(entt::registry &registry) {
+
+        // Return if not playing
+        auto &gameState = registry.ctx().get<GameState>();
+        if (gameState.isPlaying) return;
+
         const auto activeObject = registry.ctx().get<Hierarchy::Hierarchy>().selectedEntity;
         // Return if nothing selected
         if(activeObject == entt::null) return;
@@ -59,16 +67,15 @@ namespace GizmoSystem {
         activeCamera.view = CameraSystem::GetViewMatrix(activeCamera, activeCameraTransform);
 
         // If the gizmo was used, decompose the result and update
-        if (ImGuizmo::IsUsing()) {
-            glm::vec3 skew;
-            glm::vec4 perspective;
-            glm::quat rotQuat;
+        glm::vec3 skew;
+        glm::vec4 perspective;
+        glm::quat rotQuat;
 
-            glm::decompose(model, transform.scale, rotQuat, transform.position, skew, perspective);
-            transform.rotation = glm::normalize(rotQuat);
-        }
+        glm::decompose(model, transform.scale, rotQuat, transform.position, skew, perspective);
+        transform.rotation = glm::normalize(rotQuat);
 
         ImGui::PopClipRect();
         ImGui::End(); // SceneGizmoOverlay
+
     }
 }

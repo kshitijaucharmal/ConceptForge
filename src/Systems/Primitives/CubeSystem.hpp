@@ -10,6 +10,6 @@ namespace CubeSystem {
     struct Cube {};
 
     entt::entity CreateCubeMesh(entt::registry &registry);
-    entt::entity CreateCubeObject(entt::registry& registry, Transform transform, entt::entity &material);
+    entt::entity CreateCubeObject(entt::registry& registry, Transform transform, entt::entity &material, bool movable=true);
 
 }
