@@ -46,7 +46,6 @@ file(GLOB_RECURSE NB_SOURCES "nanobind/*.cpp")
 add_subdirectory(external/glm)
 add_subdirectory(external/glfw)
 add_subdirectory(external/nanobind)
-add_subdirectory(external/bullet)
 
 # Build glad
 add_library(glad STATIC external/glad/src/glad.c)
@@ -73,10 +72,25 @@ add_library(ImGuizmo STATIC external/ImGuizmo/ImGuizmo.cpp)
 target_include_directories(ImGuizmo PUBLIC external/ImGuizmo)
 target_link_libraries(ImGuizmo PUBLIC imgui)
 
+# 🔧 Add Bullet Physics
+add_subdirectory(external/bullet)
+
 # Main executable
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_link_libraries(${PROJECT_NAME}
-  PRIVATE OpenGL::GL imgui ImGuizmo glad glfw glm BulletDynamics BulletCollision LinearMath
+        PRIVATE
+        OpenGL::GL
+        imgui
+        ImGuizmo
+        glad
+        glfw
+        glm
+        BulletDynamics
+        BulletCollision
+        LinearMath
+)
+target_include_directories(${PROJECT_NAME} PRIVATE
+        external/bullet/src
 )
 
 # Custom target to run the app
