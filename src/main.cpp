@@ -1,85 +1,203 @@
-#include "setup.hpp"
-#include "primitives/uv_sphere.hpp"
-#include "primitives/cube.hpp"
-#include "primitives/light_ssbo.hpp"
+#include <entt/entt.hpp>
+#include <Systems/InputSystem.hpp>
 
-using namespace Engine;
+#include "Core/WindowManager.hpp"
+#include "Core/GUISystem.hpp"
+#include "Core/EventSystem.hpp"
+#include "Core/SSBOManager.hpp"
 
-glm::vec3 cubePositions[] = {
-  glm::vec3( 0.0f,  0.0f,  0.0f),
-  glm::vec3( 2.0f,  5.0f, -15.0f),
-  glm::vec3(-1.5f, -2.2f, -2.5f),
-  glm::vec3(-3.8f, -2.0f, -12.3f),
-  glm::vec3( 2.4f, -0.4f, -3.5f),
-  glm::vec3(-1.7f,  3.0f, -7.5f),
-  glm::vec3( 1.3f, -2.0f, -2.5f),
-  glm::vec3( 1.5f,  2.0f, -2.5f),
-  glm::vec3( 1.5f,  0.2f, -1.5f),
-  glm::vec3(-1.3f,  1.0f, -1.5f)
-};
+#include "Components/Camera.hpp"
+#include "Components/Constants.hpp"
+#include "Components/SSBOHolder.hpp"
+#include "Components/Time.hpp"
+#include "Components/Rendering/FrameBuffer.hpp"
+#include "Components/Rendering/GizmoControls.hpp"
 
-int main() {
-  ConceptForge forge;
+#include "Systems/CameraSystem.hpp"
+#include "Systems/TimeSystem.hpp"
+#include "Systems/Rendering/MaterialSystem.hpp"
+#include "Systems/Rendering/ShaderSystem.hpp"
+#include "Systems/Rendering/RenderSystem.hpp"
+#include "Systems/Primitives/CubeSystem.hpp"
+#include "Systems/Primitives/GizmoSystem.hpp"
 
-  std::unique_ptr<UVSphere> light = std::make_unique<UVSphere>();
-  light->SetPosition(glm::vec3(0.7f,  0.2f,  2.0f));
-  light->SetScale(glm::vec3(0.2));
-  light->name = "Light";
-  UVSphere* light_ptr1 = light.get();
-  forge.hierarchy.AddEntity(std::move(light));
-
-  light = std::make_unique<UVSphere>();
-  light->SetPosition(glm::vec3(2.3f, 0.0f, 0.0f));
-  light->SetScale(glm::vec3(0.2));
-  light->name = "Light2";
-  UVSphere* light_ptr2 = light.get();
-  forge.hierarchy.AddEntity(std::move(light));
-
-  light = std::make_unique<UVSphere>();
-  light->SetPosition(glm::vec3(4.f, 3.3f, 0.0f));
-  light->SetScale(glm::vec3(0.2));
-  light->name = "Light3";
-  UVSphere* light_ptr3 = light.get();
-  forge.hierarchy.AddEntity(std::move(light));
-
-  // Add a sphere and a Cube
-  std::unique_ptr<UVSphere> sphere = std::make_unique<UVSphere>();
-  sphere->SetPosition(glm::vec3(0, 3, 0));
-  sphere->SetRotation(glm::vec3(-34, -2, 88));
-  sphere->SetScale(glm::vec3(1, 1, 1));
-  forge.hierarchy.AddEntity(std::move(sphere));
-
-  // Many Cubes
-  for(unsigned int i = 0; i < 10; i++) {
-    std::unique_ptr<Cube> cube = std::make_unique<Cube>();
-    cube->SetPosition(cubePositions[i]);
-    float angle = 20.0f * i;
-    cube->Rotate(angle, glm::vec3(1.0f, 0.3f, 0.5f));
-    forge.hierarchy.AddEntity(std::move(cube));
-
-  }
+#include "Core/EditorWindows/Inspector.hpp"
+#include "Core/EditorWindows/Hierarchy.hpp"
+#include "Systems/Primitives/GridSystem.hpp"
+#include "Systems/Rendering/LightSystem.hpp"
 
 
-  // Render Loop
-  while (!forge.WindowShouldClose()) {
-    forge.DeltaTimeCalc();
-    forge.ProcessInput();
+int main(){
+    entt::registry registry;
 
-    for(auto const &entity : forge.hierarchy.entities){
+    // Setup Global Constants (Might be changed)
+    auto constants = registry.ctx().emplace<Constants>();
 
-      for(auto &mat : entity.second->materials){
-        mat->shader->setVec3("viewPos", forge.camera.Position);
-      }
+    // Global Values (Context)
+    registry.ctx().emplace<Hierarchy::Hierarchy>();
+    registry.ctx().emplace<Time>();
+    registry.ctx().emplace<ActiveCamera>();
+    registry.ctx().emplace<EventSystem::AwakeQueue>();
+    registry.ctx().emplace<EventSystem::UpdateQueue>();
+    registry.ctx().emplace<EventSystem::LateUpdateQueue>();
+    registry.ctx().emplace<MaterialSystem::WhiteTexture>(0);
+    registry.ctx().emplace<GUISystem::ImGuiDrawQueue>();
+    registry.ctx().emplace<FrameBuffer>();
+    registry.ctx().emplace<ShaderStore>();
+    registry.ctx().emplace<SSBOHolder>();
+    registry.ctx().emplace<LightSystem::PointLightsHandle>();
+    registry.ctx().emplace<LightSystem::DirectionalLightsHandle>();
+    registry.ctx().emplace<GizmoControls>();
 
-      forge.pointLights[0].position = light_ptr1->GetPosition();
-      // forge.pointLights[1].position = light_ptr2->GetPosition();
-      // forge.pointLights[2].position = light_ptr3->GetPosition();
+    // Window -----------------------------------------------------------
+    // initialize window (and OpenGL)
+    Window window(registry, 1600, 900, "ConceptForge");
+    // Initialize the FrameBuffer
+    RenderSystem::Init(registry);
+    // Init SSBOs
+    SSBOManager::AddAndInit(registry, "pointLights", 1);
+    SSBOManager::AddAndInit(registry, "dirLights", 2);
+    // ------------------------------------------------------------------
+
+    // Camera ----------------------------------------------------------
+    // Create camera (Can be many, but one for now)
+    auto camera = CameraSystem::CreateCamera(registry, "Main Camera");
+
+    // Set it as the active camera
+    registry.ctx().insert_or_assign<ActiveCamera>({camera});
+    // ------------------------------------------------------------------
+
+
+    // Shader System ----------------------------------------------------
+    // Shaders
+    auto &shaderStore = registry.ctx().get<ShaderStore>();
+    entt::entity gridShader = registry.create();
+    registry.emplace<Shader>(gridShader, Shader{
+        .vertexShaderPath = SHADER_DIR "/grid.vert",
+        .fragmentShaderPath = SHADER_DIR "/grid.frag"
+    });
+    shaderStore.shaders["GridShader"] = gridShader;
+
+    entt::entity litShader = registry.create();
+    registry.emplace<Shader>(litShader, Shader{
+        .vertexShaderPath = constants.SP_LIT_VERT,
+        .fragmentShaderPath = constants.SP_LIT_FRAG
+    });
+    shaderStore.shaders["LitShader"] = litShader;
+
+    entt::entity unlitShader = registry.create();
+    registry.emplace<Shader>(unlitShader, Shader{
+        .vertexShaderPath = constants.SP_UNLIT_VERT,
+        .fragmentShaderPath = constants.SP_UNLIT_FRAG
+    });
+    shaderStore.shaders["UnlitShader"] = unlitShader;
+    MaterialSystem::InitWhiteTexture(registry);
+    ShaderSystem::InitShaders(registry);
+
+    // Grid
+    const auto grid = GridSystem::CreateGrid(registry, gridShader, "Grid");
+
+    // Light
+    LightSystem::AddDirectionalLight(registry,
+        Transform{
+            .name = "Directional Light",
+            .position = glm::vec3(0.0, 30.0, 3.0),
+            .rotation = glm::quat(glm::radians(glm::vec3(180.0f, -30.0f, -60.0f))),
+            .scale = glm::vec3(0.4)
+        });
+    LightSystem::AddPointLight(registry,
+        Transform{
+            .name = "Point Light",
+            .position = glm::vec3(0.0, 4.0, 3.0),
+            .scale = glm::vec3(0.4)
+        });
+
+    // Cube Objects
+    auto cube1 = CubeSystem::CreateCubeObject(registry,
+        Transform{
+            .name = "Cube 1",
+            .position = glm::vec3(2.0, 1.0, -2.0),
+            .scale = glm::vec3(2.0)
+        }, litShader);
+    auto cube2 = CubeSystem::CreateCubeObject(registry,
+        Transform{
+            .name = "Cube 2",
+            .position = glm::vec3(-2.0, 1.0, -2.0),
+            .scale = glm::vec3(2.0)
+    }, litShader);
+    // ------------------------------------------------------------------
+
+    // ImGUI ------------------------------------------------------------
+    // Setting up ImGUI
+    GUISystem::InitImGUI(registry, window.window);
+    // ------------------------------------------------------------------
+
+    // Awake
+    auto &awakeQueue = registry.ctx().get<EventSystem::AwakeQueue>();
+    for (auto &fn : awakeQueue.functions) fn();
+
+    // Main Loop --------------------------------------------------------
+    while(!glfwWindowShouldClose(window.window)){
+        // Update here --------------------------------------------------
+        CalculateDeltaTime(registry);
+        InputSystem::ProcessInput(registry, window.window);
+        CameraSystem::CalculateProjection(registry);
+        CameraSystem::SetView(registry);
+
+        // Call every System in Update/LateUpdate
+        // Update
+        auto &updateQueue = registry.ctx().get<EventSystem::UpdateQueue>();
+        for (auto &fn : updateQueue.functions) fn();
+
+        // Late Update
+        auto &lateUpdateQueue = registry.ctx().get<EventSystem::LateUpdateQueue>();
+        for (auto &fn : lateUpdateQueue.functions) fn();
+        // --------------------------------------------------------------
+
+        // Before drawing anything, clear screen
+        Window::ScreenClearFlags(registry);
+
+        // Render here --------------------------------------------------
+        // Anything inside framebuffer draws to the Scene window
+        RenderSystem::BindFramebuffer(registry);
+
+        RenderSystem::Render(registry);
+
+        // Grid
+        GridSystem::Render(registry, grid, registry.get<Shader>(gridShader));
+        // Lights
+        LightSystem::RenderPointLights(registry);
+        LightSystem::RenderDirectionalLights(registry);
+
+        RenderSystem::UnbindFramebuffer();
+        // --------------------------------------------------------------
+
+        // Push To Draw Queue -------------------------------------------
+        // --------------------------------------------------------------
+
+        // UI here ------------------------------------------------------
+        GUISystem::NewFrame();
+
+        // Editor Windows
+        Hierarchy::Show(registry);
+        Inspector::Show(registry);
+
+        // Custom Windows
+        auto &imguiQueue = registry.ctx().get<GUISystem::ImGuiDrawQueue>();
+        for (auto &fn : imguiQueue) fn();
+
+        RenderSystem::ShowSceneTexture(registry, window.window);
+        GUISystem::RenderFrame();
+
+        // Clear queue for next frame
+        imguiQueue.clear();
+        // --------------------------------------------------------------
+
+        // check and call events
+        glfwPollEvents();
+        glfwSwapBuffers(window.window);
+
     }
-
-    forge.CalcProjection();
-    forge.GUIManagement();
-    forge.Render();
-  }
-
-  return 0;
+    // ------------------------------------------------------------------
+    GUISystem::Destroy();
 }
