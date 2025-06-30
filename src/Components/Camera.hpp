@@ -12,7 +12,7 @@ enum CameraMovement{
 
 struct Camera {
     // Camera behavior settings
-    float MovementSpeed    = 10.5f;
+    float MovementSpeed    = 4.5f;
     float MouseSensitivity = 0.1f;
 
     // Projection parameters

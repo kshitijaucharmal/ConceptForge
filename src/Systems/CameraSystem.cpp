@@ -53,16 +53,23 @@ void LookAt(Transform &transform, const glm::vec3 target) {
 
 // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
 void ProcessKeyboard(Camera &cam, Transform &transform, glm::vec3 direction, const float deltaTime) {
-    const float velocity = cam.MovementSpeed * deltaTime;
-
     if (glm::length(direction) < 0.01f)
         return;
 
     direction = glm::normalize(direction);
 
     UpdateCameraVectors(cam, transform); // Ensure directions are up-to-date
-    const auto move = glm::normalize(cam.Right * direction.x + cam.Up * direction.y + cam.Front * direction.z) * velocity;
-    transform.position += move;
+
+    const auto desiredMove = cam.Right * direction.x + cam.Up * direction.y + cam.Front * direction.z;
+    const glm::vec3 targetPos = transform.position + desiredMove * cam.MovementSpeed;
+
+    // Does not work like i want it to
+    auto lerp = [](glm::vec3 a, glm::vec3 b, float t, float deltaTime) -> glm::vec3 {
+        float time = 1.0f - std::exp(-t * deltaTime);
+        return glm::mix(a, b, time);
+    };
+
+    transform.position = lerp(transform.position, targetPos, cam.MovementSpeed, deltaTime);
 }
 
 
