@@ -14,20 +14,19 @@ namespace InputSystem {
         auto deltaTime = registry.ctx().get<Time>().deltaTime;
         auto &constants = registry.ctx().get<Constants>();
 
-        const auto &activeCam = registry.ctx().get<ActiveCamera>().camera;
-        auto &camera = registry.get<Camera>(activeCam);
-        auto &transform = registry.get<Transform>(activeCam);
-
-        auto &io = ImGui::GetIO();
-        auto dir = glm::vec3(0.0);
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) dir.z += 1.0f;
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) dir.z -= 1.0f;
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) dir.x -= 1.0f;
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) dir.x += 1.0f;
-        CameraSystem::ProcessKeyboard(camera, transform, dir, deltaTime);
-
         // Camera
         if (constants.MouseCaptured) {
+            const auto &activeCam = registry.ctx().get<ActiveCamera>().camera;
+            auto &camera = registry.get<Camera>(activeCam);
+            auto &transform = registry.get<Transform>(activeCam);
+
+            auto &io = ImGui::GetIO();
+            auto dir = glm::vec3(0.0);
+            if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) dir.z += 1.0f;
+            if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) dir.z -= 1.0f;
+            if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) dir.x -= 1.0f;
+            if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) dir.x += 1.0f;
+            CameraSystem::ProcessKeyboard(camera, transform, dir, deltaTime);
             double xpos, ypos;
             glfwGetCursorPos(window, &xpos, &ypos);
 

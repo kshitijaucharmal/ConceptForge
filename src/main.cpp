@@ -10,8 +10,10 @@
 #include "Components/Constants.hpp"
 #include "Components/SSBOHolder.hpp"
 #include "Components/Time.hpp"
+#include "Components/Physics/BulletPhysics.hpp"
 #include "Components/Rendering/FrameBuffer.hpp"
 #include "Components/Rendering/GizmoControls.hpp"
+#include "Core/GameState.hpp"
 
 #include "Systems/CameraSystem.hpp"
 #include "Systems/TimeSystem.hpp"
@@ -23,6 +25,7 @@
 
 #include "Core/EditorWindows/Inspector.hpp"
 #include "Core/EditorWindows/Hierarchy.hpp"
+#include "Core/Physics/PhysicsSystem.hpp"
 #include "Systems/Primitives/GridSystem.hpp"
 #include "Systems/Rendering/LightSystem.hpp"
 
@@ -34,6 +37,7 @@ int main(){
     auto constants = registry.ctx().emplace<Constants>();
 
     // Global Values (Context)
+    registry.ctx().emplace<GameState>();
     registry.ctx().emplace<Hierarchy::Hierarchy>();
     registry.ctx().emplace<Time>();
     registry.ctx().emplace<ActiveCamera>();
@@ -48,6 +52,7 @@ int main(){
     registry.ctx().emplace<LightSystem::PointLightsHandle>();
     registry.ctx().emplace<LightSystem::DirectionalLightsHandle>();
     registry.ctx().emplace<GizmoControls>();
+    registry.ctx().emplace<BulletPhysics>();
 
     // Window -----------------------------------------------------------
     // initialize window (and OpenGL)
@@ -57,6 +62,10 @@ int main(){
     // Init SSBOs
     SSBOManager::AddAndInit(registry, "pointLights", 1);
     SSBOManager::AddAndInit(registry, "dirLights", 2);
+
+    // Physics
+    BulletPhysicsSystem::Init(registry);
+
     // ------------------------------------------------------------------
 
     // Camera ----------------------------------------------------------
@@ -113,18 +122,38 @@ int main(){
         });
 
     // Cube Objects
-    auto cube1 = CubeSystem::CreateCubeObject(registry,
+    CubeSystem::CreateCubeObject(registry,
         Transform{
             .name = "Cube 1",
-            .position = glm::vec3(2.0, 1.0, -2.0),
+            .position = glm::vec3(1.7, 5.0, 0.0),
             .scale = glm::vec3(2.0)
         }, litShader);
-    auto cube2 = CubeSystem::CreateCubeObject(registry,
+    CubeSystem::CreateCubeObject(registry,
         Transform{
             .name = "Cube 2",
-            .position = glm::vec3(-2.0, 1.0, -2.0),
+            .position = glm::vec3(-1.0, 5.0, 0.0),
             .scale = glm::vec3(2.0)
     }, litShader);
+
+    // Ground (Static)
+    {
+        auto transform = Transform{
+            .name = "Ground",
+            .position = glm::vec3(0.0f, 0.0f, 0.0f),
+            .rotation = glm::quat(1, 0, 0, 0),
+            .scale = glm::vec3(20.0, 1.f, 20.0f)
+        };
+        entt::entity ground = CubeSystem::CreateCubeObject(registry, transform, litShader, false);
+    }
+
+    {
+        auto transform = Transform {
+            .name = "Box",
+            .position = glm::vec3(0.0f, 10.0f, 0.0f),
+            .rotation = glm::quat(1, 0, 0, 0)
+            };
+        entt::entity box = CubeSystem::CreateCubeObject(registry, transform, litShader);
+    }
     // ------------------------------------------------------------------
 
     // ImGUI ------------------------------------------------------------
@@ -136,10 +165,16 @@ int main(){
     auto &awakeQueue = registry.ctx().get<EventSystem::AwakeQueue>();
     for (auto &fn : awakeQueue.functions) fn();
 
+
+    auto &gameState = registry.ctx().get<GameState>();
     // Main Loop --------------------------------------------------------
     while(!glfwWindowShouldClose(window.window)){
         // Update here --------------------------------------------------
         CalculateDeltaTime(registry);
+        if (gameState.isPlaying) {
+            BulletPhysicsSystem::StepSimulation(registry, registry.ctx().get<Time>().deltaTime);
+            BulletPhysicsSystem::SyncTransforms(registry);
+        }
         InputSystem::ProcessInput(registry, window.window);
         CameraSystem::CalculateProjection(registry);
         CameraSystem::SetView(registry);
@@ -199,5 +234,7 @@ int main(){
 
     }
     // ------------------------------------------------------------------
+    BulletPhysicsSystem::Shutdown(registry);
+
     GUISystem::Destroy();
 }
