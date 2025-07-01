@@ -3,6 +3,10 @@
 #include "Components/Primitives/Transform.hpp"
 
 #include <iostream>
+#include <Components/Rendering/Shader.hpp>
+#include <Systems/SimObjectSystem.hpp>
+#include <Systems/Primitives/CubeSystem.hpp>
+#include <Systems/Rendering/LightSystem.hpp>
 
 namespace Hierarchy {
     void Show(entt::registry &registry){
@@ -13,19 +17,20 @@ namespace Hierarchy {
         // TODO: Adding to vector each frame, might be a better way
         // Clear before starting
         entities.clear();
-
         for(auto entity : std::views::reverse(transformView)){
             entities.emplace_back(entity);
         }
 
         const auto &c = registry.ctx().get<Constants>();
 
-        ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Appearing);
+        // Size and position
         const int width = c.WINDOW_WIDTH - (c.SCENE_WIDTH + c.SCENE_X);
         const int height = c.SCENE_HEIGHT;
+        ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Appearing);
         ImGui::SetNextWindowSize(ImVec2(width, height), ImGuiCond_Appearing);
         ImGui::Begin("Hierarchy");
 
+        // Center screen if scrolling with arrow keys
         bool scrollToSelection = false;
         if (ImGui::IsWindowFocused() && !ImGui::IsAnyItemActive()) {
             if (ImGui::IsKeyPressed(ImGuiKey_UpArrow) && selectedID > 0) {
@@ -38,8 +43,9 @@ namespace Hierarchy {
             }
         }
 
+        // Draw all Transforms
+        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanAvailWidth;
         for (int i = 0; i < entities.size(); ++i) {
-            ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanAvailWidth;
 
             if (i == selectedID)
                 flags |= ImGuiTreeNodeFlags_Selected;
@@ -50,6 +56,12 @@ namespace Hierarchy {
                 // Space for padding
                 ImGui::Selectable( (" " + transform.name).c_str(), i == selectedID, ImGuiSelectableFlags_SpanAllColumns)) {
                 selectedID = i;
+                }
+            // Right-click on item
+            if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right)) {
+                selectedID = i;
+                std::cout << selectedID << std::endl;
+                ImGui::OpenPopup("ItemMenu");
             }
 
             if (i == selectedID) {
@@ -66,19 +78,83 @@ namespace Hierarchy {
             }
 
             ImGui::PopID();
-
-            // Right-click context menu
-            if (ImGui::BeginPopupContextItem()) {
-                if (ImGui::MenuItem("Rename")) { }
-                if (ImGui::MenuItem("Delete")) { }
-                ImGui::EndPopup();
-            }
         }
-        ImGui::End();
 
+        // Set selected entitiy
         if(selectedID != -1){
             selectedEntity = entities[selectedID];
         }
+        PopupMenus(registry, selectedID);
+        ImGui::End();
+    }
+
+    void PopupMenus(entt::registry &registry, int selectedID) {
+        // Right-click on empty space
+        if (ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup) && !ImGui::IsAnyItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right)) {
+            ImGui::OpenPopup("EmptySpaceMenu");
+        }
+        if (ImGui::IsAnyItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right)) {
+            ImGui::OpenPopup("ItemMenu");
+        }
+
+        // --------- Item Context Menu ---------
+        if (ImGui::BeginPopup("ItemMenu")) {
+            if (ImGui::MenuItem("Rename")) {
+                // Handle Rename
+            }
+            if (ImGui::MenuItem("Copy")) {
+                // Handle Copy
+            }
+            if (ImGui::MenuItem("Delete")) {
+                // Handle Delete for item
+            }
+
+            ImGui::EndPopup();
+        }
+        // --------- Empty Space Context Menu ---------
+        if (ImGui::BeginPopup("EmptySpaceMenu")) {
+            if (ImGui::BeginMenu("Create")) {
+                if (ImGui::BeginMenu("Primitives")) {
+                    if (ImGui::MenuItem("Empty")) {
+                        // Handle Empty creation
+                        SimObject::Create(registry, "Empty");
+                    }
+                    if (ImGui::MenuItem("Cube")) {
+                        // Handle Cube creation
+                        const auto transform = Transform { .name = "Cube", };
+                        auto &shaders = registry.ctx().get<ShaderStore>().shaders;
+                        CubeSystem::CreateCubeObject(registry, transform, shaders["LitShader"]);
+                    }
+                    ImGui::EndMenu();
+                }
+                if (ImGui::BeginMenu("Lights")) {
+                    if (ImGui::MenuItem("Directional Light")) {
+                        // Handle Light creation
+                        LightSystem::AddDirectionalLight(registry,
+                            Transform{
+                                .name = "Directional Light",
+                                .position = glm::vec3(0.0, 10.0, 3.0),
+                                .rotation = glm::quat(glm::radians(glm::vec3(180.0f, -30.0f, -60.0f))),
+                                .scale = glm::vec3(0.4)
+                            });
+                    }
+                    if (ImGui::MenuItem("Point Light")) {
+                        // Handle Light creation
+                        LightSystem::AddPointLight(registry,
+                            Transform{
+                                .name = "Point Light",
+                                .position = glm::vec3(0.0, 4.0, 3.0),
+                                .scale = glm::vec3(0.4)
+                            });
+                    }
+                    ImGui::EndMenu();
+                }
+                ImGui::EndMenu();
+            }
+
+            ImGui::EndPopup();
+        }
+
 
     }
 

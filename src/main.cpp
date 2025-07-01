@@ -106,53 +106,15 @@ int main(){
     // Grid
     const auto grid = GridSystem::CreateGrid(registry, gridShader, "Grid");
 
-    // Light
-    LightSystem::AddDirectionalLight(registry,
-        Transform{
-            .name = "Directional Light",
-            .position = glm::vec3(0.0, 30.0, 3.0),
-            .rotation = glm::quat(glm::radians(glm::vec3(180.0f, -30.0f, -60.0f))),
-            .scale = glm::vec3(0.4)
-        });
-    LightSystem::AddPointLight(registry,
-        Transform{
-            .name = "Point Light",
-            .position = glm::vec3(0.0, 4.0, 3.0),
-            .scale = glm::vec3(0.4)
-        });
-
-    // Cube Objects
-    CubeSystem::CreateCubeObject(registry,
-        Transform{
-            .name = "Cube 1",
-            .position = glm::vec3(1.7, 5.0, 0.0),
-            .scale = glm::vec3(2.0)
-        }, litShader);
-    CubeSystem::CreateCubeObject(registry,
-        Transform{
-            .name = "Cube 2",
-            .position = glm::vec3(-1.0, 5.0, 0.0),
-            .scale = glm::vec3(2.0)
-    }, litShader);
-
     // Ground (Static)
     {
         auto transform = Transform{
             .name = "Ground",
-            .position = glm::vec3(0.0f, 0.0f, 0.0f),
+            .position = glm::vec3(0.0f, 0, 0.0f),
             .rotation = glm::quat(1, 0, 0, 0),
-            .scale = glm::vec3(20.0, 1.f, 20.0f)
+            .scale = glm::vec3(20.0, .01f, 20.0f)
         };
         entt::entity ground = CubeSystem::CreateCubeObject(registry, transform, litShader, false);
-    }
-
-    {
-        auto transform = Transform {
-            .name = "Box",
-            .position = glm::vec3(0.0f, 10.0f, 0.0f),
-            .rotation = glm::quat(1, 0, 0, 0)
-            };
-        entt::entity box = CubeSystem::CreateCubeObject(registry, transform, litShader);
     }
     // ------------------------------------------------------------------
 

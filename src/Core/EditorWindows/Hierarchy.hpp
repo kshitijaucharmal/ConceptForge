@@ -13,4 +13,5 @@ namespace Hierarchy {
     };
 
     void Show(entt::registry &registry);
+    void PopupMenus(entt::registry &registry, int selectedID);
 }
