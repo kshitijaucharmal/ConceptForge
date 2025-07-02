@@ -96,7 +96,9 @@ namespace BulletPhysicsSystem {
             }
             case Primitives::PrimitiveType::UV_SPHERE: {
                 auto sphere = registry.get<UVSphere>(entity);
-                shape = new btSphereShape(1.0);
+                btVector3 positions[] = { btVector3(0, 0, 0) };
+                btScalar radii[] = { 1.0f };
+                shape = new btMultiSphereShape(positions, radii, 1);
                 shape->setLocalScaling(halfScale); // box half extents
                 break;
             }
