@@ -19,5 +19,5 @@ public:
     Window(entt::registry &registry, int w, int h, std::string name, bool fullscreen=false);
     ~Window();
 
-    static void ScreenClearFlags(entt::registry &registry);
+    static void ScreenClearFlags(glm::vec4 color);
 };
