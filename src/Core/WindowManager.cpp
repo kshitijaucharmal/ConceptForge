@@ -58,14 +58,10 @@ Window::~Window() {
     glfwTerminate();
 }
 
-auto Window::ScreenClearFlags(entt::registry &registry) -> void {
-    const auto constants = registry.ctx().get<Constants>();
+auto Window::ScreenClearFlags(glm::vec4 color) -> void {
     // Clear Screen with this color
-    // Clear Color Buffer and Depth Buffer
     glEnable(GL_DEPTH_TEST);
+    // Clear Color Buffer and Depth Buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glClearColor(constants.BACKGROUND_COLOR.r,
-                    constants.BACKGROUND_COLOR.g,
-                    constants.BACKGROUND_COLOR.b,
-                    constants.BACKGROUND_COLOR.a);
+    glClearColor(color.r, color.g, color.b, color.a);
 }

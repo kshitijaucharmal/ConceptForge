@@ -130,7 +130,7 @@ int main(){
 
     auto &gameState = registry.ctx().get<GameState>();
     // Main Loop --------------------------------------------------------
-    while(!glfwWindowShouldClose(window.window)){
+    while(!glfwWindowShouldClose(window.window)) {
         // Update here --------------------------------------------------
         CalculateDeltaTime(registry);
         if (gameState.isPlaying) {
@@ -151,20 +151,24 @@ int main(){
         for (auto &fn : lateUpdateQueue.functions) fn();
         // --------------------------------------------------------------
 
-        // Before drawing anything, clear screen
-        Window::ScreenClearFlags(registry);
-
         // Render here --------------------------------------------------
         // Anything inside framebuffer draws to the Scene window
         RenderSystem::BindFramebuffer(registry);
+        // Program Background
+        Window::ScreenClearFlags(constants.BACKGROUND_COLOR);
 
-        RenderSystem::Render(registry);
+        // Normal Rendering
+        // {
+        //     // Grid
+        //     GridSystem::Render(registry, grid, registry.get<Shader>(gridShader));
+        //     // Render every object
+        //     RenderSystem::Render(registry);
+        // }
 
-        // Grid
-        GridSystem::Render(registry, grid, registry.get<Shader>(gridShader));
-        // Lights
-        LightSystem::RenderPointLights(registry);
-        LightSystem::RenderDirectionalLights(registry);
+        // Ray Tracing
+        {
+
+        }
 
         RenderSystem::UnbindFramebuffer();
         // --------------------------------------------------------------
@@ -183,6 +187,8 @@ int main(){
         auto &imguiQueue = registry.ctx().get<GUISystem::ImGuiDrawQueue>();
         for (auto &fn : imguiQueue) fn();
 
+        // Before drawing anything, clear screen
+        Window::ScreenClearFlags(constants.CLEAR_COLOR);
         RenderSystem::ShowSceneTexture(registry, window.window);
         GUISystem::RenderFrame();
 
