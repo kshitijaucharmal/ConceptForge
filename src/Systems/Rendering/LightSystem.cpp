@@ -6,7 +6,7 @@
 #include <Components/Rendering/MeshRenderer.hpp>
 #include <Components/Rendering/Shader.hpp>
 #include <glad/glad.h>
-#include <Systems/Primitives/CubeSystem.hpp>
+#include <Systems/Primitives/PrimitivesSystem.hpp>
 
 #include "Components/Rendering/DirectionalLight.hpp"
 #include "Components/Rendering/PointLight.hpp"
@@ -21,7 +21,7 @@ namespace LightSystem {
             .shader = shaderStore["UnlitShader"],
             .initialized = true
         });
-        const entt::entity mesh = CubeSystem::CreateCubeMesh(registry);
+        const entt::entity mesh = Primitives::CreateUVSphereMesh(registry);
         registry.emplace<MeshFilter>(lightEntity, mesh);
         registry.emplace<MeshRenderer>(lightEntity);
         registry.emplace<PointLight>(lightEntity, PointLight{
@@ -43,7 +43,7 @@ namespace LightSystem {
             .shader = shaderStore["UnlitShader"],
             .initialized = true
         });
-        const entt::entity mesh = CubeSystem::CreateCubeMesh(registry);
+        const entt::entity mesh = Primitives::CreateUVSphereMesh(registry);
         registry.emplace<MeshFilter>(lightEntity, mesh);
         registry.emplace<MeshRenderer>(lightEntity);
 

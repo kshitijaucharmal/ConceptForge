@@ -5,4 +5,7 @@
 #ifndef CUBE_HPP
 #define CUBE_HPP
 
+// Just a tag
+struct Cube { };
+
 #endif //CUBE_HPP
