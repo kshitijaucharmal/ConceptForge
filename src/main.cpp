@@ -1,5 +1,6 @@
 #include <entt/entt.hpp>
 #include <Systems/InputSystem.hpp>
+#include <Systems/RayTracer/RayTracer.hpp>
 
 #include "Core/WindowManager.hpp"
 #include "Core/GUISystem.hpp"
@@ -29,7 +30,6 @@
 #include "Systems/Primitives/GridSystem.hpp"
 #include "Systems/Rendering/LightSystem.hpp"
 
-
 int main(){
     entt::registry registry;
 
@@ -57,6 +57,7 @@ int main(){
     // Window -----------------------------------------------------------
     // initialize window (and OpenGL)
     Window window(registry, 1600, 900, "ConceptForge");
+
     // Initialize the FrameBuffer
     RenderSystem::Init(registry);
     // Init SSBOs
@@ -94,14 +95,28 @@ int main(){
     });
     shaderStore.shaders["LitShader"] = litShader;
 
+    // Unlit Shader
     entt::entity unlitShader = registry.create();
     registry.emplace<Shader>(unlitShader, Shader{
         .vertexShaderPath = constants.SP_UNLIT_VERT,
         .fragmentShaderPath = constants.SP_UNLIT_FRAG
     });
     shaderStore.shaders["UnlitShader"] = unlitShader;
+
+    // RayTracer Shader
+    entt::entity rtShader = registry.create();
+    registry.emplace<Shader>(rtShader, Shader{
+        .vertexShaderPath = SHADER_DIR "/rtShader.vert",
+        .fragmentShaderPath = SHADER_DIR "/rtShader.frag"
+    });
+    shaderStore.shaders["RayTracingShader"] = rtShader;
+
+    // Init
     MaterialSystem::InitWhiteTexture(registry);
     ShaderSystem::InitShaders(registry);
+
+    auto rtEntity = registry.create();
+    RayTracer::Init(registry, rtEntity);
 
     // Grid
     const auto grid = GridSystem::CreateGrid(registry, gridShader, "Grid");
@@ -157,16 +172,16 @@ int main(){
         // Program Background
         Window::ScreenClearFlags(constants.BACKGROUND_COLOR);
 
-        // Normal Rendering
-        // {
-        //     // Grid
-        //     GridSystem::Render(registry, grid, registry.get<Shader>(gridShader));
-        //     // Render every object
-        //     RenderSystem::Render(registry);
-        // }
-
         // Ray Tracing
-        {
+        if (gameState.rayTracing){
+            RayTracer::Render(registry, rtEntity);
+        }
+        else {
+            // Normal Rendering
+            // Grid
+            GridSystem::Render(registry, grid, registry.get<Shader>(gridShader));
+            // Render every object
+            RenderSystem::Render(registry);
 
         }
 
@@ -186,6 +201,10 @@ int main(){
         // Custom Windows
         auto &imguiQueue = registry.ctx().get<GUISystem::ImGuiDrawQueue>();
         for (auto &fn : imguiQueue) fn();
+
+        ImGui::Begin("Settings");
+        ImGui::Checkbox("RayTracing", &gameState.rayTracing);
+        ImGui::End();
 
         // Before drawing anything, clear screen
         Window::ScreenClearFlags(constants.CLEAR_COLOR);
