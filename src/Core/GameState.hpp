@@ -7,6 +7,7 @@
 
 struct GameState {
     bool isPlaying = false;
+    bool rayTracing = false;
 };
 
 #endif //GAMESTATE_HPP
