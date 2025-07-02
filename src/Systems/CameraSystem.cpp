@@ -132,7 +132,7 @@ void SetView(entt::registry &registry) {
         auto &shader = registry.get<Shader>(shaderEntity);
         ShaderSystem::Use(shader);
         ShaderSystem::setVec3(shader, "viewPos", camTransform.position);
-        ShaderSystem::setFloat(shader, "material.shininess", 256.0f);
+        ShaderSystem::setFloat(shader, "material.shininess", 32.0f);
     }
 }
 }

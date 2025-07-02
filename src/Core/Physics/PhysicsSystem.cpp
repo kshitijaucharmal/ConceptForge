@@ -12,6 +12,7 @@
 #include <Components/Primitives/Transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <Systems/Primitives/PrimitivesSystem.hpp>
 
 #include "Components/Physics/Rigidbody.hpp"
 
@@ -78,15 +79,30 @@ namespace BulletPhysicsSystem {
         }
     }
 
-    void AddRigidbody(entt::entity entity, entt::registry& registry, float mass, btCollisionShape* shape) {
+    void AddRigidbody(entt::entity entity, entt::registry& registry, float mass, Primitives::PrimitiveType objectType) {
         auto &bp = registry.ctx().get<BulletPhysics>();
         auto& transform = registry.get<Transform>(entity);
         auto motionState = new MotionState(transform.position, transform.rotation);
 
-        std::cout << "Shape scaling in AddRigidbody: "
-          << shape->getLocalScaling().x() << ", "
-          << shape->getLocalScaling().y() << ", "
-          << shape->getLocalScaling().z() << "\n";
+        btCollisionShape *shape = nullptr;
+        auto type = registry.get<Primitives::PrimitiveType>(entity);
+        const auto scale = btVector3(transform.scale.x, transform.scale.y, transform.scale.z);
+        const auto halfScale = btVector3(scale.x()/2, scale.y()/2, scale.z()/2);
+        switch (type) {
+            case Primitives::PrimitiveType::CUBE: {
+                shape = new btBoxShape(btVector3(1, 1, 1));
+                shape->setLocalScaling(halfScale); // box half extents
+                break;
+            }
+            case Primitives::PrimitiveType::UV_SPHERE: {
+                auto sphere = registry.get<UVSphere>(entity);
+                btVector3 positions[] = { btVector3(0, 0, 0) };
+                btScalar radii[] = { 1.0f };
+                shape = new btMultiSphereShape(positions, radii, 1);
+                shape->setLocalScaling(halfScale); // box half extents
+                break;
+            }
+        }
 
         btVector3 inertia(0, 0, 0);
         if (mass > 0.0f)
@@ -112,6 +128,7 @@ namespace BulletPhysicsSystem {
 
         const btVector3 bulletScale(t.scale.x / 2, t.scale.y / 2, t.scale.z / 2);
         rb.shape->setLocalScaling(bulletScale);
+
         btVector3 localInertia(0, 0, 0);
         rb.shape->calculateLocalInertia(rb.mass, localInertia);
         body->setMassProps(rb.mass, localInertia);

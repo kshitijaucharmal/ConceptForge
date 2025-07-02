@@ -20,7 +20,7 @@
 #include "Systems/Rendering/MaterialSystem.hpp"
 #include "Systems/Rendering/ShaderSystem.hpp"
 #include "Systems/Rendering/RenderSystem.hpp"
-#include "Systems/Primitives/CubeSystem.hpp"
+#include "Systems/Primitives/PrimitivesSystem.hpp"
 #include "Systems/Primitives/GizmoSystem.hpp"
 
 #include "Core/EditorWindows/Inspector.hpp"
@@ -114,7 +114,7 @@ int main(){
             .rotation = glm::quat(1, 0, 0, 0),
             .scale = glm::vec3(20.0, .01f, 20.0f)
         };
-        entt::entity ground = CubeSystem::CreateCubeObject(registry, transform, litShader, false);
+        entt::entity ground = Primitives::CreateCubeObject(registry, transform, litShader, false);
     }
     // ------------------------------------------------------------------
 

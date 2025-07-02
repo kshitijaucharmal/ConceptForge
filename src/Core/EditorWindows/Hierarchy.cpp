@@ -5,7 +5,7 @@
 #include <iostream>
 #include <Components/Rendering/Shader.hpp>
 #include <Systems/SimObjectSystem.hpp>
-#include <Systems/Primitives/CubeSystem.hpp>
+#include <Systems/Primitives/PrimitivesSystem.hpp>
 #include <Systems/Rendering/LightSystem.hpp>
 
 namespace Hierarchy {
@@ -123,7 +123,13 @@ namespace Hierarchy {
                         // Handle Cube creation
                         const auto transform = Transform { .name = "Cube", };
                         auto &shaders = registry.ctx().get<ShaderStore>().shaders;
-                        CubeSystem::CreateCubeObject(registry, transform, shaders["LitShader"]);
+                        Primitives::Create(registry, Primitives::PrimitiveType::CUBE, transform, shaders["LitShader"]);
+                    }
+                    if (ImGui::MenuItem("UV Sphere")) {
+                        // Handle UV Sphere creation
+                        const auto transform = Transform { .name = "UV Sphere", };
+                        auto &shaders = registry.ctx().get<ShaderStore>().shaders;
+                        Primitives::Create(registry, Primitives::PrimitiveType::UV_SPHERE, transform, shaders["LitShader"]);
                     }
                     ImGui::EndMenu();
                 }
@@ -154,7 +160,6 @@ namespace Hierarchy {
 
             ImGui::EndPopup();
         }
-
 
     }
 
