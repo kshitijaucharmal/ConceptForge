@@ -4,15 +4,29 @@
 
 #include "RayTracer.hpp"
 
+#include <Components/Camera.hpp>
 #include <Components/Constants.hpp>
+#include <Components/SSBOHolder.hpp>
+#include <Components/Primitives/Transform.hpp>
 #include <Components/Rendering/Mesh.hpp>
 #include <Components/Rendering/Shader.hpp>
+#include <Core/SSBOManager.hpp>
 #include <Systems/Rendering/ShaderSystem.hpp>
 
+#include "Components/RayTracer/RayTracerSettings.hpp"
 #include "glad/glad.h"
+
+using namespace Vector3;
 
 namespace RayTracer {
     void Init(entt::registry &registry, entt::entity &entity) {
+
+        InitQuadMesh(registry, entity);
+        InitViewport(registry);
+
+    }
+
+    void InitQuadMesh(entt::registry &registry, entt::entity &entity) {
         GLuint quadVAO, quadVBO;
         const float quadVertices[] = {
             // positions (NDC)
@@ -45,6 +59,31 @@ namespace RayTracer {
         });
     }
 
+    void InitViewport(entt::registry &registry) {
+        auto &rtSettings = registry.ctx().get<RayTracerSettings>();
+        const auto &cameraEntity = registry.ctx().get<ActiveCamera>().camera;
+        const auto &camera = registry.get<Camera>(cameraEntity);
+        const auto &cameraTransform = registry.get<Transform>(cameraEntity);
+        const auto &constants = registry.ctx().get<Constants>();
+
+        rtSettings.ImageWidth = constants.WINDOW_WIDTH;
+        rtSettings.ImageHeight = static_cast<int>(rtSettings.ImageWidth / constants.ASPECT_RATIO);
+        rtSettings.ImageHeight = (rtSettings.ImageHeight < 1) ? 1 : rtSettings.ImageHeight;
+
+        constexpr auto ViewportHeight = 2.0f;
+        const auto ViewportWidth = ViewportHeight * (rtSettings.ImageWidth/rtSettings.ImageHeight);
+
+        const auto ViewportU = Vec3(ViewportWidth, 0.0f, 0.0f);
+        const auto ViewportV = Vec3(0.0f, ViewportHeight, 0.0f);
+
+        rtSettings.PixelDeltaU = ViewportU / rtSettings.ImageWidth;
+        rtSettings.PixelDeltaV = ViewportV / rtSettings.ImageHeight;
+
+        rtSettings.CameraPosition = cameraTransform.position;
+        const auto ViewportUpperLeft = rtSettings.CameraPosition - Vec3(0, 0, camera.FocalPoint) - (ViewportU / 2.) - (ViewportV /2.);
+        rtSettings.PixelLoc00 = ViewportUpperLeft + 0.5 * (rtSettings.PixelDeltaU + rtSettings.PixelDeltaV);
+    }
+
     void Render(entt::registry &registry, entt::entity &entity) {
         auto &constants = registry.ctx().get<Constants>();
         auto quadMesh = registry.get<Mesh>(entity);
@@ -64,6 +103,16 @@ namespace RayTracer {
 
         glBindVertexArray(0);
         glUseProgram(0);
+
+        auto &rtSettings = registry.ctx().get<RayTracerSettings>();
+        auto &ssbo = registry.ctx().get<SSBOHolder>().ssbos["rtSettings"];
+
+        // Update values
+        auto &activeCamera = registry.ctx().get<ActiveCamera>().camera;
+        auto &transform = registry.get<Transform>(activeCamera);
+        rtSettings.CameraPosition = transform.position;
+
+        SSBOManager::UploadToSSBO(ssbo, rtSettings);
     }
 
 

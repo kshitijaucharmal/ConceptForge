@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <Components/Rendering/Shader.hpp>
+#include <Systems/CameraSystem.hpp>
 #include <Systems/SimObjectSystem.hpp>
 #include <Systems/Primitives/PrimitivesSystem.hpp>
 #include <Systems/Rendering/LightSystem.hpp>
@@ -154,6 +155,10 @@ namespace Hierarchy {
                             });
                     }
                     ImGui::EndMenu();
+                }
+                if (ImGui::MenuItem("Camera")) {
+                    // Handle Empty creation
+                    CameraSystem::CreateCamera(registry);
                 }
                 ImGui::EndMenu();
             }

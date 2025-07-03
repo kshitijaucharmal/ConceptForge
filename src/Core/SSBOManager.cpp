@@ -1,4 +1,6 @@
 #include "SSBOManager.hpp"
+
+#include <iostream>
 #include <glad/glad.h>
 
 #include "Components/SSBOHolder.hpp"
@@ -12,4 +14,5 @@ namespace SSBOManager {
 
         holder.ssboCount++;
     }
+
 }

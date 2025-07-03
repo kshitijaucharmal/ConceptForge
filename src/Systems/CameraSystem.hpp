@@ -11,7 +11,7 @@
 
 // For single camera (takes a reference)
 namespace CameraSystem {
-    entt::entity CreateCamera(entt::registry &registry, std::string name);
+    entt::entity CreateCamera(entt::registry &registry, std::string name = "Camera");
     void InitCamera(entt::registry &reg, entt::entity &entity);
 
     void UpdateCameraVectors(Camera &cam, const Transform &transform);
