@@ -5,6 +5,7 @@
 #include <Components/Rendering/MeshFilter.hpp>
 #include <Components/Rendering/MeshRenderer.hpp>
 #include <Components/Rendering/Shader.hpp>
+#include <Core/SSBOManager.hpp>
 #include <glad/glad.h>
 #include <Systems/Primitives/PrimitivesSystem.hpp>
 
@@ -66,9 +67,7 @@ namespace LightSystem {
             pointLights.push_back(pointLight);
         }
 
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo["pointLights"]);
-        glBufferData(GL_SHADER_STORAGE_BUFFER, pointLights.size() * sizeof(PointLight), pointLights.data(), GL_DYNAMIC_DRAW);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+        SSBOManager::UploadVectorToSSBO(ssbo["pointLights"], pointLights);
     }
 
     void RenderDirectionalLights(entt::registry &registry) {
@@ -83,8 +82,6 @@ namespace LightSystem {
             dirLights.push_back(dirLight);
         }
 
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo["dirLights"]);
-        glBufferData(GL_SHADER_STORAGE_BUFFER, dirLights.size() * sizeof(DirectionalLight), dirLights.data(), GL_DYNAMIC_DRAW);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+        SSBOManager::UploadVectorToSSBO(ssbo["dirLights"], dirLights);
     }
 }

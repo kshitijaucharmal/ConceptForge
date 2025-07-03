@@ -12,6 +12,7 @@
 #include "Components/SSBOHolder.hpp"
 #include "Components/Time.hpp"
 #include "Components/Physics/BulletPhysics.hpp"
+#include "Components/RayTracer/RayTracerSettings.hpp"
 #include "Components/Rendering/FrameBuffer.hpp"
 #include "Components/Rendering/GizmoControls.hpp"
 #include "Core/GameState.hpp"
@@ -53,6 +54,7 @@ int main(){
     registry.ctx().emplace<LightSystem::DirectionalLightsHandle>();
     registry.ctx().emplace<GizmoControls>();
     registry.ctx().emplace<BulletPhysics>();
+    registry.ctx().emplace<RayTracerSettings>();
 
     // Window -----------------------------------------------------------
     // initialize window (and OpenGL)
@@ -63,6 +65,7 @@ int main(){
     // Init SSBOs
     SSBOManager::AddAndInit(registry, "pointLights", 1);
     SSBOManager::AddAndInit(registry, "dirLights", 2);
+    SSBOManager::AddAndInit(registry, "rtSettings", 3);
 
     // Physics
     BulletPhysicsSystem::Init(registry);
@@ -120,6 +123,8 @@ int main(){
 
     // Grid
     const auto grid = GridSystem::CreateGrid(registry, gridShader, "Grid");
+
+    auto &rtSettings = registry.ctx().get<RayTracerSettings>();
 
     // Ground (Static)
     {
@@ -204,6 +209,7 @@ int main(){
 
         ImGui::Begin("Settings");
         ImGui::Checkbox("RayTracing", &gameState.rayTracing);
+        ImGui::Checkbox("Playing", &gameState.isPlaying);
         ImGui::End();
 
         // Before drawing anything, clear screen

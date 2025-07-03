@@ -1,17 +1,19 @@
 #include "CameraSystem.hpp"
 
 #include <utility>
+#include <Core/GameState.hpp>
+
 #include "Components/Rendering/Shader.hpp"
 #include "Systems/Rendering/ShaderSystem.hpp"
 
 namespace CameraSystem {
 
-entt::entity CreateCamera(entt::registry &registry, std::string name="Camera"){
+entt::entity CreateCamera(entt::registry &registry, std::string name){
     auto &constants = registry.ctx().get<Constants>();
     auto camera = registry.create();
     registry.emplace<Transform>(camera, Transform{
         .name = std::move(name),
-        .position = glm::vec3(0.0, 2.0, 10.0f),
+        .position = glm::vec3(0, 0, 0),
     });
     registry.emplace<Camera>(camera, Camera{
         .Fov = 60.0f,
@@ -23,10 +25,17 @@ entt::entity CreateCamera(entt::registry &registry, std::string name="Camera"){
     return camera;
 }
 
-void InitCamera(entt::registry &reg, entt::entity &entity){
-    auto cam = reg.get<Camera>(entity);
-    const auto transform = reg.get<Transform>(entity);
+void InitCamera(entt::registry &registry, entt::entity &entity){
+    auto cam = registry.get<Camera>(entity);
+    // Return if already init
+    if (cam.initialized) return;
+
+    // Add a transform and update Camera Vectors
+    const auto transform = registry.get<Transform>(entity);
     UpdateCameraVectors(cam, transform);
+
+    auto &activeCam = registry.ctx().get<ActiveCamera>().camera;
+    activeCam = entity;
 }
 
 // calculates the front vector from the Camera's (updated) Euler Angles
