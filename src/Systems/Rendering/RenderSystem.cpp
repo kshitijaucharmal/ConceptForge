@@ -94,6 +94,7 @@ namespace RenderSystem {
             auto model = SimObject::ComposeTransform(t);
             glUseProgram(shader->shaderID);
             glUniformMatrix4fv(glGetUniformLocation(shader->shaderID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+
             glBindVertexArray(mesh->VAO);
             if (mesh->elemental) {
                 glDrawElements(GL_TRIANGLES, mesh->indexCount, GL_UNSIGNED_INT, nullptr);

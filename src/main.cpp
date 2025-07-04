@@ -28,6 +28,7 @@
 #include "Core/EditorWindows/Inspector.hpp"
 #include "Core/EditorWindows/Hierarchy.hpp"
 #include "Core/Physics/PhysicsSystem.hpp"
+#include "Systems/Debug.hpp"
 #include "Systems/Primitives/GridSystem.hpp"
 #include "Systems/Rendering/LightSystem.hpp"
 
@@ -38,6 +39,7 @@ int main(){
     auto constants = registry.ctx().emplace<Constants>();
 
     // Global Values (Context)
+    registry.ctx().emplace<Debug::DebugInfo>();
     registry.ctx().emplace<GameState>();
     registry.ctx().emplace<Hierarchy::Hierarchy>();
     registry.ctx().emplace<Time>();
@@ -84,6 +86,13 @@ int main(){
     // Shader System ----------------------------------------------------
     // Shaders
     auto &shaderStore = registry.ctx().get<ShaderStore>();
+    entt::entity debugShader = registry.create();
+    registry.emplace<Shader>(debugShader, Shader{
+        .vertexShaderPath = SHADER_DIR "/point.vert",
+        .fragmentShaderPath = SHADER_DIR "/point.frag"
+    });
+    shaderStore.shaders["DebugShader"] = debugShader;
+
     entt::entity gridShader = registry.create();
     registry.emplace<Shader>(gridShader, Shader{
         .vertexShaderPath = SHADER_DIR "/grid.vert",
@@ -141,12 +150,12 @@ int main(){
     // ImGUI ------------------------------------------------------------
     // Setting up ImGUI
     GUISystem::InitImGUI(registry, window.window);
+    Debug::Init(registry);
     // ------------------------------------------------------------------
 
     // Awake
     auto &awakeQueue = registry.ctx().get<EventSystem::AwakeQueue>();
     for (auto &fn : awakeQueue.functions) fn();
-
 
     auto &gameState = registry.ctx().get<GameState>();
     // Main Loop --------------------------------------------------------
@@ -187,6 +196,7 @@ int main(){
             GridSystem::Render(registry, grid, registry.get<Shader>(gridShader));
             // Render every object
             RenderSystem::Render(registry);
+            Debug::DrawPoint(registry, glm::vec3(0, 10, 10));
 
         }
 
