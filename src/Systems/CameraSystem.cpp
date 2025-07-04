@@ -122,7 +122,7 @@ void CalculateProjection(entt::registry &registry){
     auto& camera = registry.get<Camera>(camEntity);
     auto& transform = registry.get<Transform>(camEntity);
 
-    camera.projection = glm::perspective(glm::radians(camera.Fov), constants.ASPECT_RATIO, 0.01f, 100.0f);
+    camera.projection = glm::perspective(glm::radians(camera.Fov), constants.ASPECT_RATIO, camera.nearClipPlane, camera.farClipPlane);
     camera.view = GetViewMatrix(camera, transform);
 
     for (const auto shaderView = registry.view<Shader>(); const auto entity : shaderView) {

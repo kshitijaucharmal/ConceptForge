@@ -36,6 +36,8 @@ struct Camera {
 
     // Ray Tracing Params
     float FocalPoint = 1.0f;
+    float nearClipPlane = 0.1f;
+    float farClipPlane = 100.0f;
 };
 
 
