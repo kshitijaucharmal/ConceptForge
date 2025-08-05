@@ -1,7 +1,7 @@
 # Concept Forge - OpenGL Game Engine
 
-https://github.com/user-attachments/assets/f1aa9311-87a4-464d-94db-ae95a1214562
 
+![bees-and-bombs-lighting-compressed-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/614a61f6-4370-4069-aa2a-e8454369b217)
 
 *Above: A demo of early simulation logic (The Bees and Bombs algo) written by Claude AI running in python binded Concept Forge*
 
