@@ -35,7 +35,7 @@ An evolving foundation for creative and technical experiments.
 ### Common Steps
 
 ```bash
-git clone --recurse-submodules https://github.com/kshitijaucharmal/OpenGL-GE
+git clone --recurse-submodules https://github.com/kshitijaucharmal/ConceptForge
 cd OpenGL-GE
 mkdir build
 cd build
