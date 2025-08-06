@@ -196,7 +196,7 @@ int main(){
             GridSystem::Render(registry, grid, registry.get<Shader>(gridShader));
             // Render every object
             RenderSystem::Render(registry);
-            Debug::DrawPoint(registry, glm::vec3(0, 10, 10));
+            // Debug::DrawPoint(registry, glm::vec3(0, 3, 0), 20);
 
         }
 

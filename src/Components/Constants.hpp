@@ -17,7 +17,7 @@ struct Constants{
 
     // Darkish blue
     glm::vec4 BACKGROUND_COLOR{0.04f, 0.04f, 0.045f, 1.0f};
-    glm::vec4 CLEAR_COLOR{0.5, 0.7, 1.0, 1.0f};
+    glm::vec4 CLEAR_COLOR{0.1, 0.1, 0.1, 1.0f};
 
     int WINDOW_WIDTH = 1600;
     int WINDOW_HEIGHT = 900;
