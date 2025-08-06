@@ -82,7 +82,6 @@ int main(){
     registry.ctx().insert_or_assign<ActiveCamera>({camera});
     // ------------------------------------------------------------------
 
-
     // Shader System ----------------------------------------------------
     // Shaders
     auto &shaderStore = registry.ctx().get<ShaderStore>();
@@ -145,6 +144,26 @@ int main(){
         };
         entt::entity ground = Primitives::CreateCubeObject(registry, transform, litShader, false);
     }
+    // Point Lights
+    {
+        auto transform = Transform{
+            .name = "Point Light",
+            .position = glm::vec3(0.0f, 10.0f, 0.0f),
+            .rotation = glm::quat(1, 0, 0, 0),
+            .scale = glm::vec3(1.0, 1.0f, 1.0f)
+        };
+        LightSystem::AddPointLight(registry, transform);
+    }
+    // Directional Lights
+    {
+        auto transform = Transform{
+            .name = "Directional Light",
+            .position = glm::vec3(0.0f, 5.0f, 0.0f),
+            .rotation = glm::quat(1, 0, 0, 0),
+            .scale = glm::vec3(1.0, 1.0f, 1.0f)
+        };
+        LightSystem::AddDirectionalLight(registry, transform);
+    }
     // ------------------------------------------------------------------
 
     // ImGUI ------------------------------------------------------------
@@ -197,7 +216,6 @@ int main(){
             // Render every object
             RenderSystem::Render(registry);
             // Debug::DrawPoint(registry, glm::vec3(0, 3, 0), 20);
-
         }
 
         RenderSystem::UnbindFramebuffer();

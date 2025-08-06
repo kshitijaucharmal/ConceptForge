@@ -6,9 +6,14 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Define shader and asset directories
-add_compile_definitions(SHADER_DIR="${PROJECT_SOURCE_DIR}/shaders")
-add_compile_definitions(TEXTURE_DIR="${PROJECT_SOURCE_DIR}/assets/textures")
-add_compile_definitions(FONT_DIR="${PROJECT_SOURCE_DIR}/fonts")
+file(TO_CMAKE_PATH "${PROJECT_SOURCE_DIR}/shaders" SHADERS_PATH)
+add_compile_definitions(SHADER_DIR="${SHADERS_PATH}")
+
+file(TO_CMAKE_PATH "${PROJECT_SOURCE_DIR}/assets/textures" TEXTURES_PATH)
+add_compile_definitions(TEXTURE_DIR="${TEXTURES_PATH}")
+
+file(TO_CMAKE_PATH "${PROJECT_SOURCE_DIR}/fonts" FONTS_PATH)
+add_compile_definitions(FONT_DIR="${FONTS_PATH}")
 
 # Handle Python dev module detection
 if (CMAKE_VERSION VERSION_LESS 3.18)
