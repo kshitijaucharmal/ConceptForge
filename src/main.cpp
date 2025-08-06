@@ -35,8 +35,8 @@
 int main(){
     entt::registry registry;
 
-    // Setup Global Constants (Might be changed)
-    auto constants = registry.ctx().emplace<Constants>();
+    // Setup Global Constants (Will be changed)
+    const auto constants = registry.ctx().emplace<Constants>();
 
     // Global Values (Context)
     registry.ctx().emplace<Debug::DebugInfo>();
