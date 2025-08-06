@@ -6,7 +6,7 @@
 #include "Components/SSBOHolder.hpp"
 
 namespace SSBOManager {
-    void AddAndInit(entt::registry &registry, std::string ssboName, uint ssboIndex) {
+    void AddAndInit(entt::registry &registry, std::string ssboName, unsigned int ssboIndex) {
         auto &holder = registry.ctx().get<SSBOHolder>();
 
         glGenBuffers(1, &holder.ssbos[ssboName]);

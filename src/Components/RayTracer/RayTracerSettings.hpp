@@ -6,11 +6,11 @@
 
 #include "Vec3.hpp"
 
-struct RayTracerSettings {
+struct alignas(16) RayTracerSettings {
     // Group1
     float ImageWidth = 600.0f;
     float ImageHeight = 300.0;
-    float pad1, pad2;
+    float padding1[2];           // offset: 8 (pad to 16 bytes)
 
     Vec3 PixelDeltaU = Vec3(0.0f);
     float pad3;
@@ -23,4 +23,8 @@ struct RayTracerSettings {
 
     Vec3 CameraPosition = Vec3(0.0f);
     float pad6;
+
+    glm::mat4 invProjection;     // offset: 80
+    glm::mat4 invView;           // offset: 144
 };
+// 208 bytes

@@ -13,7 +13,7 @@ namespace Debug {
         unsigned int VAO, VBO;
     };
     void Init(entt::registry &registry);
-    void DrawPoint(entt::registry &registry, glm::vec3 point);
+    void DrawPoint(entt::registry &registry, glm::vec3 point, float size);
 }
 
 #endif //DEBUG_HPP

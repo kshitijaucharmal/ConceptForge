@@ -8,6 +8,10 @@ struct RayTracerSettings {
 
     vec3 pixel_loc_00;
     vec3 camera_position;
+
+    vec3 cameraPosition;
+    mat4 invProjection;
+    mat4 invView;
 };
 
 layout(std430, binding = 3) buffer RayTracerSettingsBuffer {
@@ -48,13 +52,26 @@ vec3 ray_color(vec3 ro, vec3 rd) {
     return (1.0-a) * vec3(1.0) + a * vec3(0.0, 0.0, 1.0);
 }
 
-void main() {
+struct Ray {
+    vec3 origin;
+    vec3 direction;
+};
+
+Ray generate_ray(in vec2 uv, in RayTracerSettings rt) {
     float i = uv.x * rt.image_width;
     float j = uv.y * rt.image_height;
 
-    vec3 pixel_center = rt.pixel_loc_00 + i * rt.pixel_delta_u + j * rt.pixel_delta_v;
-    vec3 ray_direction = pixel_center - rt.camera_position;
+    vec3 pixel_center = rt.pixel_loc_00
+    + i * rt.pixel_delta_u
+    + j * rt.pixel_delta_v;
 
-    vec3 color = ray_color(rt.camera_position, ray_direction);
+    vec3 dir = normalize(pixel_center - rt.camera_position);
+
+    return Ray(rt.camera_position, dir);
+}
+
+void main() {
+    Ray ray = generate_ray(uv, rt);
+    vec3 color = ray_color(ray.origin, ray.direction);
     FragColor = vec4(color, 1.0);
 }

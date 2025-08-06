@@ -3,16 +3,10 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/ImGuizmo" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/bullet" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/entt" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/glfw" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/nanobind" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/nanobind/ext/robin_map" vcs="Git" />
-    <mapping directory="/mnt/Data/projects/Graphics/ConceptForge-ECS" vcs="Git" />
-    <mapping directory="/mnt/Data/projects/Graphics/ConceptForge-ECS/external/ImGuizmo" vcs="Git" />
-    <mapping directory="/mnt/Data/projects/Graphics/ConceptForge-ECS/external/bullet" vcs="Git" />
-    <mapping directory="/mnt/Data/projects/Graphics/ConceptForge-ECS/external/entt" vcs="Git" />
-    <mapping directory="/mnt/Data/projects/Graphics/ConceptForge-ECS/external/glfw" vcs="Git" />
-    <mapping directory="/mnt/Data/projects/Graphics/ConceptForge-ECS/external/nanobind" vcs="Git" />
-    <mapping directory="/mnt/Data/projects/Graphics/ConceptForge-ECS/external/nanobind/ext/robin_map" vcs="Git" />
   </component>
 </project>

@@ -70,6 +70,9 @@ namespace RayTracer {
         rtSettings.ImageHeight = static_cast<int>(rtSettings.ImageWidth / constants.ASPECT_RATIO);
         rtSettings.ImageHeight = (rtSettings.ImageHeight < 1) ? 1 : rtSettings.ImageHeight;
 
+        rtSettings.invProjection = glm::inverse(camera.projection);
+        rtSettings.invView = glm::inverse(camera.view);
+
         constexpr auto ViewportHeight = 2.0f;
         const auto ViewportWidth = ViewportHeight * (rtSettings.ImageWidth/rtSettings.ImageHeight);
 
@@ -109,8 +112,12 @@ namespace RayTracer {
 
         // Update values
         auto &activeCamera = registry.ctx().get<ActiveCamera>().camera;
+        auto &camera = registry.get<Camera>(activeCamera);
         auto &transform = registry.get<Transform>(activeCamera);
+
         rtSettings.CameraPosition = transform.position;
+        rtSettings.invProjection = glm::inverse(camera.projection);
+        rtSettings.invView = glm::inverse(camera.view);
 
         SSBOManager::UploadToSSBO(ssbo, rtSettings);
     }
