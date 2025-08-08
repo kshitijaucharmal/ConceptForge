@@ -2,12 +2,9 @@
 // Created by kshitij on 30/6/25.
 //
 
-#ifndef GAMESTATE_HPP
-#define GAMESTATE_HPP
+#pragma once
 
 struct GameState {
     bool isPlaying = false;
-    bool rayTracing = true;
+    bool rayTracing = false;
 };
-
-#endif //GAMESTATE_HPP

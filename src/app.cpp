@@ -43,6 +43,7 @@ public:
     entt::registry registry;
     Constants constants;
 
+    Window window;
     entt::entity camera;
 
     // Default Shaders
@@ -54,7 +55,12 @@ public:
     // For Raytracing
     entt::entity rtShader;
     entt::entity rtEntity;
+
+    // Grid
+    entt::entity grid;
+
 private:
+    // Init Functions
     void InitContext() {
         // Global Values (Context)
         registry.ctx().emplace<Debug::DebugInfo>();
@@ -143,28 +149,9 @@ private:
         rtEntity = registry.create();
         RayTracer::Init(registry, rtEntity);
     }
-
-public:
-    App(int width, int height, std::string windowName) : constants(registry.ctx().emplace<Constants>()) {
-        InitContext();
-
-        // Window -----------------------------------------------------------
-        // initialize window (and OpenGL)
-        Window window(registry, width, height, windowName);
-
-        InitRenderSystem();
-
-        // Physics
-        BulletPhysicsSystem::Init(registry);
-        // ------------------------------------------------------------------
-
-        InitCameras();
-        InitShaders();
-
+    void SetupScene() {
         // Grid
-        const auto grid = GridSystem::CreateGrid(registry, gridShader, "Grid");
-
-        auto &rtSettings = registry.ctx().get<RayTracerSettings>();
+        grid = GridSystem::CreateGrid(registry, gridShader, "Grid");
 
         // Ground (Static)
         {
@@ -174,7 +161,7 @@ public:
                 .rotation = glm::quat(1, 0, 0, 0),
                 .scale = glm::vec3(20.0, .01f, 20.0f)
             };
-            entt::entity ground = Primitives::CreateCubeObject(registry, transform, litShader, false);
+            Primitives::CreateCubeObject(registry, transform, litShader, false);
         }
         // Point Lights
         {
@@ -198,16 +185,40 @@ public:
         }
         // ------------------------------------------------------------------
 
+    }
+    void InitDebuggingAndUI() {
         // ImGUI ------------------------------------------------------------
         // Setting up ImGUI
         GUISystem::InitImGUI(registry, window.window);
         Debug::Init(registry);
         // ------------------------------------------------------------------
+    }
 
-        // Awake
+public:
+    App(const int width, const int height, const std::string &windowName) :
+        constants(registry.ctx().emplace<Constants>()),
+        window(registry, width, height, windowName)
+    {
+        // Window window(registry, width, height, windowName);
+        InitContext();
+        InitRenderSystem();
+
+        // Physics
+        BulletPhysicsSystem::Init(registry);
+        // ------------------------------------------------------------------
+
+        InitCameras();
+        InitShaders();
+        InitDebuggingAndUI();
+
+        SetupScene();
+
+        // Call Awake
         auto &awakeQueue = registry.ctx().get<EventSystem::AwakeQueue>();
         for (auto &fn : awakeQueue.functions) fn();
+    }
 
+    void MainLoop() {
         auto &gameState = registry.ctx().get<GameState>();
         // Main Loop --------------------------------------------------------
         while(!glfwWindowShouldClose(window.window)) {
@@ -290,6 +301,6 @@ public:
         BulletPhysicsSystem::Shutdown(registry);
 
         GUISystem::Destroy();
-        }
 
+    }
 };
