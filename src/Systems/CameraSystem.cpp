@@ -9,11 +9,10 @@
 namespace CameraSystem {
 
 entt::entity CreateCamera(entt::registry &registry, std::string name){
-    auto &constants = registry.ctx().get<Constants>();
     auto camera = registry.create();
     registry.emplace<Transform>(camera, Transform{
         .name = std::move(name),
-        .position = glm::vec3(0, 0, 0),
+        .position = glm::vec3(0, 2, 10),
     });
     registry.emplace<Camera>(camera, Camera{
         .Fov = 60.0f,
