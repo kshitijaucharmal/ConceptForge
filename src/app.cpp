@@ -46,6 +46,8 @@ public:
     Window window;
     entt::entity camera;
 
+    GameState *gameState;
+
     // Default Shaders
     entt::entity debugShader;
     entt::entity gridShader;
@@ -217,80 +219,110 @@ public:
         auto &awakeQueue = registry.ctx().get<EventSystem::AwakeQueue>();
         for (auto &fn : awakeQueue.functions) fn();
     }
+    bool ShouldQuit() {
+        return glfwWindowShouldClose(window.window);
+    }
+    void SimulatePhysics() {
+        BulletPhysicsSystem::StepSimulation(registry, registry.ctx().get<Time>().deltaTime);
+        BulletPhysicsSystem::SyncTransforms(registry);
+    }
+    void RT_Rendering() {
+        RayTracer::Render(registry, rtEntity);
+    }
+    void Normal_Rendering() {
+        // Normal Rendering
+        // Grid
+        GridSystem::Render(registry, grid, registry.get<Shader>(gridShader));
+        // Render every object
+        RenderSystem::Render(registry);
+        // Debug::DrawPoint(registry, glm::vec3(0, 3, 0), 20);
+    }
+    void UI_Rendering() {
+        // UI here ------------------------------------------------------
+        GUISystem::NewFrame();
+
+        // Editor Windows
+        Hierarchy::Show(registry);
+        Inspector::Show(registry);
+
+        // Custom Windows
+        auto &imguiQueue = registry.ctx().get<GUISystem::ImGuiDrawQueue>();
+        for (auto &fn : imguiQueue) fn();
+
+        ImGui::Begin("Settings");
+        ImGui::Checkbox("RayTracing", &gameState->rayTracing);
+        ImGui::Checkbox("Playing", &gameState->isPlaying);
+        ImGui::End();
+
+        // Before drawing anything, clear screen
+        Window::ScreenClearFlags(constants.CLEAR_COLOR);
+        RenderSystem::ShowSceneTexture(registry, window.window);
+        GUISystem::RenderFrame();
+
+        // Clear queue for next frame
+        imguiQueue.clear();
+        // --------------------------------------------------------------
+    }
+    void CleanUp() {
+        // Shutdown Physics
+        BulletPhysicsSystem::Shutdown(registry);
+
+        // Destroy GUI System
+        GUISystem::Destroy();
+    }
 
     void MainLoop() {
-        auto &gameState = registry.ctx().get<GameState>();
+        gameState = &registry.ctx().get<GameState>();
         // Main Loop --------------------------------------------------------
-        while(!glfwWindowShouldClose(window.window)) {
-            // Update here --------------------------------------------------
+        while(!ShouldQuit()){
+            // DeltaTime
             CalculateDeltaTime(registry);
-            if (gameState.isPlaying) {
-                BulletPhysicsSystem::StepSimulation(registry, registry.ctx().get<Time>().deltaTime);
-                BulletPhysicsSystem::SyncTransforms(registry);
+
+            // Update here --------------------------------------------------
+
+            if (gameState->isPlaying) {
+                SimulatePhysics();
             }
+
+            // Input System
             InputSystem::ProcessInput(registry, window.window);
-            CameraSystem::CalculateProjection(registry);
-            CameraSystem::SetView(registry);
 
             // Call every System in Update/LateUpdate
             // Update
             auto &updateQueue = registry.ctx().get<EventSystem::UpdateQueue>();
             for (auto &fn : updateQueue.functions) fn();
 
-            // Late Update
+            // Camera Projection
+            CameraSystem::CalculateProjection(registry);
+            CameraSystem::SetView(registry);
+
+            // Call Late Update
             auto &lateUpdateQueue = registry.ctx().get<EventSystem::LateUpdateQueue>();
             for (auto &fn : lateUpdateQueue.functions) fn();
             // --------------------------------------------------------------
 
-            // Render here --------------------------------------------------
+            // Rendering --------------------------------------------------
             // Anything inside framebuffer draws to the Scene window
             RenderSystem::BindFramebuffer(registry);
-            // Program Background
-            Window::ScreenClearFlags(constants.BACKGROUND_COLOR);
+            {
+                // Program Background
+                Window::ScreenClearFlags(constants.BACKGROUND_COLOR);
 
-            // Ray Tracing
-            if (gameState.rayTracing){
-                RayTracer::Render(registry, rtEntity);
+                // Ray Tracing
+                if (gameState->rayTracing){
+                    RT_Rendering();
+                }
+                else {
+                    Normal_Rendering();
+                }
             }
-            else {
-                // Normal Rendering
-                // Grid
-                GridSystem::Render(registry, grid, registry.get<Shader>(gridShader));
-                // Render every object
-                RenderSystem::Render(registry);
-                // Debug::DrawPoint(registry, glm::vec3(0, 3, 0), 20);
-            }
-
             RenderSystem::UnbindFramebuffer();
             // --------------------------------------------------------------
 
             // Push To Draw Queue -------------------------------------------
             // --------------------------------------------------------------
 
-            // UI here ------------------------------------------------------
-            GUISystem::NewFrame();
-
-            // Editor Windows
-            Hierarchy::Show(registry);
-            Inspector::Show(registry);
-
-            // Custom Windows
-            auto &imguiQueue = registry.ctx().get<GUISystem::ImGuiDrawQueue>();
-            for (auto &fn : imguiQueue) fn();
-
-            ImGui::Begin("Settings");
-            ImGui::Checkbox("RayTracing", &gameState.rayTracing);
-            ImGui::Checkbox("Playing", &gameState.isPlaying);
-            ImGui::End();
-
-            // Before drawing anything, clear screen
-            Window::ScreenClearFlags(constants.CLEAR_COLOR);
-            RenderSystem::ShowSceneTexture(registry, window.window);
-            GUISystem::RenderFrame();
-
-            // Clear queue for next frame
-            imguiQueue.clear();
-            // --------------------------------------------------------------
+            UI_Rendering();
 
             // check and call events
             glfwPollEvents();
@@ -298,9 +330,6 @@ public:
 
         }
         // ------------------------------------------------------------------
-        BulletPhysicsSystem::Shutdown(registry);
-
-        GUISystem::Destroy();
-
+        CleanUp();
     }
 };
