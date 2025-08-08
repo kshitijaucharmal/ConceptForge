@@ -8,7 +8,7 @@
 #include "Systems/Rendering/ShaderSystem.hpp"
 
 namespace MaterialSystem {
-    using WhiteTexture = uint;
+    using WhiteTexture = unsigned int;
     // For ALL Materials
     void InitWhiteTexture(entt::registry &registry);
 

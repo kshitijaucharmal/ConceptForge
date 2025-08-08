@@ -3,6 +3,7 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/ImGuizmo" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/bullet" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/entt" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/glfw" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/nanobind" vcs="Git" />

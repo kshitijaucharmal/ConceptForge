@@ -20,6 +20,7 @@
 #include <Components/Physics/Rigidbody.hpp>
 #include <Core/GameState.hpp>
 #include <Core/Physics/PhysicsSystem.hpp>
+#include <Systems/Rendering/LightSystem.hpp>
 
 // Font Awesome icon defines (or use full glyphs)
 #define ICON_FA_PLAY  "\xef\x81\x8b"  // f04b
@@ -75,17 +76,11 @@ namespace RenderSystem {
     }
 
     void Render(entt::registry& registry){
-        const auto constants = registry.ctx().get<Constants>();
+        const auto &constants = registry.ctx().get<Constants>();
 
         glViewport(0, 0, constants.WINDOW_WIDTH, constants.WINDOW_HEIGHT);
-        glEnable(GL_DEPTH_TEST);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glClearColor(constants.CLEAR_COLOR.r,
-                        constants.CLEAR_COLOR.g,
-                        constants.CLEAR_COLOR.b,
-                        constants.CLEAR_COLOR.a);
-        // Clear Color Buffer and Depth Buffer
 
+        // Draw All meshes
         for (const auto view = registry.view<Transform, MeshFilter, MeshRenderer, Material>(); const auto entity : view) {
             auto& t = view.get<Transform>(entity);
             auto& f = view.get<MeshFilter>(entity);
@@ -99,6 +94,7 @@ namespace RenderSystem {
             auto model = SimObject::ComposeTransform(t);
             glUseProgram(shader->shaderID);
             glUniformMatrix4fv(glGetUniformLocation(shader->shaderID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+
             glBindVertexArray(mesh->VAO);
             if (mesh->elemental) {
                 glDrawElements(GL_TRIANGLES, mesh->indexCount, GL_UNSIGNED_INT, nullptr);
@@ -109,6 +105,9 @@ namespace RenderSystem {
             glBindVertexArray(0);
         }
 
+        // Lights
+        LightSystem::RenderPointLights(registry);
+        LightSystem::RenderDirectionalLights(registry);
     }
 
     void ShowSceneTexture(entt::registry &registry, GLFWwindow* window) {

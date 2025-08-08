@@ -22,9 +22,9 @@ struct Shader {
     bool initialized = false;
 
     // IDs Given by OpenGL
-    uint shaderID = 0;
-    uint vertexShader = 0;
-    uint fragmentShader = 0;
+    unsigned int shaderID = 0;
+    unsigned int vertexShader = 0;
+    unsigned int fragmentShader = 0;
 
     DrawMode drawMode = DrawMode::FILLED;
     ShaderType type = ShaderType::LIT;
