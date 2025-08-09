@@ -47,10 +47,16 @@ include_directories(
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 file(GLOB_RECURSE NB_SOURCES "nanobind/*.cpp")
 
+# --- Add Assimp ---
+set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)       # Disable Assimp's tests
+set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE) # Disable extra tools if you don't need them
+set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "" FORCE)          # Assimp's internal zlib
+
 # Add external libraries
 add_subdirectory(external/glm)
 add_subdirectory(external/glfw)
 add_subdirectory(external/nanobind)
+add_subdirectory(external/assimp)
 
 # Build glad
 add_library(glad STATIC external/glad/src/glad.c)
@@ -93,9 +99,11 @@ target_link_libraries(${PROJECT_NAME}
         BulletDynamics
         BulletCollision
         LinearMath
+        assimp
 )
 target_include_directories(${PROJECT_NAME} PRIVATE
         external/bullet/src
+        external/assimp/include
 )
 
 # Custom target to run the app
