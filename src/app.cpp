@@ -73,7 +73,7 @@ private:
         registry.ctx().emplace<EventSystem::AwakeQueue>();
         registry.ctx().emplace<EventSystem::UpdateQueue>();
         registry.ctx().emplace<EventSystem::LateUpdateQueue>();
-        registry.ctx().emplace<MaterialSystem::WhiteTexture>(0);
+        registry.ctx().emplace<MaterialSystem::FallbackTexture>(0);
         registry.ctx().emplace<GUISystem::ImGuiDrawQueue>();
         registry.ctx().emplace<FrameBuffer>();
         registry.ctx().emplace<ShaderStore>();
@@ -145,7 +145,7 @@ private:
         shaderStore.shaders["RayTracingShader"] = rtShader;
 
         // Init
-        MaterialSystem::InitWhiteTexture(registry);
+        MaterialSystem::InitFallbackTexture(registry);
         ShaderSystem::InitShaders(registry);
 
         rtEntity = registry.create();

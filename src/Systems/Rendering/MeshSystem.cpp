@@ -4,6 +4,7 @@
 
 #include "MeshSystem.hpp"
 
+#include "MaterialSystem.hpp"
 #include "ShaderSystem.hpp"
 
 namespace MeshManager {
@@ -54,7 +55,9 @@ namespace MeshManager {
         });
     }
 
+    // TODO: Not ECS, need to refactor
     void Draw(entt::registry &registry, entt::entity mesh, Shader &shader){
+        const auto &fallback = registry.ctx().get<MaterialSystem::FallbackTexture>();
 
         const auto meshRef = registry.get<Mesh>(mesh);
         const auto textures = meshRef.textures;
@@ -77,6 +80,22 @@ namespace MeshManager {
             ShaderSystem::setInt(shader, ("material." + name + number).c_str(), i);
             glBindTexture(GL_TEXTURE_2D, textures[i].id);
         }
+
+        // Fallback handling:
+        // If no diffuse bound at all, bind white texture to first slot
+        if (diffuseNr == 1) {
+            ShaderSystem::setInt(shader, "material.texture_diffuse1", 0);
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, fallback);
+        }
+
+        // If no specular bound at all, bind white texture to first specular slot
+        if (specularNr == 1) {
+            ShaderSystem::setInt(shader, "material.texture_specular1", diffuseNr - 1); // safe slot
+            glActiveTexture(GL_TEXTURE0 + (diffuseNr - 1));
+            glBindTexture(GL_TEXTURE_2D, fallback);
+        }
+
         glActiveTexture(GL_TEXTURE0);
 
         // draw mesh

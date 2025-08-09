@@ -8,9 +8,9 @@
 #include "Systems/Rendering/ShaderSystem.hpp"
 
 namespace MaterialSystem {
-    using WhiteTexture = unsigned int;
+    using FallbackTexture = unsigned int;
     // For ALL Materials
-    void InitWhiteTexture(entt::registry &registry);
+    void InitFallbackTexture(entt::registry &registry);
 
     // void ApplyShaderParameters(Material &material);
 }
