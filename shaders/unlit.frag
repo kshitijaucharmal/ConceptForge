@@ -21,4 +21,5 @@ void main() {
 
   // Just combining
   FragColor = diffuseColor + specularColor;
+  FragColor = vec4(1., 0, 0, 1);
 }
