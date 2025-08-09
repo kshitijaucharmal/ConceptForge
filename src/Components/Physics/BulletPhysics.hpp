@@ -5,7 +5,11 @@
 #ifndef BULLETPHYSICS_HPP
 #define BULLETPHYSICS_HPP
 
-#include <btBulletDynamicsCommon.h>
+class btDiscreteDynamicsWorld;
+class btSequentialImpulseConstraintSolver;
+class btCollisionDispatcher;
+class btDefaultCollisionConfiguration;
+class btBroadphaseInterface;
 
 struct BulletPhysics {
     btBroadphaseInterface* broadphase = nullptr;

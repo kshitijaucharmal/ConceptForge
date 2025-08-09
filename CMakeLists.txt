@@ -84,7 +84,19 @@ target_include_directories(ImGuizmo PUBLIC external/ImGuizmo)
 target_link_libraries(ImGuizmo PUBLIC imgui)
 
 # 🔧 Add Bullet Physics
-add_subdirectory(external/bullet)
+# Add Bullet as a subdirectory (assumes it's cloned into external/bullet)
+set(BULLET_ROOT_DIR ${CMAKE_SOURCE_DIR}/external/bullet)
+
+# Disable building extras, tests, and examples
+set(BUILD_BULLET2_DEMOS OFF CACHE BOOL "" FORCE)
+set(BUILD_BULLET3 OFF CACHE BOOL "" FORCE)
+set(BUILD_CLSOCKET OFF CACHE BOOL "" FORCE)
+set(BUILD_CPU_DEMOS OFF CACHE BOOL "" FORCE)
+set(BUILD_EXTRAS OFF CACHE BOOL "" FORCE)
+set(BUILD_OPENGL3_DEMOS OFF CACHE BOOL "" FORCE)
+set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)  # static libs only, optional
+add_subdirectory(${BULLET_ROOT_DIR})
 
 # Main executable
 add_executable(${PROJECT_NAME} ${SOURCES})

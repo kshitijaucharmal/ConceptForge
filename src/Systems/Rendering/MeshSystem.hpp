@@ -10,5 +10,5 @@
 namespace MeshManager {
     void InitMesh(entt::registry registry, std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
 
-    void Draw(entt::registry &registry, entt::entity mesh, Shader &shader);
+    void Draw(entt::registry &registry, Mesh mesh, Shader &shader);
 }
