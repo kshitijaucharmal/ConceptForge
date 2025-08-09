@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <btBulletDynamicsCommon.h>
 #include <Components/Physics/Rigidbody.hpp>
 #include <Components/Primitives/Transform.hpp>
 #include <entt/entt.hpp>

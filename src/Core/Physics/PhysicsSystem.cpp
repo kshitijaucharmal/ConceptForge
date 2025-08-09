@@ -4,17 +4,16 @@
 
 #include "PhysicsSystem.hpp"
 
-// In PhysicsSystem.cpp or PhysicsEngine.cpp
-#include "PhysicsSystem.hpp"
-
-#include <iostream>
-#include <Components/Physics/BulletPhysics.hpp>
-#include <Components/Primitives/Transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <Systems/Primitives/PrimitivesSystem.hpp>
 
+#include "Components/Primitives/Transform.hpp"
+#include "Systems/Primitives/PrimitivesSystem.hpp"
+
+#include "Components/Physics/BulletPhysics.hpp"
 #include "Components/Physics/Rigidbody.hpp"
+
+#include <btBulletDynamicsCommon.h>
 
 class MotionState : public btMotionState {
 public:

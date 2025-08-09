@@ -5,7 +5,11 @@
 #ifndef RIGIDBODY_HPP
 #define RIGIDBODY_HPP
 
-#include <btBulletDynamicsCommon.h>
+#include "Components/Physics/BulletPhysics.hpp"
+
+class btMotionState;
+class btCollisionShape;
+class btRigidBody;
 
 struct Rigidbody {
     btRigidBody* body = nullptr;

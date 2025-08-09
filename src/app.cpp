@@ -1,10 +1,12 @@
 //
 // Created by kshitij on 8/8/25.
 //
+
+#include <btBulletDynamicsCommon.h> // bullet first
+
 #include <entt/entt.hpp>
 #include <Systems/InputSystem.hpp>
 #include <Systems/RayTracer/RayTracer.hpp>
-#include <utility>
 
 #include "Core/WindowManager.hpp"
 #include "Core/GUISystem.hpp"
@@ -36,6 +38,7 @@
 #include "Systems/Primitives/GridSystem.hpp"
 #include "Systems/Rendering/LightSystem.hpp"
 
+#include <Systems/Rendering/Model.hpp>
 
 class App {
 //Variables
@@ -154,6 +157,11 @@ private:
     void SetupScene() {
         // Grid
         grid = GridSystem::CreateGrid(registry, gridShader, "Grid");
+
+        // 3d model
+        {
+            // ModelSystem::Model myModel("/home/kshitij/snorlax.obj");
+        }
 
         // Ground (Static)
         {

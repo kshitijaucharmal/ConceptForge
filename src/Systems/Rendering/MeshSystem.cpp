@@ -7,6 +7,10 @@
 #include "MaterialSystem.hpp"
 #include "ShaderSystem.hpp"
 
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 namespace MeshManager {
     void InitMesh(entt::registry &registry, const std::vector<Vertex> &vertices, const std::vector<unsigned int> &indices, const std::vector<Texture> &textures) {
         const auto mesh = registry.create();
@@ -56,13 +60,12 @@ namespace MeshManager {
     }
 
     // TODO: Not ECS, need to refactor
-    void Draw(entt::registry &registry, entt::entity mesh, Shader &shader){
+    void Draw(entt::registry &registry, Mesh mesh, Shader &shader){
         const auto &fallback = registry.ctx().get<MaterialSystem::FallbackTexture>();
 
-        const auto meshRef = registry.get<Mesh>(mesh);
-        const auto textures = meshRef.textures;
-        const auto VAO = meshRef.VAO;
-        const auto index = meshRef.indexCount;
+        const auto textures = mesh.textures;
+        const auto VAO = mesh.VAO;
+        const auto index = mesh.indexCount;
 
         unsigned int diffuseNr = 1;
         unsigned int specularNr = 1;
