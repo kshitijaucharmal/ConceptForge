@@ -4,6 +4,8 @@
 
 #include "MeshSystem.hpp"
 
+#include "ShaderSystem.hpp"
+
 namespace MeshManager {
     void InitMesh(entt::registry &registry, const std::vector<Vertex> &vertices, const std::vector<unsigned int> &indices, const std::vector<Texture> &textures) {
         const auto mesh = registry.create();
@@ -50,5 +52,36 @@ namespace MeshManager {
             .elemental = true,
             .initialized = true
         });
+    }
+
+    void Draw(entt::registry &registry, entt::entity mesh, Shader &shader){
+
+        const auto meshRef = registry.get<Mesh>(mesh);
+        const auto textures = meshRef.textures;
+        const auto VAO = meshRef.VAO;
+        const auto index = meshRef.indexCount;
+
+        unsigned int diffuseNr = 1;
+        unsigned int specularNr = 1;
+        for(unsigned int i = 0; i < textures.size(); i++)
+        {
+            glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit before binding
+            // retrieve texture number (the N in diffuse_textureN)
+            std::string number;
+            std::string name = textures[i].type;
+            if(name == "texture_diffuse")
+                number = std::to_string(diffuseNr++);
+            else if(name == "texture_specular")
+                number = std::to_string(specularNr++);
+
+            ShaderSystem::setInt(shader, ("material." + name + number).c_str(), i);
+            glBindTexture(GL_TEXTURE_2D, textures[i].id);
+        }
+        glActiveTexture(GL_TEXTURE0);
+
+        // draw mesh
+        glBindVertexArray(VAO);
+        glDrawElements(GL_TRIANGLES, index, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
     }
 }
