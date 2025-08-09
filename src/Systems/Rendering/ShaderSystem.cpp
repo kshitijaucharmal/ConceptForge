@@ -28,10 +28,10 @@ namespace ShaderSystem {
         glUseProgram(shader.shaderID);
 
         switch(shader.drawMode){
-            case DrawMode::WIREFRAME:
+            case WIREFRAME:
                 glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
                 break;
-            case DrawMode::FILLED:
+            case FILLED:
                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
                 break;
         }

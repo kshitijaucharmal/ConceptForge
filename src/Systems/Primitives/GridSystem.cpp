@@ -44,9 +44,14 @@ namespace GridSystem {
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), static_cast<void *>(nullptr));
 
         glBindVertexArray(0);
+        const int indexSize = vertices.size() / 3;
 
         const auto mesh = registry.create();
-        registry.emplace<Mesh>(mesh, vao, vbo, vertices.size() / 3);
+        registry.emplace<Mesh>(mesh, Mesh{
+            .VAO = vao,
+            .VBO = vbo,
+            .indexCount = indexSize,
+        });
         return mesh;
     }
 
