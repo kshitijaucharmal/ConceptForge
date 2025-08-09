@@ -4,13 +4,21 @@ out vec4 FragColor;
 in vec2 TexCoord;
 
 uniform float iTime;
-uniform sampler2D texture1;
-uniform sampler2D texture2;
+
+struct Material{
+  sampler2D texture_diffuse1;
+  sampler2D texture_specular2;
+};
+
+uniform Material material;
 
 float speed = 5.;
 
 void main() {
-  FragColor = texture(texture1, TexCoord);
-  // FragColor = mix(texture(texture1, TexCoord), texture(texture2, TexCoord), 0.5);
-  // FragColor = vec4(1.);
+
+  vec4 diffuseColor = texture(material.texture_diffuse1, TexCoord);
+  vec4 specularColor = texture(material.texture_specular2, TexCoord);
+
+  // Just combining
+  FragColor = diffuseColor + specularColor;
 }
