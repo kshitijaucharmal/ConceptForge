@@ -52,6 +52,8 @@ namespace ModelSystem {
         std::vector<unsigned int> indices;
         std::vector<Texture> textures;
 
+        std::cout << mesh->mNumVertices << std::endl;
+
         for(unsigned int i = 0; i < mesh->mNumVertices; i++)
         {
             Vertex vertex;

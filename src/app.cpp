@@ -63,6 +63,7 @@ public:
 
     // Grid
     entt::entity grid;
+    ModelSystem::Model *myModel;
 
 private:
     // Init Functions
@@ -160,14 +161,14 @@ private:
 
         // 3d model
         {
-            // ModelSystem::Model myModel("/home/kshitij/snorlax.obj");
+            myModel = new ModelSystem::Model("/home/kshitij/snorlax.obj");
         }
 
         // Ground (Static)
         {
             auto transform = Transform{
                 .name = "Ground",
-                .position = glm::vec3(0.0f, 0, 0.0f),
+                .position = glm::vec3(0.0f, .01f, 0.0f),
                 .rotation = glm::quat(1, 0, 0, 0),
                 .scale = glm::vec3(20.0, .01f, 20.0f)
             };
@@ -240,6 +241,14 @@ public:
     void Normal_Rendering() {
         // Normal Rendering
         // Grid
+
+        auto model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
+        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+        auto unlit = registry.get<Shader>(unlitShader);
+        ShaderSystem::setMat4(unlit, "model", model);
+        myModel->Draw(registry, unlit);
+
         GridSystem::Render(registry, grid, registry.get<Shader>(gridShader));
         // Render every object
         RenderSystem::Render(registry);
