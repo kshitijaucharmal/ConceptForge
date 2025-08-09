@@ -63,7 +63,7 @@ namespace ShaderSystem {
         char infoLog[512];
         glGetShaderiv(shader.vertexShader, GL_COMPILE_STATUS, &success);
         if(!success){
-            glGetShaderInfoLog(shader.vertexShader, 512, NULL, infoLog);
+            glGetShaderInfoLog(shader.vertexShader, 512, nullptr, infoLog);
             std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
             exit(0);
         }

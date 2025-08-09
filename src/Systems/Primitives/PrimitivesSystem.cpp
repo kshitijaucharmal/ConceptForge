@@ -124,23 +124,23 @@ namespace Primitives {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
 
-        GLsizei stride = 8 * sizeof(float);
+        constexpr GLsizei stride = 8 * sizeof(float);
 
         // Position: layout(location = 0)
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void*)0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, static_cast<void *>(nullptr));
         glEnableVertexAttribArray(0);
 
         // Texture coordinates: layout(location = 1)
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)(3 * sizeof(float)));
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void *>(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
 
         // Normals: layout(location = 2)
-        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, stride, (void*)(5 * sizeof(float)));
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void *>(5 * sizeof(float)));
         glEnableVertexAttribArray(2);
 
         glBindVertexArray(0);
 
-        int indicesSize = indices.size();
+        const int indicesSize = indices.size();
 
         const auto uvSphereMesh = registry.create();
         registry.emplace<Mesh>(uvSphereMesh, Mesh{
