@@ -22,6 +22,12 @@ namespace Hierarchy {
             entities.emplace_back(entity);
         }
 
+        // Map selectedEntity to selectedID
+        if (selectedEntity != entt::null) {
+            auto it = std::find(entities.begin(), entities.end(), selectedEntity);
+            selectedID = (it != entities.end()) ? std::distance(entities.begin(), it) : -1;
+        }
+
         const auto &c = registry.ctx().get<Constants>();
 
         // Size and position
@@ -114,30 +120,32 @@ namespace Hierarchy {
         }
         // --------- Empty Space Context Menu ---------
         if (ImGui::BeginPopup("EmptySpaceMenu")) {
+            entt::entity entity = {};
             if (ImGui::BeginMenu("Create")) {
                 if (ImGui::BeginMenu("Primitives")) {
                     if (ImGui::MenuItem("Empty")) {
                         // Handle Empty creation
-                        SimObject::Create(registry, "Empty");
+                        entity = SimObject::Create(registry, "Empty");
                     }
                     if (ImGui::MenuItem("Cube")) {
                         // Handle Cube creation
                         const auto transform = Transform { .name = "Cube", };
                         auto &shaders = registry.ctx().get<ShaderStore>().shaders;
-                        Primitives::Create(registry, Primitives::PrimitiveType::CUBE, transform, shaders["LitShader"]);
+                        entity = Primitives::Create(registry, Primitives::PrimitiveType::CUBE, transform, shaders["LitShader"]);
                     }
                     if (ImGui::MenuItem("UV Sphere")) {
                         // Handle UV Sphere creation
                         const auto transform = Transform { .name = "UV Sphere", };
                         auto &shaders = registry.ctx().get<ShaderStore>().shaders;
-                        Primitives::Create(registry, Primitives::PrimitiveType::UV_SPHERE, transform, shaders["LitShader"]);
+                        entity = Primitives::Create(registry, Primitives::PrimitiveType::UV_SPHERE, transform, shaders["LitShader"]);
                     }
                     ImGui::EndMenu();
                 }
+
                 if (ImGui::BeginMenu("Lights")) {
                     if (ImGui::MenuItem("Directional Light")) {
                         // Handle Light creation
-                        LightSystem::AddDirectionalLight(registry,
+                        entity = LightSystem::AddDirectionalLight(registry,
                             Transform{
                                 .name = "Directional Light",
                                 .position = glm::vec3(0.0, 10.0, 3.0),
@@ -147,7 +155,7 @@ namespace Hierarchy {
                     }
                     if (ImGui::MenuItem("Point Light")) {
                         // Handle Light creation
-                        LightSystem::AddPointLight(registry,
+                        entity = LightSystem::AddPointLight(registry,
                             Transform{
                                 .name = "Point Light",
                                 .position = glm::vec3(0.0, 4.0, 3.0),
@@ -158,10 +166,12 @@ namespace Hierarchy {
                 }
                 if (ImGui::MenuItem("Camera")) {
                     // Handle Empty creation
-                    CameraSystem::CreateCamera(registry);
+                    entity = CameraSystem::CreateCamera(registry);
                 }
                 ImGui::EndMenu();
             }
+            auto &hierarchy = registry.ctx().get<Hierarchy>();
+            hierarchy.selectedEntity = entity;
 
             ImGui::EndPopup();
         }

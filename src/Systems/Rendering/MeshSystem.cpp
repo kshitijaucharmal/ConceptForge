@@ -91,20 +91,20 @@ namespace MeshManager {
 
         // --- Fallback Handling ---
         // If no diffuse map was bound, add the fallback in the next available slot.
-        if (diffuseNr == 1) {
-            glActiveTexture(GL_TEXTURE0 + unit_counter);
-            ShaderSystem::setInt(shader, "material.texture_diffuse1", unit_counter);
-            glBindTexture(GL_TEXTURE_2D, fallback);
-            unit_counter++;
-        }
-
-        // If no specular map was bound, add the fallback.
-        if (specularNr == 1) {
-            glActiveTexture(GL_TEXTURE0 + unit_counter);
-            ShaderSystem::setInt(shader, "material.texture_specular1", unit_counter);
-            glBindTexture(GL_TEXTURE_2D, fallback);
-            unit_counter++;
-        }
+        // if (diffuseNr == 1) {
+        //     glActiveTexture(GL_TEXTURE0 + unit_counter);
+        //     ShaderSystem::setInt(shader, "material.texture_diffuse1", unit_counter);
+        //     glBindTexture(GL_TEXTURE_2D, fallback);
+        //     unit_counter++;
+        // }
+        //
+        // // If no specular map was bound, add the fallback.
+        // if (specularNr == 1) {
+        //     glActiveTexture(GL_TEXTURE0 + unit_counter);
+        //     ShaderSystem::setInt(shader, "material.texture_specular1", unit_counter);
+        //     glBindTexture(GL_TEXTURE_2D, fallback);
+        //     unit_counter++;
+        // }
 
         // --- Draw Mesh ---
         glBindVertexArray(VAO);
