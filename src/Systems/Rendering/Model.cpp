@@ -10,18 +10,19 @@
 
 
 namespace ModelSystem {
-    Model::Model(char *path) {
+    Model::Model(std::string path) {
         loadModel(path);
     }
 
     void Model::Draw(entt::registry &registry, Shader &shader) {
-        for(unsigned int i = 0; i < meshes.size(); i++)
+        for(unsigned int i = 0; i < meshes.size(); i++) {
             MeshManager::Draw(registry, meshes[i], shader);
+        }
     }
 
     void Model::loadModel(std::string path) {
         Assimp::Importer import;
-        const aiScene *scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+        const aiScene *scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace);
 
         if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
         {
@@ -51,8 +52,6 @@ namespace ModelSystem {
         std::vector<Vertex> vertices;
         std::vector<unsigned int> indices;
         std::vector<Texture> textures;
-
-        std::cout << mesh->mNumVertices << std::endl;
 
         for(unsigned int i = 0; i < mesh->mNumVertices; i++)
         {
@@ -101,7 +100,7 @@ namespace ModelSystem {
             textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
         }
 
-        return Mesh(vertices, indices, textures);
+        return MeshManager::InitMesh(vertices, indices, textures);
     }
 
     std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName) {
@@ -110,14 +109,29 @@ namespace ModelSystem {
         {
             aiString str;
             mat->GetTexture(type, i, &str);
-            Texture texture;
-            texture.id = TextureFromFile(str.C_Str(), directory, false);
-            texture.type = typeName;
-            texture.path = str.C_Str();
-            textures.push_back(texture);
+            bool skip = false;
+            for(auto & j : textures_loaded)
+            {
+                if(std::strcmp(j.path.data(), str.C_Str()) == 0)
+                {
+                    textures.push_back(j);
+                    skip = true;
+                    break;
+                }
+            }
+            if(!skip)
+            {   // if texture hasn't been loaded already, load it
+                Texture texture;
+                texture.id = TextureFromFile(str.C_Str(), directory, false);
+                texture.type = typeName;
+                texture.path = str.C_Str();
+                textures.push_back(texture);
+                textures_loaded.push_back(texture); // add to loaded textures
+            }
         }
         return textures;
     }
+
     unsigned int Model::TextureFromFile(const char *path, const std::string &directory, bool gamma)
     {
         std::string filename = std::string(path);

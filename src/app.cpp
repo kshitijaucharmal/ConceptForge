@@ -161,7 +161,7 @@ private:
 
         // 3d model
         {
-            myModel = new ModelSystem::Model("/home/kshitij/snorlax.obj");
+            myModel = new ModelSystem::Model("/home/kshitij/Gamedev/backpack/backpack.obj");
         }
 
         // Ground (Static)
@@ -241,15 +241,16 @@ public:
     void Normal_Rendering() {
         // Normal Rendering
         // Grid
+        GridSystem::Render(registry, grid, registry.get<Shader>(gridShader));
 
         auto model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
-        auto unlit = registry.get<Shader>(unlitShader);
+        model = glm::translate(model, glm::vec3(0.0f, 2.0f, 0.0f)); // translate it down so it's at the center of the scene
+        model = glm::scale(model, glm::vec3(1., 1., 1.));	// it's a bit too big for our scene, so scale it down
+        auto unlit = registry.get<Shader>(litShader);
+        ShaderSystem::Use(unlit);
         ShaderSystem::setMat4(unlit, "model", model);
         myModel->Draw(registry, unlit);
 
-        GridSystem::Render(registry, grid, registry.get<Shader>(gridShader));
         // Render every object
         RenderSystem::Render(registry);
         // Debug::DrawPoint(registry, glm::vec3(0, 3, 0), 20);
