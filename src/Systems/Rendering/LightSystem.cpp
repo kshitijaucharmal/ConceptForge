@@ -13,7 +13,7 @@
 #include "Components/Rendering/PointLight.hpp"
 
 namespace LightSystem {
-    void AddPointLight(entt::registry &registry, Transform transform) {
+    entt::entity AddPointLight(entt::registry &registry, Transform transform) {
         // Create a cube with unlit shader
         auto &shaderStore = registry.ctx().get<ShaderStore>().shaders;
         const entt::entity lightEntity = registry.create();
@@ -31,8 +31,10 @@ namespace LightSystem {
 
         auto &handle = registry.ctx().get<PointLightsHandle>();
         handle.entities.push_back(lightEntity);
+
+        return lightEntity;
     }
-    void AddDirectionalLight(entt::registry &registry, Transform transform) {
+    entt::entity AddDirectionalLight(entt::registry &registry, Transform transform) {
         // Create a cube with unlit shader
         auto &shaderStore = registry.ctx().get<ShaderStore>().shaders;
 
@@ -53,6 +55,8 @@ namespace LightSystem {
         });
         auto &handle = registry.ctx().get<DirectionalLightsHandle>();
         handle.entities.push_back(lightEntity);
+
+        return lightEntity;
     }
 
     void RenderPointLights(entt::registry &registry) {

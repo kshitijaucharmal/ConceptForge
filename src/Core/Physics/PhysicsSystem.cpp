@@ -9,6 +9,7 @@
 
 #include "Components/Primitives/Transform.hpp"
 #include "Systems/Primitives/PrimitivesSystem.hpp"
+#include "Core/Physics/DebugDrawer.hpp"
 
 #include "Components/Physics/BulletPhysics.hpp"
 #include "Components/Physics/Rigidbody.hpp"
@@ -44,6 +45,12 @@ namespace BulletPhysicsSystem {
         bp.solver = new btSequentialImpulseConstraintSolver();
         bp.dynamicsWorld = new btDiscreteDynamicsWorld(bp.dispatcher, bp.broadphase, bp.solver, bp.collisionConfiguration);
         bp.dynamicsWorld->setGravity(btVector3(0, -9.81f * 4, 0));
+
+        // For Debugging
+        auto debugDrawer = new PhysicsDebug::DebugDrawer();
+        // Define what to show
+        bp.dynamicsWorld->setDebugDrawer(debugDrawer);
+        debugDrawer->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
     }
 
     void Shutdown(entt::registry &registry) {
@@ -58,6 +65,12 @@ namespace BulletPhysicsSystem {
     void StepSimulation(entt::registry &registry, float deltaTime) {
         auto &bp = registry.ctx().get<BulletPhysics>();
         bp.dynamicsWorld->stepSimulation(deltaTime, 10);
+        // Draw Debug (TODO: Make this optional)
+        glDisable(GL_LIGHTING);
+        glDisable(GL_DEPTH_TEST);
+        bp.dynamicsWorld->debugDrawWorld();
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_LIGHTING);
     }
 
     void SyncTransforms(entt::registry& registry) {

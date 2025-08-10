@@ -64,6 +64,7 @@ public:
     // Grid
     entt::entity grid;
     ModelSystem::Model *myModel;
+    ModelSystem::Model *myModel2;
 
 private:
     // Init Functions
@@ -162,6 +163,8 @@ private:
         // 3d model
         {
             myModel = new ModelSystem::Model("/home/kshitij/Gamedev/backpack/backpack.obj");
+            myModel2 = new ModelSystem::Model("/home/kshitij/Gamedev/backpack/backpack.obj");
+            // myModel = new ModelSystem::Model("/home/kshitij/Gamedev/spaceship/spaceship/spaceship.obj");
         }
 
         // Ground (Static)
@@ -178,7 +181,7 @@ private:
         {
             auto transform = Transform{
                 .name = "Point Light",
-                .position = glm::vec3(0.0f, 10.0f, 0.0f),
+                .position = glm::vec3(0.0f, 4.0f, 1.3f),
                 .rotation = glm::quat(1, 0, 0, 0),
                 .scale = glm::vec3(0.3, 0.3, 0.3)
             };
@@ -243,13 +246,25 @@ public:
         // Grid
         GridSystem::Render(registry, grid, registry.get<Shader>(gridShader));
 
-        auto model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 2.0f, 0.0f)); // translate it down so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(1., 1., 1.));	// it's a bit too big for our scene, so scale it down
-        auto unlit = registry.get<Shader>(litShader);
-        ShaderSystem::Use(unlit);
-        ShaderSystem::setMat4(unlit, "model", model);
-        myModel->Draw(registry, unlit);
+        {
+            auto model = glm::mat4(1.0f);
+            model = glm::translate(model, glm::vec3(2.0f, 2.0f, 0.0f)); // translate it down so it's at the center of the scene
+            model = glm::scale(model, glm::vec3(1., 1., 1.));	// it's a bit too big for our scene, so scale it down
+            auto unlit = registry.get<Shader>(litShader);
+            ShaderSystem::Use(unlit);
+            ShaderSystem::setMat4(unlit, "model", model);
+            myModel->Draw(registry, unlit);
+        }
+
+        {
+            auto model = glm::mat4(1.0f);
+            model = glm::translate(model, glm::vec3(-2.0f, 2.0f, 0.0f)); // translate it down so it's at the center of the scene
+            model = glm::scale(model, glm::vec3(1., 1., 1.));	// it's a bit too big for our scene, so scale it down
+            auto unlit = registry.get<Shader>(unlitShader);
+            ShaderSystem::Use(unlit);
+            ShaderSystem::setMat4(unlit, "model", model);
+            myModel2->Draw(registry, unlit);
+        }
 
         // Render every object
         RenderSystem::Render(registry);
