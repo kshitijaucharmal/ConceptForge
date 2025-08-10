@@ -12,9 +12,7 @@
 #include <assimp/postprocess.h>
 
 namespace MeshManager {
-    void InitMesh(entt::registry &registry, const std::vector<Vertex> &vertices, const std::vector<unsigned int> &indices, const std::vector<Texture> &textures) {
-        const auto mesh = registry.create();
-
+    Mesh InitMesh(const std::vector<Vertex> &vertices, const std::vector<unsigned int> &indices, const std::vector<Texture> &textures) {
         unsigned int VAO, VBO, EBO;
 
         glGenVertexArrays(1, &VAO);
@@ -29,24 +27,26 @@ namespace MeshManager {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
 
+        const GLsizei stride = sizeof(Vertex);
+
         // vertex positions
         glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void*)0);
 
         // vertex normals
         glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal));
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*)offsetof(Vertex, Normal));
 
         // vertex texture coords
         glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, (void*)offsetof(Vertex, TexCoords));
 
         // Unbind
         glBindVertexArray(0);
 
         const int indexSize = indices.size();
 
-        registry.emplace<Mesh>(mesh, Mesh{
+        return Mesh{
             .vertices = vertices,
             .indices = indices,
             .textures = textures,
@@ -56,54 +56,60 @@ namespace MeshManager {
             .indexCount = indexSize,
             .elemental = true,
             .initialized = true
-        });
+        };
     }
 
     // TODO: Not ECS, need to refactor
-    void Draw(entt::registry &registry, Mesh mesh, Shader &shader){
+    void Draw(entt::registry &registry, Mesh mesh, Shader &shader) {
         const auto &fallback = registry.ctx().get<MaterialSystem::FallbackTexture>();
-
-        const auto textures = mesh.textures;
         const auto VAO = mesh.VAO;
         const auto index = mesh.indexCount;
 
+        ShaderSystem::Use(shader);
+
         unsigned int diffuseNr = 1;
         unsigned int specularNr = 1;
-        for(unsigned int i = 0; i < textures.size(); i++)
-        {
-            glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit before binding
-            // retrieve texture number (the N in diffuse_textureN)
+        unsigned int unit_counter = 0; // Use one counter for all texture units
+
+        // --- Main Loop for model's actual textures ---
+        for (unsigned int i = 0; i < mesh.textures.size(); i++) {
+            glActiveTexture(GL_TEXTURE0 + unit_counter); // Use the main counter
+
             std::string number;
-            std::string name = textures[i].type;
-            if(name == "texture_diffuse")
+            std::string name = mesh.textures[i].type;
+
+            if (name == "texture_diffuse") {
                 number = std::to_string(diffuseNr++);
-            else if(name == "texture_specular")
+            } else if (name == "texture_specular") {
                 number = std::to_string(specularNr++);
+            }
 
-            ShaderSystem::setInt(shader, ("material." + name + number).c_str(), i);
-            glBindTexture(GL_TEXTURE_2D, textures[i].id);
+            ShaderSystem::setInt(shader, ("material." + name + number).c_str(), unit_counter);
+            glBindTexture(GL_TEXTURE_2D, mesh.textures[i].id);
+            unit_counter++; // Increment for each texture used
         }
 
-        // Fallback handling:
-        // If no diffuse bound at all, bind white texture to first slot
+        // --- Fallback Handling ---
+        // If no diffuse map was bound, add the fallback in the next available slot.
         if (diffuseNr == 1) {
-            ShaderSystem::setInt(shader, "material.texture_diffuse1", 0);
-            glActiveTexture(GL_TEXTURE0);
+            glActiveTexture(GL_TEXTURE0 + unit_counter);
+            ShaderSystem::setInt(shader, "material.texture_diffuse1", unit_counter);
             glBindTexture(GL_TEXTURE_2D, fallback);
+            unit_counter++;
         }
 
-        // If no specular bound at all, bind white texture to first specular slot
+        // If no specular map was bound, add the fallback.
         if (specularNr == 1) {
-            ShaderSystem::setInt(shader, "material.texture_specular1", diffuseNr - 1); // safe slot
-            glActiveTexture(GL_TEXTURE0 + (diffuseNr - 1));
+            glActiveTexture(GL_TEXTURE0 + unit_counter);
+            ShaderSystem::setInt(shader, "material.texture_specular1", unit_counter);
             glBindTexture(GL_TEXTURE_2D, fallback);
+            unit_counter++;
         }
 
-        glActiveTexture(GL_TEXTURE0);
-
-        // draw mesh
+        // --- Draw Mesh ---
         glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, index, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, index, GL_UNSIGNED_INT, nullptr);
         glBindVertexArray(0);
+        glActiveTexture(GL_TEXTURE0); // Reset to default
     }
 }

@@ -8,7 +8,7 @@
 #include <Components/Rendering/Shader.hpp>
 
 namespace MeshManager {
-    void InitMesh(entt::registry registry, std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
+    Mesh InitMesh(const std::vector<Vertex> &vertices, const std::vector<unsigned int> &indices, const std::vector<Texture> &textures);
 
     void Draw(entt::registry &registry, Mesh mesh, Shader &shader);
 }

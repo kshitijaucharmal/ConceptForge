@@ -7,7 +7,7 @@ uniform float iTime;
 
 struct Material{
   sampler2D texture_diffuse1;
-  sampler2D texture_specular2;
+  sampler2D texture_specular1;
 };
 
 uniform Material material;
@@ -17,9 +17,9 @@ float speed = 5.;
 void main() {
 
   vec4 diffuseColor = texture(material.texture_diffuse1, TexCoord);
-  vec4 specularColor = texture(material.texture_specular2, TexCoord);
+  vec4 specularColor = texture(material.texture_specular1, TexCoord);
 
   // Just combining
-  FragColor = diffuseColor + specularColor;
-  FragColor = vec4(1., 0, 0, 1);
+  FragColor = diffuseColor;
+  // FragColor = vec4(1., 0, 0, 1);
 }

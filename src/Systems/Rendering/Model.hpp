@@ -14,7 +14,7 @@
 namespace ModelSystem {
     class Model {
     public:
-        Model(char *path);
+        Model(std::string path);
 
         void Draw(entt::registry &registry, Shader &shader);
 
@@ -22,6 +22,8 @@ namespace ModelSystem {
         // model data
         std::vector<Mesh> meshes;
         std::string directory;
+
+        std::vector<Texture> textures_loaded;
 
         void loadModel(std::string path);
         void processNode(const aiNode *node, const aiScene *scene);
