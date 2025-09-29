@@ -52,7 +52,7 @@ jobs:
 
       # Install dependencies (Visual Studio build tools are preinstalled)
       - name: Setup CMake
-        uses: lukka/get-cmake@v3
+        uses: lukka/get-cmake@latest
 
       # Configure CMake
       - name: Configure CMake
