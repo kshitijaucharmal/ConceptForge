@@ -12,7 +12,7 @@
 	url = https://github.com/skypjack/entt
 [submodule "external/bullet"]
 	path = external/bullet
-	url = https://github.com/bulletphysics/bullet3.git
+	url = git@github.com:kshitijaucharmal/bullet3.git
 	branch = master
 [submodule "external/assimp"]
 	path = external/assimp
