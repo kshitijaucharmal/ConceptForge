@@ -56,7 +56,9 @@ set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "" FORCE)          # Assimp's internal zlib
 # Add external libraries
 add_subdirectory(external/glm)
 add_subdirectory(external/glfw)
-add_subdirectory(external/nanobind)
+# add_subdirectory(external/nanobind)
+# # Disable Doxygen
+# add_compile_definitions(NB_DOXYGEN=0)
 add_subdirectory(external/assimp)
 
 # Build glad

@@ -1,0 +1,71 @@
+name: Build ConceptForge
+
+on:
+  push:
+    branches:
+      - cicd
+  pull_request:
+    branches:
+      - cicd
+
+jobs:
+  build-linux:
+    name: Linux Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      # Install dependencies
+      - name: Install Dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential cmake libgl1-mesa-dev libglu1-mesa-dev \
+                        libx11-dev libxrandr-dev libxi-dev libxinerama-dev libxcursor-dev \
+                        libwayland-dev wayland-protocols libxkbcommon-dev
+
+      # Setup CMake build directory
+      - name: Configure CMake
+        run: cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
+
+      # Build
+      - name: Build
+        run: cmake --build build --config Release -- -j$(nproc)
+
+      - name: Zip Linux Binary
+        run: zip -j ConceptForge-linux.zip build/ConceptForge
+
+      # Upload artifact
+      - name: Upload Zip
+        if: github.server_url == 'https://github.com'
+        uses: actions/upload-artifact@v3
+        with:
+          name: ConceptForge-linux
+          path: ConceptForge-linux.zip
+
+  build-windows:
+    name: Windows Build
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      # Install dependencies (Visual Studio build tools are preinstalled)
+      - name: Setup CMake
+        uses: lukka/get-cmake@v4
+
+      # Configure CMake
+      - name: Configure CMake
+        run: cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -G "Visual Studio 17 2022" -A x64
+
+      # Build
+      - name: Build
+        run: cmake --build build --config Release -- /m
+
+      - name: Zip Windows Binary
+        run: powershell Compress-Archive -Path build/Release/ConceptForge.exe -DestinationPath ConceptForge-windows.zip
+
+      - name: Upload Windows Artifact
+        if: github.server_url == 'https://github.com'
+        uses: actions/upload-artifact@v3
+        with:
+            name: ConceptForge-windows
+            path: ConceptForge-windows.zip
