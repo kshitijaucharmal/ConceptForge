@@ -2,8 +2,6 @@
 
 #include "Components/Rendering/Material.hpp"
 #include "Components/Rendering/Mesh.hpp"
-#include "Components/Rendering/MeshFilter.hpp"
-#include "Components/Rendering/MeshRenderer.hpp"
 
 #include "VertexData.hpp"
 #include "Components/Primitives/Cube.hpp"
@@ -23,7 +21,7 @@ namespace Primitives {
         return entt::null;
     }
 
-    entt::entity CreateCubeMesh(entt::registry &registry) {
+    Mesh CreateCubeMesh(entt::registry &registry) {
         GLuint VAO, VBO;
         // Initialize Vertex Array Object (Stores Vertex attribute pointers)
         glGenVertexArrays(1, &VAO);
@@ -44,15 +42,12 @@ namespace Primitives {
         glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), reinterpret_cast<void *>(5 * sizeof(float)));   // aNormal
         glEnableVertexAttribArray(2);
 
-        const auto cubeMesh = registry.create();
-        registry.emplace<Mesh>(cubeMesh, Mesh{
+        return Mesh{
             .VAO = VAO,
             .VBO = VBO,
             .indexCount = 36,
             .initialized = true
-        });
-
-        return cubeMesh;
+        };
     }
 
     entt::entity CreateUVSphereObject(entt::registry &registry, Transform transform, entt::entity &shader, bool movable) {
@@ -63,16 +58,14 @@ namespace Primitives {
             .initialized = true
         });
 
-        const entt::entity mesh = CreateUVSphereMesh(registry);
-        registry.emplace<MeshFilter>(e, mesh);
-        registry.emplace<MeshRenderer>(e);
-        // Default
+        const Mesh mesh = CreateUVSphereMesh(registry);
+        registry.emplace<Mesh>(e, mesh);
         registry.emplace<UVSphere>(e);
-        registry.emplace<PrimitiveType>(e, PrimitiveType::UV_SPHERE);
+        registry.emplace<PrimitiveType>(e, UV_SPHERE);
 
         // Add Rigidbody
         const auto mass = movable ? 1.0f : 0.0f;
-        BulletPhysicsSystem::AddRigidbody(e, registry, mass, PrimitiveType::UV_SPHERE); // mass = 1 -> dynamic
+        BulletPhysicsSystem::AddRigidbody(e, registry, mass, UV_SPHERE); // mass = 1 -> dynamic
 
         return e;
     }
@@ -102,7 +95,7 @@ namespace Primitives {
 
     }
 
-    entt::entity CreateUVSphereMesh(entt::registry &registry) {
+    Mesh CreateUVSphereMesh(entt::registry &registry) {
         std::vector<unsigned int> indices;
         std::vector<float> vertices;
 
@@ -143,16 +136,14 @@ namespace Primitives {
         const int indicesSize = indices.size();
 
         const auto uvSphereMesh = registry.create();
-        registry.emplace<Mesh>(uvSphereMesh, Mesh{
+        return Mesh{
             .VAO = VAO,
             .VBO = VBO,
             .EBO = EBO,
             .indexCount = indicesSize,
             .elemental = true,
             .initialized = true
-        });
-
-        return uvSphereMesh;
+        };
     }
 
     void GenerateSphereVertices(const UVSphere &sphere, std::vector<float> &vertices) {
@@ -191,9 +182,8 @@ namespace Primitives {
             .shader = shader,
             .initialized = true
         });
-        const entt::entity mesh = CreateCubeMesh(registry);
-        registry.emplace<MeshFilter>(e, mesh);
-        registry.emplace<MeshRenderer>(e);
+        Mesh mesh = CreateCubeMesh(registry);
+        registry.emplace<Mesh>(e, mesh);
         registry.emplace<Cube>(e);
         registry.emplace<PrimitiveType>(e, PrimitiveType::CUBE);
 

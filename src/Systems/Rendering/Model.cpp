@@ -8,21 +8,11 @@
 #include "Systems/Rendering/MeshSystem.hpp"
 #include <stb_image.h>
 
-
 namespace ModelSystem {
-    Model::Model(std::string path) {
-        loadModel(path);
-    }
-
-    void Model::Draw(entt::registry &registry, Shader &shader) {
-        for(unsigned int i = 0; i < meshes.size(); i++) {
-            MeshManager::Draw(registry, meshes[i], shader);
-        }
-    }
-
-    void Model::loadModel(std::string path) {
+    Model::Model(std::string path, bool flipUVs) {
         Assimp::Importer import;
-        const aiScene *scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace);
+        const auto flags = aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | (flipUVs ? aiProcess_FlipUVs : 0);
+        const aiScene *scene = import.ReadFile(path, flags);
 
         if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
         {
@@ -32,6 +22,12 @@ namespace ModelSystem {
         directory = path.substr(0, path.find_last_of('/'));
 
         processNode(scene->mRootNode, scene);
+    }
+
+    void Model::Draw(entt::registry &registry, Shader &shader) {
+        for(unsigned int i = 0; i < meshes.size(); i++) {
+            MeshManager::Draw(registry, meshes[i], shader);
+        }
     }
 
     void Model::processNode(const aiNode *node, const aiScene *scene) {

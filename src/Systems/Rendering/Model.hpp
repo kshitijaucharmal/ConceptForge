@@ -12,9 +12,10 @@
 #include <assimp/postprocess.h>
 
 namespace ModelSystem {
+    // Probably will let this be a class, like a helper
     class Model {
     public:
-        Model(std::string path);
+        Model(std::string path, bool flipUVs = false);
 
         void Draw(entt::registry &registry, Shader &shader);
 
@@ -25,7 +26,6 @@ namespace ModelSystem {
 
         std::vector<Texture> textures_loaded;
 
-        void loadModel(std::string path);
         void processNode(const aiNode *node, const aiScene *scene);
         Mesh processMesh(aiMesh *mesh, const aiScene *scene);
 

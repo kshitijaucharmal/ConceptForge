@@ -5,8 +5,6 @@
 #include "Components/Rendering/Shader.hpp"
 
 #include "Components/Rendering/Mesh.hpp"
-#include "Components/Rendering/MeshFilter.hpp"
-#include "Components/Rendering/MeshRenderer.hpp"
 #include "Components/Rendering/FrameBuffer.hpp"
 #include "Components/Constants.hpp"
 
@@ -21,6 +19,9 @@
 #include <Core/GameState.hpp>
 #include <Core/Physics/PhysicsSystem.hpp>
 #include <Systems/Rendering/LightSystem.hpp>
+
+#include "MaterialSystem.hpp"
+#include "ShaderSystem.hpp"
 
 // Font Awesome icon defines (or use full glyphs)
 #define ICON_FA_PLAY  "\xef\x81\x8b"  // f04b
@@ -81,20 +82,59 @@ namespace RenderSystem {
         glViewport(0, 0, constants.WINDOW_WIDTH, constants.WINDOW_HEIGHT);
 
         // Draw All meshes
-        for (const auto view = registry.view<Transform, MeshFilter, MeshRenderer, Material>(); const auto entity : view) {
+        for (const auto view = registry.view<Transform, Mesh, Material>(); const auto entity : view) {
             auto& t = view.get<Transform>(entity);
-            auto& f = view.get<MeshFilter>(entity);
             auto& m = view.get<Material>(entity);
+            const auto &fallback = registry.ctx().get<MaterialSystem::FallbackTexture>();
 
-            const Shader* shader = registry.try_get<Shader>(m.shader);
-            const Mesh* mesh = registry.try_get<Mesh>(f.meshEntity);
+            const auto mesh = &view.get<Mesh>(entity);
+
+            Shader* shader = registry.try_get<Shader>(m.shader);
             if (!shader || !mesh || !shader->initialized || !mesh->initialized) continue;
 
-            // Replace with helpers
-            auto model = SimObject::ComposeTransform(t);
-            glUseProgram(shader->shaderID);
-            glUniformMatrix4fv(glGetUniformLocation(shader->shaderID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+            const auto model = SimObject::ComposeTransform(t);
+            ShaderSystem::Use(*shader);
+            ShaderSystem::setMat4(*shader, "model", model);
+            unsigned int diffuseNr = 1;
+            unsigned int specularNr = 1;
+            unsigned int unit_counter = 0; // Use one counter for all texture units
 
+            // --- Main Loop for model's actual textures ---
+            for (const auto & texture : mesh->textures) {
+                glActiveTexture(GL_TEXTURE0 + unit_counter); // Use the main counter
+
+                std::string number;
+                std::string name = texture.type;
+
+                if (name == "texture_diffuse") {
+                    number = std::to_string(diffuseNr++);
+                } else if (name == "texture_specular") {
+                    number = std::to_string(specularNr++);
+                }
+
+                ShaderSystem::setInt(*shader, ("material." + name + number).c_str(), unit_counter);
+                glBindTexture(GL_TEXTURE_2D, texture.id);
+                unit_counter++; // Increment for each texture used
+            }
+
+            // --- Fallback Handling ---
+            // If no diffuse map was bound, add the fallback in the next available slot.
+            if (diffuseNr == 1) {
+                glActiveTexture(GL_TEXTURE0 + unit_counter);
+                ShaderSystem::setInt(*shader, "material.texture_diffuse1", unit_counter);
+                glBindTexture(GL_TEXTURE_2D, fallback);
+                unit_counter++;
+            }
+
+            // If no specular map was bound, add the fallback.
+            if (specularNr == 1) {
+                glActiveTexture(GL_TEXTURE0 + unit_counter);
+                ShaderSystem::setInt(*shader, "material.texture_specular1", unit_counter);
+                glBindTexture(GL_TEXTURE_2D, fallback);
+                unit_counter++;
+            }
+
+            // Drawing
             glBindVertexArray(mesh->VAO);
             if (mesh->elemental) {
                 glDrawElements(GL_TRIANGLES, mesh->indexCount, GL_UNSIGNED_INT, nullptr);
@@ -103,6 +143,7 @@ namespace RenderSystem {
                 glDrawArrays(GL_TRIANGLES, 0, mesh->indexCount);
             }
             glBindVertexArray(0);
+            glActiveTexture(GL_TEXTURE0); // Reset to default
         }
 
         // Lights

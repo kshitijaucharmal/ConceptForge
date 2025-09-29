@@ -40,4 +40,5 @@ namespace ShaderSystem {
     void setVec4(Shader &shader, const std::string &name, float a);
 
     void setMat4(Shader &shader, const std::string &name, glm::mat4 value);
+
 }
