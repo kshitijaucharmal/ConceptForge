@@ -33,6 +33,7 @@ if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 # Find OpenGL
+cmake_policy(SET CMP0072 NEW) # Prefer GLVND
 find_package(OpenGL REQUIRED)
 
 # Add include directories
