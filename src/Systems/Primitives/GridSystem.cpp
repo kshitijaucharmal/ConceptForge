@@ -12,11 +12,10 @@
 #include <glad/glad.h>
 #include <Systems/Rendering/ShaderSystem.hpp>
 
-#include "Components/Rendering/MeshFilter.hpp"
 #include "Components/Rendering/Mesh.hpp"
 
 namespace GridSystem {
-    entt::entity GenerateMesh(entt::registry& registry, const Grid grid) {
+    Mesh GenerateMesh(entt::registry& registry, const Grid grid) {
         std::vector<float> vertices;
 
         for (int i = -grid.size; i <= grid.size; ++i) {
@@ -46,13 +45,11 @@ namespace GridSystem {
         glBindVertexArray(0);
         const int indexSize = vertices.size() / 3;
 
-        const auto mesh = registry.create();
-        registry.emplace<Mesh>(mesh, Mesh{
+        return Mesh{
             .VAO = vao,
             .VBO = vbo,
             .indexCount = indexSize,
-        });
-        return mesh;
+        };
     }
 
     entt::entity CreateGrid(entt::registry &registry, entt::entity &shader, std::string name) {
@@ -60,13 +57,12 @@ namespace GridSystem {
         registry.emplace<Material>(entity, Material{.shader = shader});
         registry.emplace<Grid>(entity, Grid{ });
         auto mesh = GenerateMesh(registry, registry.get<Grid>(entity));
-        registry.emplace<MeshFilter>(entity, mesh);
+        registry.emplace<Mesh>(entity, mesh);
         return entity;
     }
 
     void Render(entt::registry& registry, const entt::entity gridEntity, Shader &shader) {
-        const auto meshEntity = registry.get<MeshFilter>(gridEntity).meshEntity;
-        const auto mesh = registry.get<Mesh>(meshEntity);
+        const auto mesh = registry.get<Mesh>(gridEntity);
         const auto grid = registry.get<Grid>(gridEntity);
 
         const auto cameraEntity = registry.ctx().get<ActiveCamera>().camera;

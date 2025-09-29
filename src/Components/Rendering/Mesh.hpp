@@ -27,6 +27,7 @@ struct Mesh {
     unsigned int EBO = 0;
 
     GLsizei indexCount = 0;
+    // DrawMode::Elements or Arrays
     bool elemental = false;
     bool initialized = false;
 };

@@ -59,7 +59,7 @@ namespace MeshManager {
         };
     }
 
-    // TODO: Not ECS, need to refactor
+    // TODO: Not ECS, need to refactor/remove
     void Draw(entt::registry &registry, Mesh mesh, Shader &shader) {
         const auto &fallback = registry.ctx().get<MaterialSystem::FallbackTexture>();
         const auto VAO = mesh.VAO;
@@ -72,11 +72,11 @@ namespace MeshManager {
         unsigned int unit_counter = 0; // Use one counter for all texture units
 
         // --- Main Loop for model's actual textures ---
-        for (unsigned int i = 0; i < mesh.textures.size(); i++) {
+        for (const auto & texture : mesh.textures) {
             glActiveTexture(GL_TEXTURE0 + unit_counter); // Use the main counter
 
             std::string number;
-            std::string name = mesh.textures[i].type;
+            std::string name = texture.type;
 
             if (name == "texture_diffuse") {
                 number = std::to_string(diffuseNr++);
@@ -84,27 +84,27 @@ namespace MeshManager {
                 number = std::to_string(specularNr++);
             }
 
-            ShaderSystem::setInt(shader, ("material." + name + number).c_str(), unit_counter);
-            glBindTexture(GL_TEXTURE_2D, mesh.textures[i].id);
+            ShaderSystem::setInt(shader, "material." + name + number, unit_counter);
+            glBindTexture(GL_TEXTURE_2D, texture.id);
             unit_counter++; // Increment for each texture used
         }
 
         // --- Fallback Handling ---
         // If no diffuse map was bound, add the fallback in the next available slot.
-        // if (diffuseNr == 1) {
-        //     glActiveTexture(GL_TEXTURE0 + unit_counter);
-        //     ShaderSystem::setInt(shader, "material.texture_diffuse1", unit_counter);
-        //     glBindTexture(GL_TEXTURE_2D, fallback);
-        //     unit_counter++;
-        // }
-        //
-        // // If no specular map was bound, add the fallback.
-        // if (specularNr == 1) {
-        //     glActiveTexture(GL_TEXTURE0 + unit_counter);
-        //     ShaderSystem::setInt(shader, "material.texture_specular1", unit_counter);
-        //     glBindTexture(GL_TEXTURE_2D, fallback);
-        //     unit_counter++;
-        // }
+        if (diffuseNr == 1) {
+            glActiveTexture(GL_TEXTURE0 + unit_counter);
+            ShaderSystem::setInt(shader, "material.texture_diffuse1", unit_counter);
+            glBindTexture(GL_TEXTURE_2D, fallback);
+            unit_counter++;
+        }
+
+        // If no specular map was bound, add the fallback.
+        if (specularNr == 1) {
+            glActiveTexture(GL_TEXTURE0 + unit_counter);
+            ShaderSystem::setInt(shader, "material.texture_specular1", unit_counter);
+            glBindTexture(GL_TEXTURE_2D, fallback);
+            unit_counter++;
+        }
 
         // --- Draw Mesh ---
         glBindVertexArray(VAO);

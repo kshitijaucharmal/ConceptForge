@@ -2,8 +2,6 @@
 
 #include <Components/SSBOHolder.hpp>
 #include <Components/Rendering/Material.hpp>
-#include <Components/Rendering/MeshFilter.hpp>
-#include <Components/Rendering/MeshRenderer.hpp>
 #include <Components/Rendering/Shader.hpp>
 #include <Core/SSBOManager.hpp>
 #include <glad/glad.h>
@@ -22,9 +20,8 @@ namespace LightSystem {
             .shader = shaderStore["UnlitShader"],
             .initialized = true
         });
-        const entt::entity mesh = Primitives::CreateUVSphereMesh(registry);
-        registry.emplace<MeshFilter>(lightEntity, mesh);
-        registry.emplace<MeshRenderer>(lightEntity);
+        Mesh mesh = Primitives::CreateUVSphereMesh(registry);
+        registry.emplace<Mesh>(lightEntity, mesh);
         registry.emplace<PointLight>(lightEntity, PointLight{
             .position = transform.position,
         });
@@ -46,9 +43,8 @@ namespace LightSystem {
             .shader = shaderStore["UnlitShader"],
             .initialized = true
         });
-        const entt::entity mesh = Primitives::CreateUVSphereMesh(registry);
-        registry.emplace<MeshFilter>(lightEntity, mesh);
-        registry.emplace<MeshRenderer>(lightEntity);
+        Mesh mesh = Primitives::CreateUVSphereMesh(registry);
+        registry.emplace<Mesh>(lightEntity, mesh);
 
         registry.emplace<DirectionalLight>(lightEntity, DirectionalLight{
             .direction = glm::eulerAngles(transform.rotation),

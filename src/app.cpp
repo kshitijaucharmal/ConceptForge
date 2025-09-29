@@ -162,9 +162,9 @@ private:
 
         // 3d model
         {
-            myModel = new ModelSystem::Model("/home/kshitij/Gamedev/backpack/backpack.obj");
             myModel2 = new ModelSystem::Model("/home/kshitij/Gamedev/backpack/backpack.obj");
-            // myModel = new ModelSystem::Model("/home/kshitij/Gamedev/spaceship/spaceship/spaceship.obj");
+            // myModel2 = new ModelSystem::Model("/home/kshitij/Gamedev/backpack/backpack.obj");
+            myModel = new ModelSystem::Model("/home/kshitij/Gamedev/spaceship/spaceship/spaceship.obj", true);
         }
 
         // Ground (Static)

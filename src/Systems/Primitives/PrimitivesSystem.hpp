@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Components/Rendering/Mesh.hpp>
 #include <glad/glad.h>
 #include <entt/entt.hpp>
 
@@ -16,11 +17,11 @@ namespace Primitives {
 
     // Cube
     entt::entity CreateCubeObject(entt::registry& registry, Transform transform, entt::entity &shader, bool movable=true);
-    entt::entity CreateCubeMesh(entt::registry &registry);
+    Mesh CreateCubeMesh(entt::registry &registry);
 
     // Sphere
     entt::entity CreateUVSphereObject(entt::registry& registry, Transform transform, entt::entity &shader, bool movable=true);
-    entt::entity CreateUVSphereMesh(entt::registry &registry);
+    Mesh CreateUVSphereMesh(entt::registry &registry);
     void GenerateSphereVertices(const UVSphere &sphere, std::vector<float> &vertices);
     void GenerateSphereIndices(const UVSphere &sphere, std::vector<unsigned int> &indices);
 }
