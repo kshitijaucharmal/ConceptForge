@@ -13,7 +13,7 @@ jobs:
     name: Linux Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # Install dependencies
       - name: Install Dependencies
@@ -37,7 +37,7 @@ jobs:
       # Upload artifact
       - name: Upload Zip
         if: github.server_url == 'https://github.com'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ConceptForge-linux
           path: ConceptForge-linux.zip
@@ -46,7 +46,7 @@ jobs:
     name: Windows Build
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # Install dependencies (Visual Studio build tools are preinstalled)
       - name: Setup CMake
@@ -65,7 +65,7 @@ jobs:
 
       - name: Upload Windows Artifact
         if: github.server_url == 'https://github.com'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
             name: ConceptForge-windows
             path: ConceptForge-windows.zip
