@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+            submodules: recursive
 
       # Install dependencies
       - name: Install Dependencies
@@ -50,7 +52,7 @@ jobs:
 
       # Install dependencies (Visual Studio build tools are preinstalled)
       - name: Setup CMake
-        uses: lukka/get-cmake@v4
+        uses: lukka/get-cmake@v3
 
       # Configure CMake
       - name: Configure CMake
