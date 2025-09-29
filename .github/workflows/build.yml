@@ -21,7 +21,7 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt update
-          sudo apt install -y build-essential cmake libgl1-mesa-dev libglu1-mesa-dev \
+          sudo DEBIAN_FRONTEND=noninteractive apt install -y build-essential cmake libgl1-mesa-dev libglu1-mesa-dev \
                         libx11-dev libxrandr-dev libxi-dev libxinerama-dev libxcursor-dev \
                         libwayland-dev wayland-protocols libxkbcommon-dev
 
@@ -49,6 +49,8 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+            submodules: recursive
 
       # Install dependencies (Visual Studio build tools are preinstalled)
       - name: Setup CMake
