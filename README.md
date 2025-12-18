@@ -36,7 +36,7 @@ An evolving foundation for creative and technical experiments.
 
 ```bash
 git clone --recurse-submodules https://github.com/kshitijaucharmal/ConceptForge
-cd OpenGL-GE
+cd ConceptForge
 mkdir build
 cd build
 ````
@@ -52,9 +52,9 @@ make run  # to execute
 
 ### Windows
 ```bash
-cmake -G "MinGW Makefiles" ..
-mingw32-make
-mingw32-make run  # to execute
+mkdir build && cd build
+cmake .. -G "MinGW Makefiles" -DBUILD_STATIC=ON -DCMAKE_BUILD_TYPE=Release
+mingw32-make -j4
 ```
 
 > Ensure Python 3.10 is installed and available in your PATH, or at least `which python3.10` points to it.
