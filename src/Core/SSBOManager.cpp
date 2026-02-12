@@ -7,12 +7,13 @@
 
 namespace SSBOManager {
     void AddAndInit(entt::registry &registry, std::string ssboName, unsigned int ssboIndex) {
-        auto &holder = registry.ctx().get<SSBOHolder>();
+        auto & [ssbos, ssboCount] = registry.ctx().get<SSBOHolder>();
 
-        glGenBuffers(1, &holder.ssbos[ssboName]);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ssboIndex, holder.ssbos[ssboName]);
+        glGenBuffers(1, &ssbos[ssboName]);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ssboIndex, ssbos[ssboName]);
 
-        holder.ssboCount++;
+        // increment SSBO Count
+        ssboCount++;
     }
 
 }
