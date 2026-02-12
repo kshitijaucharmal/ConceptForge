@@ -14,9 +14,7 @@
 namespace Inspector {
     static float frameTimes[128] = {};
     static int frameIndex = 0;
-    void Show(entt::registry &registry) {
-        const auto &selectedObject = registry.ctx().get<Hierarchy::Hierarchy>().selectedEntity;
-
+    void Show(entt::registry &registry, const entt::entity &selectedObject) {
         const auto &constants = registry.ctx().get<Constants>();
         auto &[operation, mode] = registry.ctx().get<GizmoControls>();
 
@@ -79,6 +77,14 @@ namespace Inspector {
         }
 
         ImGui::End();
+    }
 
+    void Hide(entt::registry &registry)
+    {
+        const auto &constants = registry.ctx().get<Constants>();
+        ImGui::SetNextWindowPos(ImVec2(constants.SCENE_X + constants.SCENE_WIDTH, 0), ImGuiCond_Appearing);
+        ImGui::SetNextWindowSize(ImVec2(constants.WINDOW_WIDTH - (constants.SCENE_WIDTH + constants.SCENE_X), constants.WINDOW_HEIGHT), ImGuiCond_Appearing);
+        ImGui::Begin("Inspector");
+        ImGui::End();
     }
 }
