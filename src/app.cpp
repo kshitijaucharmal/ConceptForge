@@ -63,8 +63,7 @@ public:
 
     // Grid
     entt::entity grid;
-    ModelSystem::Model *myModel;
-    ModelSystem::Model *myModel2;
+    // ModelSystem::Model *myModel;
 
 private:
     // Init Functions
@@ -162,9 +161,7 @@ private:
 
         // 3d model
         {
-            myModel2 = new ModelSystem::Model("/home/kshitij/Gamedev/backpack/backpack.obj");
-            // myModel2 = new ModelSystem::Model("/home/kshitij/Gamedev/backpack/backpack.obj");
-            myModel = new ModelSystem::Model("/home/kshitij/Gamedev/spaceship/spaceship/spaceship.obj", true);
+            // myModel = new ModelSystem::Model("/home/kshitij/Assets/backpack.obj");
         }
 
         // Ground (Static)
@@ -253,7 +250,7 @@ public:
             auto unlit = registry.get<Shader>(litShader);
             ShaderSystem::Use(unlit);
             ShaderSystem::setMat4(unlit, "model", model);
-            myModel->Draw(registry, unlit);
+            // myModel->Draw(registry, unlit);
         }
 
         {
@@ -263,12 +260,11 @@ public:
             auto unlit = registry.get<Shader>(unlitShader);
             ShaderSystem::Use(unlit);
             ShaderSystem::setMat4(unlit, "model", model);
-            myModel2->Draw(registry, unlit);
         }
 
         // Render every object
         RenderSystem::Render(registry);
-        // Debug::DrawPoint(registry, glm::vec3(0, 3, 0), 20);
+        Debug::DrawPoint(registry, glm::vec3(0, 3, 0), 20);
     }
     void UI_Rendering() {
         // UI here ------------------------------------------------------
