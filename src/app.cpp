@@ -283,8 +283,10 @@ public:
         GUISystem::NewFrame();
 
         // Editor Windows
+        // Sets the selected entity
         Hierarchy::Show(registry);
-        Inspector::Show(registry);
+        const auto &selectedObject = registry.ctx().get<Hierarchy::Hierarchy>().selectedEntity;
+        Inspector::Show(registry, selectedObject);
 
         // Custom Windows
         auto &imguiQueue = registry.ctx().get<GUISystem::ImGuiDrawQueue>();
