@@ -189,7 +189,7 @@ namespace Primitives {
 
         // Add Rigidbody
         const auto mass = movable ? 1.0f : 0.0f;
-        BulletPhysicsSystem::AddRigidbody(e, registry, mass, PrimitiveType::UV_SPHERE); // mass = 1 -> dynamic
+        BulletPhysicsSystem::AddRigidbody(e, registry, mass, PrimitiveType::CUBE); // mass = 1 -> dynamic
 
         return e;
     }

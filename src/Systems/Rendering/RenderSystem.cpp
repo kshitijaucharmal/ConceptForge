@@ -58,6 +58,7 @@ namespace RenderSystem {
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
             std::cerr << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!\n";
 
+        // Setup FrameBuffer
         auto &framebuffer = registry.ctx().get<FrameBuffer>();
         framebuffer.colorTexture = colorTexture;
         framebuffer.depthBuffer = depthBuffer;
@@ -82,6 +83,7 @@ namespace RenderSystem {
         glViewport(0, 0, constants.WINDOW_WIDTH, constants.WINDOW_HEIGHT);
 
         // Draw All meshes
+        // Everything that has Transform, Mesh and Material will be Rendered
         for (const auto view = registry.view<Transform, Mesh, Material>(); const auto entity : view) {
             auto& t = view.get<Transform>(entity);
             auto& m = view.get<Material>(entity);
@@ -106,11 +108,9 @@ namespace RenderSystem {
                 std::string number;
                 std::string name = texture.type;
 
-                if (name == "texture_diffuse") {
-                    number = std::to_string(diffuseNr++);
-                } else if (name == "texture_specular") {
-                    number = std::to_string(specularNr++);
-                }
+                // TODO: If none of these match, number is null. Fix
+                if (name == "texture_diffuse") number = std::to_string(diffuseNr++);
+                else if (name == "texture_specular") number = std::to_string(specularNr++);
 
                 ShaderSystem::setInt(*shader, ("material." + name + number).c_str(), unit_counter);
                 glBindTexture(GL_TEXTURE_2D, texture.id);
@@ -136,14 +136,14 @@ namespace RenderSystem {
 
             // Drawing
             glBindVertexArray(mesh->VAO);
-            if (mesh->elemental) {
-                glDrawElements(GL_TRIANGLES, mesh->indexCount, GL_UNSIGNED_INT, nullptr);
-            }
-            else {
-                glDrawArrays(GL_TRIANGLES, 0, mesh->indexCount);
-            }
+
+            // Draw differently depending on EBO availability
+            if (mesh->elemental) glDrawElements(GL_TRIANGLES, mesh->indexCount, GL_UNSIGNED_INT, nullptr);
+            else glDrawArrays(GL_TRIANGLES, 0, mesh->indexCount);
+
+            // Unbind
             glBindVertexArray(0);
-            glActiveTexture(GL_TEXTURE0); // Reset to default
+            glActiveTexture(GL_TEXTURE0);
         }
 
         // Lights

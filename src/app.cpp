@@ -170,7 +170,7 @@ private:
                 .name = "Ground",
                 .position = glm::vec3(0.0f, .01f, 0.0f),
                 .rotation = glm::quat(1, 0, 0, 0),
-                .scale = glm::vec3(20.0, .01f, 20.0f)
+                .scale = glm::vec3(20.0, 1.0f, 20.0f)
             };
             Primitives::CreateCubeObject(registry, transform, litShader, false);
         }
@@ -182,21 +182,33 @@ private:
                 .rotation = glm::quat(1, 0, 0, 0),
                 .scale = glm::vec3(0.3, 0.3, 0.3)
             };
-            LightSystem::AddPointLight(registry, transform);
+            auto light = PointLight{
+                .position = transform.position,
+                .diffuse = glm::vec3(1.0f, 0.0f, 0.0f),
+                .specular = glm::vec3(.5f, 0.0f, 0.0f),
+            };
+            LightSystem::AddPointLight(registry, transform, light);
         }
+
         // Directional Lights
         {
             auto transform = Transform{
                 .name = "Directional Light",
                 .position = glm::vec3(0.0f, 5.0f, 0.0f),
-                .rotation = glm::quat(1, 0, 0, 0),
+                .rotation = glm::quat(0.9511, 0.3090, 0.0000, 0.0000),
                 .scale = glm::vec3(0.3, 0.3, 0.3)
             };
-            LightSystem::AddDirectionalLight(registry, transform);
+            auto light = DirectionalLight{
+                .direction = glm::eulerAngles(transform.rotation),
+                .ambient = glm::vec3(0.05),
+                .diffuse = glm::vec3(1.0),
+                .specular = glm::vec3(1.0),
+            };
+            LightSystem::AddDirectionalLight(registry, transform, light);
         }
         // ------------------------------------------------------------------
-
     }
+
     void InitDebuggingAndUI() {
         // ImGUI ------------------------------------------------------------
         // Setting up ImGUI
@@ -228,7 +240,7 @@ public:
         auto &awakeQueue = registry.ctx().get<EventSystem::AwakeQueue>();
         for (auto &fn : awakeQueue.functions) fn();
     }
-    bool ShouldQuit() {
+    bool ShouldQuit() const {
         return glfwWindowShouldClose(window.window);
     }
     void SimulatePhysics() {
@@ -264,7 +276,7 @@ public:
 
         // Render every object
         RenderSystem::Render(registry);
-        Debug::DrawPoint(registry, glm::vec3(0, 3, 0), 20);
+        // Debug::DrawPoint(registry, glm::vec3(0, 3, 0), 20);
     }
     void UI_Rendering() {
         // UI here ------------------------------------------------------

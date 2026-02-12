@@ -5,5 +5,5 @@
 
 struct GizmoControls {
     ImGuizmo::OPERATION operation = ImGuizmo::TRANSLATE;
-    ImGuizmo::MODE mode = ImGuizmo::LOCAL;
+    ImGuizmo::MODE mode = ImGuizmo::WORLD;
 };

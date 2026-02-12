@@ -9,7 +9,11 @@
 #include "ImGuizmo.h"
 #include <glm/gtc/type_ptr.hpp>
 
+#include "imgui_internal.h"
+
 namespace Inspector {
+    static float frameTimes[128] = {};
+    static int frameIndex = 0;
     void Show(entt::registry &registry) {
         const auto &selectedObject = registry.ctx().get<Hierarchy::Hierarchy>().selectedEntity;
 
@@ -19,6 +23,27 @@ namespace Inspector {
         ImGui::SetNextWindowPos(ImVec2(constants.SCENE_X + constants.SCENE_WIDTH, 0), ImGuiCond_Appearing);
         ImGui::SetNextWindowSize(ImVec2(constants.WINDOW_WIDTH - (constants.SCENE_WIDTH + constants.SCENE_X), constants.WINDOW_HEIGHT), ImGuiCond_Appearing);
         ImGui::Begin("Inspector");
+        if (ImGui::CollapsingHeader("Debug Info", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            ImGuiIO& io = ImGui::GetIO();
+
+            // FPS & Timing (always available)
+            ImGui::Text("FPS: %.1f (%.1f ms)", io.Framerate, 1000.0f/io.Framerate);
+
+            // Mouse/Keyboard input
+            ImGui::Text("Mouse: (%.1f, %.1f)", io.MousePos.x, io.MousePos.y);
+            ImGui::Text("Delta: (%.1f, %.1f)", io.MouseDelta.x, io.MouseDelta.y);
+
+            float frameTime = 1000.0f / io.Framerate;
+            frameTimes[frameIndex] = frameTime;
+            frameIndex = (frameIndex + 1) % 128;
+
+            ImGui::PlotLines("Frame Time (ms)", frameTimes, 128, 0,
+                             nullptr, 0.0f, 16.67f,
+                             ImVec2(60.0f, 30.0f));
+
+            ImGui::Separator();
+        }
 
         if (ImGui::CollapsingHeader("Gizmo Controls", ImGuiTreeNodeFlags_DefaultOpen)) {
             if (ImGui::RadioButton("Translate", operation == ImGuizmo::TRANSLATE)) operation = ImGuizmo::TRANSLATE;

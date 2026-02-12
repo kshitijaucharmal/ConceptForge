@@ -13,9 +13,9 @@ namespace LightSystem {
         std::vector<entt::entity> entities      = {};
     };
 
-    entt::entity AddPointLight(entt::registry &registry, Transform transform);
+    entt::entity AddPointLight(entt::registry &registry, Transform transform, PointLight point_light);
     void RenderPointLights(entt::registry &registry);
-    entt::entity AddDirectionalLight(entt::registry &registry, Transform transform);
+    entt::entity AddDirectionalLight(entt::registry &registry, Transform transform, DirectionalLight directional_light);
     void RenderDirectionalLights(entt::registry &registry);
 
 }

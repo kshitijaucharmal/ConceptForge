@@ -77,7 +77,7 @@ See [`LICENSE`](./LICENSE) for full details.
 
 ## 🔗 Links
 
-* [Twitter (Build Logs)](https://twitter.com/ma_at_anubis)
+* [Twitter (Build Logs)](https://x.com/search?q=from%3Ama_at_anubis%20%23conceptforge&src=typed_query)
 * [Nanobind](https://github.com/wjakob/nanobind)
 * [GLFW](https://www.glfw.org/) / [GLAD](https://glad.dav1d.de/)
 

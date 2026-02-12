@@ -151,7 +151,8 @@ namespace Hierarchy {
                                 .position = glm::vec3(0.0, 10.0, 3.0),
                                 .rotation = glm::quat(glm::radians(glm::vec3(180.0f, -30.0f, -60.0f))),
                                 .scale = glm::vec3(0.4)
-                            });
+                            },
+                            DirectionalLight());
                     }
                     if (ImGui::MenuItem("Point Light")) {
                         // Handle Light creation
@@ -160,7 +161,8 @@ namespace Hierarchy {
                                 .name = "Point Light",
                                 .position = glm::vec3(0.0, 4.0, 3.0),
                                 .scale = glm::vec3(0.4)
-                            });
+                            },
+                            PointLight());
                     }
                     ImGui::EndMenu();
                 }

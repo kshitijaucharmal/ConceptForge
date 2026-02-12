@@ -11,27 +11,27 @@
 #include "Components/Rendering/PointLight.hpp"
 
 namespace LightSystem {
-    entt::entity AddPointLight(entt::registry &registry, Transform transform) {
+    entt::entity AddPointLight(entt::registry &registry, Transform transform, PointLight point_light) {
         // Create a cube with unlit shader
         auto &shaderStore = registry.ctx().get<ShaderStore>().shaders;
         const entt::entity lightEntity = registry.create();
         registry.emplace<Transform>(lightEntity, transform);
+        // Requires to be drawn
         registry.emplace<Material>(lightEntity, Material {
             .shader = shaderStore["UnlitShader"],
             .initialized = true
         });
+        // Should be some kind of Gizmo, but an Unshaded UV Sphere for now
         Mesh mesh = Primitives::CreateUVSphereMesh(registry);
         registry.emplace<Mesh>(lightEntity, mesh);
-        registry.emplace<PointLight>(lightEntity, PointLight{
-            .position = transform.position,
-        });
+        registry.emplace<PointLight>(lightEntity, point_light);
 
         auto &handle = registry.ctx().get<PointLightsHandle>();
         handle.entities.push_back(lightEntity);
 
         return lightEntity;
     }
-    entt::entity AddDirectionalLight(entt::registry &registry, Transform transform) {
+    entt::entity AddDirectionalLight(entt::registry &registry, Transform transform, DirectionalLight directional_light) {
         // Create a cube with unlit shader
         auto &shaderStore = registry.ctx().get<ShaderStore>().shaders;
 
@@ -46,9 +46,7 @@ namespace LightSystem {
         Mesh mesh = Primitives::CreateUVSphereMesh(registry);
         registry.emplace<Mesh>(lightEntity, mesh);
 
-        registry.emplace<DirectionalLight>(lightEntity, DirectionalLight{
-            .direction = glm::eulerAngles(transform.rotation),
-        });
+        registry.emplace<DirectionalLight>(lightEntity, directional_light);
         auto &handle = registry.ctx().get<DirectionalLightsHandle>();
         handle.entities.push_back(lightEntity);
 
