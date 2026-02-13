@@ -63,7 +63,7 @@ public:
 
     // Grid
     entt::entity grid;
-    // ModelSystem::Model *myModel;
+    ModelSystem::Model *myModel;
 
 private:
     // Init Functions
@@ -161,7 +161,7 @@ private:
 
         // 3d model
         {
-            // myModel = new ModelSystem::Model("/home/kshitij/Assets/backpack.obj");
+            myModel = new ModelSystem::Model("/home/kshitij/Assets/backpack/backpack.obj");
         }
 
         // Ground (Static)
@@ -174,21 +174,21 @@ private:
             };
             Primitives::CreateCubeObject(registry, transform, litShader, false);
         }
-        // Point Lights
-        {
-            auto transform = Transform{
-                .name = "Point Light",
-                .position = glm::vec3(0.0f, 4.0f, 1.3f),
-                .rotation = glm::quat(1, 0, 0, 0),
-                .scale = glm::vec3(0.3, 0.3, 0.3)
-            };
-            auto light = PointLight{
-                .position = transform.position,
-                .diffuse = glm::vec3(1.0f, 0.0f, 0.0f),
-                .specular = glm::vec3(.5f, 0.0f, 0.0f),
-            };
-            LightSystem::AddPointLight(registry, transform, light);
-        }
+        // // Point Lights
+        // {
+        //     auto transform = Transform{
+        //         .name = "Point Light",
+        //         .position = glm::vec3(0.0f, 4.0f, 1.3f),
+        //         .rotation = glm::quat(1, 0, 0, 0),
+        //         .scale = glm::vec3(0.3, 0.3, 0.3)
+        //     };
+        //     auto light = PointLight{
+        //         .position = transform.position,
+        //         .diffuse = glm::vec3(1.0f, 0.0f, 0.0f),
+        //         .specular = glm::vec3(.5f, 0.0f, 0.0f),
+        //     };
+        //     LightSystem::AddPointLight(registry, transform, light);
+        // }
 
         // Directional Lights
         {
@@ -200,7 +200,7 @@ private:
             };
             auto light = DirectionalLight{
                 .direction = glm::eulerAngles(transform.rotation),
-                .ambient = glm::vec3(0.05),
+                .ambient = glm::vec3(0.2),
                 .diffuse = glm::vec3(1.0),
                 .specular = glm::vec3(1.0),
             };
@@ -257,12 +257,12 @@ public:
 
         {
             auto model = glm::mat4(1.0f);
-            model = glm::translate(model, glm::vec3(2.0f, 2.0f, 0.0f)); // translate it down so it's at the center of the scene
+            model = glm::translate(model, glm::vec3(2.0f, 2.5f, 0.0f)); // translate it down so it's at the center of the scene
             model = glm::scale(model, glm::vec3(1., 1., 1.));	// it's a bit too big for our scene, so scale it down
             auto unlit = registry.get<Shader>(litShader);
             ShaderSystem::Use(unlit);
             ShaderSystem::setMat4(unlit, "model", model);
-            // myModel->Draw(registry, unlit);
+            myModel->Draw(registry, unlit);
         }
 
         {
@@ -285,8 +285,9 @@ public:
         // Editor Windows
         // Sets the selected entity
         Hierarchy::Show(registry);
-        const auto &selectedObject = registry.ctx().get<Hierarchy::Hierarchy>().selectedEntity;
-        Inspector::Show(registry, selectedObject);
+        const auto selectedObject = registry.ctx().get<Hierarchy::Hierarchy>().selectedEntity;
+        if (selectedObject != entt::null) Inspector::Show(registry, selectedObject);
+        else Inspector::Hide(registry);
 
         // Custom Windows
         auto &imguiQueue = registry.ctx().get<GUISystem::ImGuiDrawQueue>();
