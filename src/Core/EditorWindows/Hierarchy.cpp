@@ -11,11 +11,11 @@
 
 namespace Hierarchy {
     void Show(entt::registry &registry){
-        // Anything that has a transform is part of the Hierarchy
+        // BUG: Anything that has a transform is part of the Hierarchy
+        // Should be: Anything that has any InspectableComponent
         auto &[entities, selectedID, selectedEntity] = registry.ctx().get<Hierarchy>();
         const auto transformView = registry.view<Transform>();
 
-        // TODO: Adding to vector each frame, might be a better way
         // Clear before starting
         entities.clear();
         for(auto entity : std::views::reverse(transformView)){
@@ -35,7 +35,7 @@ namespace Hierarchy {
         const int height = c.SCENE_HEIGHT;
         ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Appearing);
         ImGui::SetNextWindowSize(ImVec2(width, height), ImGuiCond_Appearing);
-        ImGui::Begin("Hierarchy");
+        ImGui::Begin("Hierarchy", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove);
 
         // Center screen if scrolling with arrow keys
         bool scrollToSelection = false;
@@ -59,16 +59,9 @@ namespace Hierarchy {
 
             ImGui::PushID(i);
 
-            if (auto &transform = registry.get<Transform>(entities[i]);
-                // Space for padding
-                ImGui::Selectable( (" " + transform.name).c_str(), i == selectedID, ImGuiSelectableFlags_SpanAllColumns)) {
+            auto &transform = registry.get<Transform>(entities[i]);
+            if (ImGui::Selectable( (" " + transform.name).c_str(), i == selectedID, ImGuiSelectableFlags_SpanAllColumns)) {
                 selectedID = i;
-                }
-            // Right-click on item
-            if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right)) {
-                selectedID = i;
-                std::cout << selectedID << std::endl;
-                ImGui::OpenPopup("ItemMenu");
             }
 
             if (i == selectedID) {
@@ -87,10 +80,17 @@ namespace Hierarchy {
             ImGui::PopID();
         }
 
-        // Set selected entitiy
-        if(selectedID != -1){
-            selectedEntity = entities[selectedID];
+        // Left click Empty space
+        if (ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup) &&
+            !ImGui::IsAnyItemHovered() &&
+            ImGui::IsMouseClicked(ImGuiMouseButton_Left)){
+            selectedID = -1;
         }
+
+        // Set selected entity
+        if(selectedID != -1) selectedEntity = entities[selectedID];
+        else selectedEntity = entt::null;
+
         PopupMenus(registry, selectedID);
         ImGui::End();
     }

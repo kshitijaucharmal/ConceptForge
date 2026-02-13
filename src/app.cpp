@@ -174,28 +174,13 @@ private:
             };
             Primitives::CreateCubeObject(registry, transform, litShader, false);
         }
-        // // Point Lights
-        // {
-        //     auto transform = Transform{
-        //         .name = "Point Light",
-        //         .position = glm::vec3(0.0f, 4.0f, 1.3f),
-        //         .rotation = glm::quat(1, 0, 0, 0),
-        //         .scale = glm::vec3(0.3, 0.3, 0.3)
-        //     };
-        //     auto light = PointLight{
-        //         .position = transform.position,
-        //         .diffuse = glm::vec3(1.0f, 0.0f, 0.0f),
-        //         .specular = glm::vec3(.5f, 0.0f, 0.0f),
-        //     };
-        //     LightSystem::AddPointLight(registry, transform, light);
-        // }
 
         // Directional Lights
         {
             auto transform = Transform{
                 .name = "Directional Light",
                 .position = glm::vec3(0.0f, 5.0f, 0.0f),
-                .rotation = glm::quat(0.9511, 0.3090, 0.0000, 0.0000),
+                .rotation = glm::quat(0.6484594, 0.2819582, -0.6484594, -0.2819582),
                 .scale = glm::vec3(0.3, 0.3, 0.3)
             };
             auto light = DirectionalLight{

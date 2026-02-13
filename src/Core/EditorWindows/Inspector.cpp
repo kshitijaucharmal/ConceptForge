@@ -65,8 +65,13 @@ namespace Inspector {
             else if (name == "Camera") ShowCamera(registry, selectedObject);
         }
 
+        ImGui::End();
+
+        // TODO: Should not be here. A new class has to be created, preferrably with global access
+        ImGui::Begin("Debug Info", nullptr, ImGuiWindowFlags_NoCollapse);
         ShowDebugInfo();
         ImGui::End();
+
     }
 
     void Hide(entt::registry &registry)
@@ -142,26 +147,24 @@ namespace Inspector {
 
     void ShowDebugInfo()
     {
-        if (ImGui::CollapsingHeader("Debug Info", ImGuiTreeNodeFlags_DefaultOpen)) {
-            const ImGuiIO& io = ImGui::GetIO();
+        const ImGuiIO& io = ImGui::GetIO();
 
-            // FPS & Timing (always available)
-            ImGui::Text("FPS: %.1f (%.1f ms)", io.Framerate, 1000.0f/io.Framerate);
+        // FPS & Timing (always available)
+        ImGui::Text("FPS: %.1f (%.1f ms)", io.Framerate, 1000.0f/io.Framerate);
 
-            // Mouse/Keyboard input
-            ImGui::Text("Mouse: (%.1f, %.1f)", io.MousePos.x, io.MousePos.y);
-            ImGui::Text("Delta: (%.1f, %.1f)", io.MouseDelta.x, io.MouseDelta.y);
+        // Mouse/Keyboard input
+        ImGui::Text("Mouse: (%.1f, %.1f)", io.MousePos.x, io.MousePos.y);
+        ImGui::Text("Delta: (%.1f, %.1f)", io.MouseDelta.x, io.MouseDelta.y);
 
-            float frameTime = 1000.0f / io.Framerate;
-            frameTimes[frameIndex] = frameTime;
-            frameIndex = (frameIndex + 1) % 128;
+        float frameTime = 1000.0f / io.Framerate;
+        frameTimes[frameIndex] = frameTime;
+        frameIndex = (frameIndex + 1) % 128;
 
-            ImGui::PlotLines("Frame Time (ms)", frameTimes, 128, 0,
-                             nullptr, 0.0f, 16.67f,
-                             ImVec2(60.0f, 30.0f));
+        ImGui::PlotLines("Frame Time (ms)", frameTimes, 128, 0,
+                         nullptr, 0.0f, 16.67f,
+                         ImVec2(60.0f, 30.0f));
 
-            ImGui::Separator();
-        }
+        ImGui::Separator();
     }
 
 }
