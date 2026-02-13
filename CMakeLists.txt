@@ -23,8 +23,13 @@ else()
 endif()
 
 # Find Python
-# find_package(Python COMPONENTS Interpreter ${DEV_MODULE} REQUIRED)
-# message(STATUS "Python version: ${Python_EXECUTABLE}")
+# set(Python_FIND_STRATEGY "LOCATION")
+# set(Python_FIND_VIRTUALENV "FIRST")
+find_package(Python 3 REQUIRED COMPONENTS Interpreter Development)
+message(STATUS "Python version: ${Python_VERSION}")
+message(STATUS "Python Executable: ${Python_EXECUTABLE}")
+message(STATUS "Python Libraries: ${Python_LIBRARIES}")
+message(STATUS "Python Include Dirs: ${Python_INCLUDE_DIRS}")
 
 # Set default build type to Release if not specified
 if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -103,6 +108,7 @@ add_subdirectory(${BULLET_ROOT_DIR})
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_link_libraries(${PROJECT_NAME}
         PRIVATE
+        Python::Python
         OpenGL::GL
         imgui
         ImGuizmo
@@ -117,6 +123,7 @@ target_link_libraries(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME} PRIVATE
         external/bullet/src
         external/assimp/include
+        ${Python_INCLUDE_DIRS}
 )
 
 # Custom target to run the app
