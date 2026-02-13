@@ -32,6 +32,7 @@
 #include "Systems/Primitives/GizmoSystem.hpp"
 
 #include "Core/EditorWindows/Inspector.hpp"
+#include "Core/EditorWindows/PythonEditor.hpp"
 #include "Core/EditorWindows/Hierarchy.hpp"
 #include "Core/Physics/PhysicsSystem.hpp"
 #include "Systems/Debug.hpp"
@@ -39,6 +40,8 @@
 #include "Systems/Rendering/LightSystem.hpp"
 
 #include <Systems/Rendering/Model.hpp>
+
+#include "Core/EditorWindows/PythonEditor.hpp"
 
 class App {
 //Variables
@@ -219,6 +222,9 @@ public:
         InitShaders();
         InitDebuggingAndUI();
 
+        // Initialize Code Editor
+        PythonEditor::Init();
+
         SetupScene();
 
         // Call Awake
@@ -273,6 +279,7 @@ public:
         const auto selectedObject = registry.ctx().get<Hierarchy::Hierarchy>().selectedEntity;
         if (selectedObject != entt::null) Inspector::Show(registry, selectedObject);
         else Inspector::Hide(registry);
+        PythonEditor::Show(registry);
 
         // Custom Windows
         auto &imguiQueue = registry.ctx().get<GUISystem::ImGuiDrawQueue>();
@@ -298,6 +305,7 @@ public:
 
         // Destroy GUI System
         GUISystem::Destroy();
+        PythonEditor::Destroy();
     }
 
     void MainLoop() {

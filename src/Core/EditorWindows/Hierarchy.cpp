@@ -35,7 +35,7 @@ namespace Hierarchy {
         const int height = c.SCENE_HEIGHT;
         ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Appearing);
         ImGui::SetNextWindowSize(ImVec2(width, height), ImGuiCond_Appearing);
-        ImGui::Begin("Hierarchy", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove);
+        ImGui::Begin("Hierarchy", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 
         // Center screen if scrolling with arrow keys
         bool scrollToSelection = false;
