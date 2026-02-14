@@ -41,6 +41,7 @@
 
 #include <Systems/Rendering/Model.hpp>
 
+#include "Components/Fonts.hpp"
 #include "Core/EditorWindows/PythonEditor.hpp"
 
 class App {
@@ -74,7 +75,7 @@ private:
         // Global Values (Context)
         registry.ctx().emplace<Debug::DebugInfo>();
         registry.ctx().emplace<GameState>();
-        registry.ctx().emplace<Hierarchy::Hierarchy>();
+        registry.ctx().emplace<Fonts>();
         registry.ctx().emplace<Time>();
         registry.ctx().emplace<ActiveCamera>();
         registry.ctx().emplace<EventSystem::AwakeQueue>();
@@ -82,6 +83,7 @@ private:
         registry.ctx().emplace<EventSystem::LateUpdateQueue>();
         registry.ctx().emplace<MaterialSystem::FallbackTexture>(0);
         registry.ctx().emplace<GUISystem::ImGuiDrawQueue>();
+        registry.ctx().emplace<Hierarchy::Hierarchy>();
         registry.ctx().emplace<FrameBuffer>();
         registry.ctx().emplace<ShaderStore>();
         registry.ctx().emplace<SSBOHolder>();
@@ -176,16 +178,6 @@ private:
                 .scale = glm::vec3(20.0, 1.0f, 20.0f)
             };
             Primitives::CreateCubeObject(registry, transform, litShader, false);
-        }
-        // Ground (Static)
-        {
-            auto transform = Transform{
-                .name = "Ball",
-                .position = glm::vec3(-3.0f, 2.0f, 0.0f),
-                .rotation = glm::quat(0, 0, 0, 0),
-                .scale = glm::vec3(2.0)
-            };
-            Primitives::CreateUVSphereObject(registry, transform, litShader, false);
         }
 
         // Directional Lights
@@ -295,10 +287,10 @@ public:
         auto &imguiQueue = registry.ctx().get<GUISystem::ImGuiDrawQueue>();
         for (auto &fn : imguiQueue) fn();
 
-        ImGui::Begin("Settings");
-        ImGui::Checkbox("RayTracing", &gameState->rayTracing);
-        ImGui::Checkbox("Playing", &gameState->isPlaying);
-        ImGui::End();
+        // ImGui::Begin("Settings");
+        // ImGui::Checkbox("RayTracing", &gameState->rayTracing);
+        // ImGui::Checkbox("Playing", &gameState->isPlaying);
+        // ImGui::End();
 
         // Before drawing anything, clear screen
         Window::ScreenClearFlags(constants.CLEAR_COLOR);

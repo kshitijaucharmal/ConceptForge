@@ -23,8 +23,8 @@ else()
 endif()
 
 # Find Python
-# set(Python_FIND_STRATEGY "LOCATION")
-# set(Python_FIND_VIRTUALENV "FIRST")
+set(Python_FIND_STRATEGY "LOCATION")
+set(Python_FIND_VIRTUALENV "FIRST")
 find_package(Python 3 REQUIRED COMPONENTS Interpreter Development)
 message(STATUS "Python version: ${Python_VERSION}")
 message(STATUS "Python Executable: ${Python_EXECUTABLE}")

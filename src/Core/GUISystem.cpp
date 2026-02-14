@@ -5,6 +5,7 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include "Components/Fonts.hpp"
 
 namespace GUISystem {
 void InitImGUI(entt::registry &registry, GLFWwindow* window) {
@@ -31,12 +32,15 @@ void InitImGUI(entt::registry &registry, GLFWwindow* window) {
     config.PixelSnapH = true;
 
     // Load main font
-    io.Fonts->AddFontFromFileTTF(FONT_DIR "/TextFont.ttf", 16.0f);
-    io.Fonts->AddFontFromFileTTF(FONT_DIR "/JetBrainsMono-Medium.ttf", 20.0f);
+    const auto mainFont = io.Fonts->AddFontFromFileTTF(FONT_DIR "/TextFont.ttf", 16.0f);
+    const auto codeFont = io.Fonts->AddFontFromFileTTF(FONT_DIR "/JetBrainsMono-Medium.ttf", 24.0f);
+    registry.ctx().get<Fonts>().FontsDict["MainFont"] = mainFont;
+    registry.ctx().get<Fonts>().FontsDict["CodeFont"] = codeFont;
 
     // Load icon font (e.g., FontAwesome)
     static constexpr ImWchar icons_ranges[] = { 0xf000, 0xf3ff, 0 };
-    io.Fonts->AddFontFromFileTTF(FONT_DIR "/fa-solid-900.ttf", 16.0f, &config, icons_ranges);
+    const auto iconFont = io.Fonts->AddFontFromFileTTF(FONT_DIR "/fa-solid-900.ttf", 16.0f, &config, icons_ranges);
+    registry.ctx().get<Fonts>().FontsDict["IconFont"] = iconFont;
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
