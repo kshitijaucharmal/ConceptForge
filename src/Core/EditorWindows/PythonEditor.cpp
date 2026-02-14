@@ -9,10 +9,12 @@
 #define PY_SSIZE_T_CLEAN
 #include <iostream>
 #include <Python.h>
+#include <TextEditor.h>
 
 namespace PythonEditor
 {
     wchar_t *program = nullptr;
+    TextEditor editor;
 
     void Init()
     {
@@ -22,7 +24,12 @@ namespace PythonEditor
             return;
         }
 
+
         Py_Initialize();
+        static char buffer[8192] = "from time import time,ctime\nprint('Today is', ctime(time()))\n";
+
+        editor.SetLanguageDefinition(TextEditor::LanguageDefinition::Python());
+        editor.SetText(buffer);
     }
 
     void Destroy()
@@ -40,12 +47,12 @@ namespace PythonEditor
         ImGui::SetNextWindowPos(ImVec2(0, constants.SCENE_HEIGHT), ImGuiCond_Appearing);
         ImGui::SetNextWindowSize(ImVec2(w, h), ImGuiCond_Appearing);
         ImGui::Begin("Text Editor", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
-        static char buffer[8192] = "from time import time,ctime\nprint('Today is', ctime(time()))\n";
-        ImGui::InputTextMultiline("##editor", buffer, IM_ARRAYSIZE(buffer), ImVec2(-1, h-300), ImGuiInputTextFlags_AllowTabInput);  // Full width, 300px height
+
+        editor.Render("TextEditor", ImVec2(-1, h-300));
 
         if (ImGui::Button("Run",ImVec2(w, 40)))
         {
-            PyRun_SimpleString(buffer);
+            PyRun_SimpleString(editor.GetText().c_str());
         }
 
         ImGui::End();
