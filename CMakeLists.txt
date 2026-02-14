@@ -43,10 +43,10 @@ find_package(OpenGL REQUIRED)
 
 # Add include directories
 include_directories(
-  src
-  external/stb_image
-  external/IconFont
-  external/entt/single_include
+        src
+        external/stb_image
+        external/IconFont
+        external/entt/single_include
 )
 
 # Gather source files
@@ -89,6 +89,10 @@ add_library(ImGuizmo STATIC external/ImGuizmo/ImGuizmo.cpp)
 target_include_directories(ImGuizmo PUBLIC external/ImGuizmo)
 target_link_libraries(ImGuizmo PUBLIC imgui)
 
+add_library(ImGuiColorTextEdit STATIC external/ImGuiColorTextEdit/TextEditor.cpp )
+target_include_directories(ImGuiColorTextEdit PUBLIC external/ImGuiColorTextEdit)
+target_link_libraries(ImGuiColorTextEdit PUBLIC imgui)
+
 # 🔧 Add Bullet Physics
 # Add Bullet as a subdirectory (assumes it's cloned into external/bullet)
 set(BULLET_ROOT_DIR ${CMAKE_SOURCE_DIR}/external/bullet)
@@ -112,6 +116,7 @@ target_link_libraries(${PROJECT_NAME}
         OpenGL::GL
         imgui
         ImGuizmo
+        ImGuiColorTextEdit
         glad
         glfw
         glm

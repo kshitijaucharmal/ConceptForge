@@ -32,6 +32,7 @@ void InitImGUI(entt::registry &registry, GLFWwindow* window) {
 
     // Load main font
     io.Fonts->AddFontFromFileTTF(FONT_DIR "/TextFont.ttf", 16.0f);
+    io.Fonts->AddFontFromFileTTF(FONT_DIR "/JetBrainsMono-Medium.ttf", 20.0f);
 
     // Load icon font (e.g., FontAwesome)
     static constexpr ImWchar icons_ranges[] = { 0xf000, 0xf3ff, 0 };
