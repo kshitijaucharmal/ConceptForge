@@ -51,8 +51,8 @@ layout(std430, binding = 2) buffer DirLightsBuffer {
 uniform Material material;
 uniform vec3 viewPos;
 
-in vec3 Normal;
 in vec3 FragPos;
+in vec3 Normal;
 in vec2 TexCoords;
 
 out vec4 FragColor;

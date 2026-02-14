@@ -15,7 +15,7 @@ namespace LightSystem {
 
     entt::entity AddPointLight(entt::registry &registry, Transform transform, PointLight point_light);
     void RenderPointLights(entt::registry &registry);
-    entt::entity AddDirectionalLight(entt::registry &registry, Transform transform, DirectionalLight directional_light);
+    entt::entity AddDirectionalLight(entt::registry &registry, const Transform& transform, DirectionalLight directional_light);
     void RenderDirectionalLights(entt::registry &registry);
 
 }

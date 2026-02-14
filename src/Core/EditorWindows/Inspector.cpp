@@ -13,7 +13,6 @@
 #include "ImGuizmo.h"
 #include <glm/gtc/type_ptr.hpp>
 
-#include "imgui_internal.h"
 #include "Components/Inspectable.hpp"
 #include "Components/Rendering/DirectionalLight.hpp"
 #include "Components/Rendering/PointLight.hpp"

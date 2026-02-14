@@ -177,6 +177,16 @@ private:
             };
             Primitives::CreateCubeObject(registry, transform, litShader, false);
         }
+        // Ground (Static)
+        {
+            auto transform = Transform{
+                .name = "Ball",
+                .position = glm::vec3(-3.0f, 2.0f, 0.0f),
+                .rotation = glm::quat(0, 0, 0, 0),
+                .scale = glm::vec3(2.0)
+            };
+            Primitives::CreateUVSphereObject(registry, transform, litShader, false);
+        }
 
         // Directional Lights
         {

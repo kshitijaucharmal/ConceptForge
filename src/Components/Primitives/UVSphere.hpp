@@ -6,8 +6,8 @@
 #define UVSPHERE_HPP
 
 struct UVSphere {
-    int sectorCount = 36;
-    int stackCount = 16;
+    int sectorCount = 128;
+    int stackCount = 64;
     // unit circle
     float radius = 0.5f;
 };
