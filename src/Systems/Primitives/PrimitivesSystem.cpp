@@ -1,5 +1,7 @@
 #include "PrimitivesSystem.hpp"
 
+#include <iostream>
+
 #include "Components/Rendering/Material.hpp"
 #include "Components/Rendering/Mesh.hpp"
 
@@ -21,7 +23,7 @@ namespace Primitives {
         return entt::null;
     }
 
-    Mesh CreateCubeMesh(entt::registry &registry) {
+    Mesh CreateCubeMesh() {
         GLuint VAO, VBO, EBO;
 
         glGenVertexArrays(1, &VAO);
@@ -58,7 +60,7 @@ namespace Primitives {
         };
     }
 
-    entt::entity CreateUVSphereObject(entt::registry &registry, Transform transform, entt::entity &shader, bool movable) {
+    entt::entity CreateUVSphereObject(entt::registry &registry, const Transform& transform, const entt::entity &shader, const bool movable) {
         const entt::entity e = registry.create();
         registry.emplace<Transform>(e, transform);
         registry.emplace<Material>(e, Material {
@@ -66,7 +68,7 @@ namespace Primitives {
             .initialized = true
         });
 
-        const Mesh mesh = CreateUVSphereMesh(registry);
+        const Mesh mesh = CreateUVSphereMesh();
         registry.emplace<Mesh>(e, mesh);
         registry.emplace<UVSphere>(e);
         registry.emplace<PrimitiveType>(e, UV_SPHERE);
@@ -100,15 +102,14 @@ namespace Primitives {
                 }
             }
         }
-
     }
 
-    Mesh CreateUVSphereMesh(entt::registry &registry) {
+    Mesh CreateUVSphereMesh() {
         std::vector<unsigned int> indices;
         std::vector<float> vertices;
 
         // Default UVSphere
-        auto sphere = UVSphere{};
+        constexpr auto sphere = UVSphere{};
 
         GenerateSphereVertices(sphere, vertices);
         GenerateSphereIndices(sphere, indices);
@@ -125,25 +126,24 @@ namespace Primitives {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
 
-        constexpr GLsizei stride = 8 * sizeof(float);
+        constexpr GLsizei stride = 8 * sizeof(float);  // pos(3)+normal(3)+tex(2)
 
         // Position: layout(location = 0)
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, static_cast<void *>(nullptr));
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, 0);
         glEnableVertexAttribArray(0);
 
-        // Texture coordinates: layout(location = 1)
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void *>(3 * sizeof(float)));
+        // Normal: layout(location = 1)
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
 
-        // Normals: layout(location = 2)
-        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void *>(5 * sizeof(float)));
+        // TexCoord: layout(location = 2)
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, (void*)(6 * sizeof(float)));
         glEnableVertexAttribArray(2);
 
         glBindVertexArray(0);
 
         const int indicesSize = indices.size();
 
-        const auto uvSphereMesh = registry.create();
         return Mesh{
             .VAO = VAO,
             .VBO = VBO,
@@ -155,16 +155,16 @@ namespace Primitives {
     }
 
     void GenerateSphereVertices(const UVSphere &sphere, std::vector<float> &vertices) {
-        float sectorStep = 2 * M_PI / sphere.sectorCount;
-        float stackStep = M_PI / sphere.stackCount;
+        const float sectorStep = M_PI * 2 / sphere.sectorCount;
+        const float stackStep = M_PI / sphere.stackCount;
 
         for (int i = 0; i <= sphere.stackCount; ++i) {
-            float stackAngle = M_PI / 2 - i * stackStep; // from pi/2 to -pi/2
-            float xy = sphere.radius * cosf(stackAngle);
+            const float stackAngle = M_PI / 2 - i * stackStep; // from pi/2 to -pi/2
+            const float xy = sphere.radius * cosf(stackAngle);
             float y = sphere.radius * sinf(stackAngle);
 
             for (int j = 0; j <= sphere.sectorCount; ++j) {
-                float sectorAngle = j * sectorStep;
+                const float sectorAngle = j * sectorStep;
 
                 float x = xy * cosf(sectorAngle);
                 float z = xy * sinf(sectorAngle);
@@ -183,14 +183,14 @@ namespace Primitives {
     }
 
     // Creation
-    entt::entity CreateCubeObject(entt::registry& registry, Transform transform, entt::entity &shader, bool movable) {
+    entt::entity CreateCubeObject(entt::registry& registry, const Transform& transform, const entt::entity &shader, const bool movable) {
         const entt::entity e = registry.create();
         registry.emplace<Transform>(e, transform);
         registry.emplace<Material>(e, Material {
             .shader = shader,
             .initialized = true
         });
-        Mesh mesh = CreateCubeMesh(registry);
+        Mesh mesh = CreateCubeMesh();
         registry.emplace<Mesh>(e, mesh);
         registry.emplace<Cube>(e);
         registry.emplace<PrimitiveType>(e, PrimitiveType::CUBE);
