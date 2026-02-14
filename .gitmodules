@@ -17,3 +17,6 @@
 [submodule "external/assimp"]
 	path = external/assimp
 	url = https://github.com/assimp/assimp.git
+[submodule "external/ImGuiColorTextEdit"]
+	path = external/ImGuiColorTextEdit
+	url = git@github.com:kshitijaucharmal/ImGuiColorTextEdit.git
