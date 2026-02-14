@@ -11,6 +11,8 @@
 #include <Python.h>
 #include <TextEditor.h>
 
+#include "Components/Fonts.hpp"
+
 namespace PythonEditor
 {
     wchar_t *program = nullptr;
@@ -42,15 +44,16 @@ namespace PythonEditor
     void Show(entt::registry& registry)
     {
         const auto constants = registry.ctx().get<Constants>();
-        const float w = constants.WINDOW_WIDTH - (constants.SCENE_WIDTH + constants.SCENE_X);
+        const float w = constants.SCENE_WIDTH + constants.SCENE_X;
         const float h = constants.SCENE_HEIGHT;
         ImGui::SetNextWindowPos(ImVec2(0, constants.SCENE_HEIGHT), ImGuiCond_Appearing);
         ImGui::SetNextWindowSize(ImVec2(w, h), ImGuiCond_Appearing);
         ImGui::Begin("Text Editor", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
-
+        ImGui::PushFont(registry.ctx().get<Fonts>().FontsDict["CodeFont"]);
         editor.Render("TextEditor", ImVec2(-1, h-300));
+        ImGui::PopFont();
 
-        if (ImGui::Button("Run",ImVec2(w, 40)))
+        if (ImGui::Button("Run",ImVec2(w/2, 40)))
         {
             PyRun_SimpleString(editor.GetText().c_str());
         }

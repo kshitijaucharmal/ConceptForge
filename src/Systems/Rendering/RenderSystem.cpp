@@ -22,6 +22,7 @@
 
 #include "MaterialSystem.hpp"
 #include "ShaderSystem.hpp"
+#include "Components/Fonts.hpp"
 
 // Font Awesome icon defines (or use full glyphs)
 #define ICON_FA_PLAY  "\xef\x81\x8b"  // f04b
@@ -232,6 +233,7 @@ namespace RenderSystem {
                                      ImGuiWindowFlags_NoFocusOnAppearing |
                                      ImGuiWindowFlags_NoNav;
 
+            ImGui::PushFont(registry.ctx().get<Fonts>().FontsDict["IconFont"]);
             if (ImGui::Begin("##ControlBar", nullptr, flags)) {
                 auto &gameState = registry.ctx().get<GameState>();
                 if (ImGui::Button(ICON_FA_PLAY)) {
@@ -253,6 +255,7 @@ namespace RenderSystem {
                     // Step
                 }
             }
+            ImGui::PopFont();
             ImGui::End();
 
             ImGui::PopStyleVar(3);

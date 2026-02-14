@@ -30,7 +30,7 @@ TextEditor::TextEditor()
 	, mOverwrite(false)
 	, mReadOnly(false)
 	, mWithinRender(false)
-	, mScrollToCursor(false)
+	, mScrollToCursor(true)
 	, mScrollToTop(false)
 	, mTextChanged(false)
 	, mColorizerEnabled(true)
@@ -45,7 +45,7 @@ TextEditor::TextEditor()
 	, mHandleKeyboardInputs(true)
 	, mHandleMouseInputs(true)
 	, mIgnoreImGuiChild(false)
-	, mShowWhitespaces(true)
+	, mShowWhitespaces(false)
 	, mStartTime(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count())
 {
 	SetPalette(GetDarkPalette());
@@ -2805,65 +2805,70 @@ const TextEditor::LanguageDefinition& TextEditor::LanguageDefinition::CPlusPlus(
 
 const TextEditor::LanguageDefinition& TextEditor::LanguageDefinition::Python()
 {
-	static bool inited = false;
-	static LanguageDefinition langDef;
+    static bool inited = false;
+    static LanguageDefinition langDef;
 
-	if (!inited)
-	{
-		static const char* const pythonKeywords[] = {
-			"False", "None", "True", "and", "as", "assert", "async", "await", "break", "class", "continue", "def", "del", "elif", "else", "except", "finally", "for", "from", "global", "if", "import", "in", "is", "lambda", "nonlocal", "not", "or", "pass", "raise", "return", "try", "while", "with", "yield"
-		};
-		for (auto& k : pythonKeywords)
-			langDef.mKeywords.insert(k);
+    if (!inited)
+    {
+        // Python Keywords
+        static const char* const keywords[] = {
+            "False", "None", "True", "and", "as", "assert", "async", "await", "break", "class",
+            "continue", "def", "del", "elif", "else", "except", "finally", "for", "from",
+            "global", "if", "import", "in", "is", "lambda", "nonlocal", "not", "or", "pass",
+            "raise", "return", "try", "while", "with", "yield"
+        };
 
-		static const char* const identifiers[] = {
-			"abs", "all", "any", "ascii", "bin", "bool", "breakpoint", "bytearray", "bytes", "callable", "chr", "classmethod", "compile", "complex", "delattr", "dict", "dir", "divmod", "enumerate", "eval", "exec", "filter", "float", "format", "frozenset", "getattr", "globals", "hasattr", "hash", "help", "hex", "id", "input", "int", "isinstance", "issubclass", "iter", "len", "list", "locals", "map", "max", "memoryview", "min", "next", "object", "oct", "open", "ord", "pow", "print", "property", "range", "repr", "reversed", "round", "set", "setattr", "slice", "sorted", "staticmethod", "str", "sum", "super", "tuple", "type", "vars", "zip", "__import__"
-		};
-		for (auto& k : identifiers)
-		{
-			Identifier id;
-			id.mDeclaration = "Built-in function";
-			langDef.mIdentifiers.insert(std::make_pair(std::string(k), id));
-		}
+        for (auto& k : keywords)
+            langDef.mKeywords.insert(k);
 
-		langDef.mTokenize = [](const char * in_begin, const char * in_end, const char *& out_begin, const char *& out_end, PaletteIndex & paletteIndex) -> bool
-		{
-			paletteIndex = PaletteIndex::Max;
+        // Python Built-in Functions and Constants
+        static const char* const identifiers[] = {
+            "abs", "all", "any", "ascii", "bin", "bool", "breakpoint", "bytearray", "bytes",
+            "callable", "chr", "classmethod", "compile", "complex", "delattr", "dict", "dir",
+            "divmod", "enumerate", "eval", "exec", "filter", "float", "format", "frozenset",
+            "getattr", "globals", "hasattr", "hash", "help", "hex", "id", "input", "int",
+            "isinstance", "issubclass", "iter", "len", "list", "locals", "map", "max",
+            "memoryview", "min", "next", "object", "oct", "open", "ord", "pow", "print",
+            "property", "range", "repr", "reversed", "round", "set", "setattr", "slice",
+            "sorted", "staticmethod", "str", "sum", "super", "tuple", "type", "vars", "zip",
+            "__import__", "self", "cls"
+        };
 
-			while (in_begin < in_end && isascii(*in_begin) && isblank(*in_begin))
-				in_begin++;
+        for (auto& k : identifiers)
+        {
+            Identifier id;
+            id.mDeclaration = "Built-in function";
+            langDef.mIdentifiers.insert(std::make_pair(std::string(k), id));
+        }
 
-			if (in_begin == in_end)
-			{
-				out_begin = in_end;
-				out_end = in_end;
-				paletteIndex = PaletteIndex::Default;
-			}
-			// Python strings can be ' or "
-			else if (TokenizeCStyleString(in_begin, in_end, out_begin, out_end))
-				paletteIndex = PaletteIndex::String;
-			else if (TokenizeCStyleIdentifier(in_begin, in_end, out_begin, out_end))
-				paletteIndex = PaletteIndex::Identifier;
-			else if (TokenizeCStyleNumber(in_begin, in_end, out_begin, out_end))
-				paletteIndex = PaletteIndex::Number;
-			else if (TokenizeCStylePunctuation(in_begin, in_end, out_begin, out_end))
-				paletteIndex = PaletteIndex::Punctuation;
+        // Token Regex Definitions
+        // Strings: Handles single quotes, double quotes, and raw strings (r"")
+        langDef.mTokenRegexStrings.push_back(std::make_pair<std::string, PaletteIndex>("r?\\\"(\\\\.|[^\\\"])*\\\"", PaletteIndex::String));
+        langDef.mTokenRegexStrings.push_back(std::make_pair<std::string, PaletteIndex>("r?\\'(\\\\.|[^\\'])*\\'", PaletteIndex::String));
 
-			return paletteIndex != PaletteIndex::Max;
-		};
+        // Numbers: Hex, Binary, and Decimals
+        langDef.mTokenRegexStrings.push_back(std::make_pair<std::string, PaletteIndex>("0[xX][0-9a-fA-F]+", PaletteIndex::Number));
+        langDef.mTokenRegexStrings.push_back(std::make_pair<std::string, PaletteIndex>("0[bB][01]+", PaletteIndex::Number));
+        langDef.mTokenRegexStrings.push_back(std::make_pair<std::string, PaletteIndex>("[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)([eE][+-]?[0-9]+)?", PaletteIndex::Number));
 
-		langDef.mCommentStart = "";           // Python doesn't have native multi-line /* */ comments
-		langDef.mCommentEnd = "";
-		langDef.mSingleLineComment = "#";
+        // Identifiers and Punctuation
+        langDef.mTokenRegexStrings.push_back(std::make_pair<std::string, PaletteIndex>("[a-zA-Z_][a-zA-Z0-9_]*", PaletteIndex::Identifier));
+        langDef.mTokenRegexStrings.push_back(std::make_pair<std::string, PaletteIndex>("[\\[\\]\\{\\}\\!\\%\\^\\&\\*\\(\\)\\-\\+\\=\\~\\|\\<\\>\\?\\/\\;\\,\\.\\:\\@]", PaletteIndex::Punctuation));
 
-		langDef.mCaseSensitive = true;
-		langDef.mAutoIndentation = true;
+        // Comments
+        langDef.mSingleLineComment = "#";
+        // Note: Python doesn't have true block comments, but triple quotes are often used
+        langDef.mCommentStart = "\"\"\"";
+        langDef.mCommentEnd = "\"\"\"";
 
-		langDef.mName = "Python";
+        langDef.mCaseSensitive = true;
+        langDef.mAutoIndentation = true; // Highly recommended for Python
 
-		inited = true;
-	}
-	return langDef;
+        langDef.mName = "Python";
+
+        inited = true;
+    }
+    return langDef;
 }
 
 const TextEditor::LanguageDefinition& TextEditor::LanguageDefinition::HLSL()
