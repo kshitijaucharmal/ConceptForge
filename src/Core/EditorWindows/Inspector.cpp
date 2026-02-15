@@ -108,7 +108,7 @@ namespace Inspector {
 
     void ShowDirectionalLight(entt::registry& registry, const entt::entity& selectedObject)
     {
-        if (ImGui::CollapsingHeader("DirectionalLight", ImGuiTreeNodeFlags_DefaultOpen) && selectedObject != entt::null) {
+        if (ImGui::CollapsingHeader("Directional Light", ImGuiTreeNodeFlags_DefaultOpen) && selectedObject != entt::null) {
 
             auto &dirLight = registry.get<DirectionalLight>(selectedObject);
             ImGui::ColorEdit3("Ambient", glm::value_ptr(dirLight.ambient));
@@ -119,7 +119,7 @@ namespace Inspector {
 
     void ShowPointLight(entt::registry& registry, const entt::entity& selectedObject)
     {
-        if (ImGui::CollapsingHeader("PointLight", ImGuiTreeNodeFlags_DefaultOpen) && selectedObject != entt::null) {
+        if (ImGui::CollapsingHeader("Point Light", ImGuiTreeNodeFlags_DefaultOpen) && selectedObject != entt::null) {
 
             auto &pointLight = registry.get<PointLight>(selectedObject);
             ImGui::ColorEdit3("Ambient", glm::value_ptr(pointLight.ambient));
@@ -130,7 +130,7 @@ namespace Inspector {
 
     void ShowCamera(entt::registry& registry, const entt::entity& selectedObject)
     {
-        if (ImGui::CollapsingHeader("PointLight", ImGuiTreeNodeFlags_DefaultOpen) && selectedObject != entt::null) {
+        if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen) && selectedObject != entt::null) {
             auto &camera = registry.get<Camera>(selectedObject);
 
             // TODO: These are for debugging

@@ -31,6 +31,7 @@ namespace PythonEditor
         static char buffer[8192] = "from time import time,ctime\nprint('Today is', ctime(time()))\n";
 
         editor.SetLanguageDefinition(TextEditor::LanguageDefinition::Python());
+        editor.SetPalette(TextEditor::GetCatppuccinMochaPalette());
         editor.SetText(buffer);
     }
 
