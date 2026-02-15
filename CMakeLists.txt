@@ -137,6 +137,26 @@ add_custom_target(run
   DEPENDS ${PROJECT_NAME}
 )
 
+# Doxygen Documentation
+option(BUILD_DOCS "Build documentation" OFF)
+
+find_package(Doxygen)
+if(BUILD_DOCS AND Doxygen_FOUND)
+  set(DOXYGEN_PROJECT_NAME ${PROJECT_NAME})
+  set(DOXYGEN_PROJECT_NUMBER "v0.1")
+  set(DOXYGEN_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/docs")
+  set(DOXYGEN_GENERATE_HTML YES)
+  set(DOXYGEN_GENERATE_XML NO)
+  set(DOXYGEN_RECURSIVE YES)
+  set(DOXYGEN_EXCLUDE_PATTERNS "*test*" "*extern*")
+  set(DOXYGEN_HAVE_DOT YES)
+  set(DOXYGEN_CLASS_DIAGRAMS YES)
+  set(DOXYGEN_CALL_GRAPH YES)
+  set(DOXYGEN_BUILTIN_STL_SUPPORT YES)
+  doxygen_add_docs(conceptforge-docs ALL COMMENT "Generating API docs...")
+endif()
+
+
 # nanobind module for Python
 # nanobind_add_module(concept_forge ${SOURCES} ${NB_SOURCES})
 # target_include_directories(concept_forge PRIVATE
