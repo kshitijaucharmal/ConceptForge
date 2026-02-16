@@ -1,7 +1,8 @@
 
 #pragma once
 
-float cubeVertices[] = {
+/// Cube vertices in format [positions(3), texture(2), normals(3)]
+inline float cubeVertices[] = {
     // Back face         (-Z)    // positions          // texture coords    // normals
     -0.5f, -0.5f, -0.5f,  0.0f,  0.0f,  0.0f,  0.0f, -1.0f,
      0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, -1.0f,
@@ -51,7 +52,8 @@ float cubeVertices[] = {
     -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f
 };
 
-GLuint cubeIndices[36] = {
+/// Indices data for Cube
+inline GLuint cubeIndices[36] = {
     // Back
     0, 1, 2,   0, 2, 3,
     // Front
@@ -64,4 +66,49 @@ GLuint cubeIndices[36] = {
     24,25,26,  24,26,27,
     // Top
     30,31,32,  30,32,33
+};
+
+/// Vertices data for skybox
+inline float skyboxVertices[] = {
+ -1.0f,  1.0f, -1.0f,
+ -1.0f, -1.0f, -1.0f,
+  1.0f, -1.0f, -1.0f,
+  1.0f, -1.0f, -1.0f,
+  1.0f,  1.0f, -1.0f,
+ -1.0f,  1.0f, -1.0f,
+
+ -1.0f, -1.0f,  1.0f,
+ -1.0f, -1.0f, -1.0f,
+ -1.0f,  1.0f, -1.0f,
+ -1.0f,  1.0f, -1.0f,
+ -1.0f,  1.0f,  1.0f,
+ -1.0f, -1.0f,  1.0f,
+
+  1.0f, -1.0f, -1.0f,
+  1.0f, -1.0f,  1.0f,
+  1.0f,  1.0f,  1.0f,
+  1.0f,  1.0f,  1.0f,
+  1.0f,  1.0f, -1.0f,
+  1.0f, -1.0f, -1.0f,
+
+ -1.0f, -1.0f,  1.0f,
+ -1.0f,  1.0f,  1.0f,
+  1.0f,  1.0f,  1.0f,
+  1.0f,  1.0f,  1.0f,
+  1.0f, -1.0f,  1.0f,
+ -1.0f, -1.0f,  1.0f,
+
+ -1.0f,  1.0f, -1.0f,
+  1.0f,  1.0f, -1.0f,
+  1.0f,  1.0f,  1.0f,
+  1.0f,  1.0f,  1.0f,
+ -1.0f,  1.0f,  1.0f,
+ -1.0f,  1.0f, -1.0f,
+
+ -1.0f, -1.0f, -1.0f,
+ -1.0f, -1.0f,  1.0f,
+  1.0f, -1.0f, -1.0f,
+  1.0f, -1.0f, -1.0f,
+ -1.0f, -1.0f,  1.0f,
+  1.0f, -1.0f,  1.0f
 };

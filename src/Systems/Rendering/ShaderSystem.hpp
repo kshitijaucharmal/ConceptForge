@@ -17,7 +17,7 @@ namespace ShaderSystem {
     void InitVertexShader(Shader &shader, std::string vertexShaderPath);
     void InitFragmentShader(Shader &shader, std::string fragmentShaderPath);
     void LinkShader(Shader& shader);
-    void Use(Shader &shader);
+    void Use(const Shader &shader);
 
     // Setters
     void setBool(Shader &shader, const std::string &name, bool value);

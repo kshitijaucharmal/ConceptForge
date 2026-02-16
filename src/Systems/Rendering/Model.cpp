@@ -145,7 +145,7 @@ namespace ModelSystem {
                 format = GL_RED;
             else if (nrComponents == 3)
                 format = GL_RGB;
-            else if (nrComponents == 4)
+            else
                 format = GL_RGBA;
 
             glBindTexture(GL_TEXTURE_2D, textureID);
