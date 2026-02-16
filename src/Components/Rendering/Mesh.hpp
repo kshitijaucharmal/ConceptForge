@@ -14,6 +14,7 @@ struct Vertex {
 struct Texture {
     unsigned int id;
     std::string type;
+    // TODO: Not using this anywhere, probably remove it before further confusion
     std::string path;
 };
 

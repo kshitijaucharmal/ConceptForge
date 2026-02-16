@@ -22,7 +22,7 @@ namespace LightSystem {
             .initialized = true
         });
         // Should be some kind of Gizmo, but an Unshaded UV Sphere for now
-        Mesh mesh = Primitives::CreateUVSphereMesh();
+        Mesh mesh = Primitives::CreateUVSphereMesh(registry);
         registry.emplace<Mesh>(lightEntity, mesh);
         registry.emplace<PointLight>(lightEntity, point_light);
 
@@ -43,7 +43,7 @@ namespace LightSystem {
             .shader = shaderStore["UnlitShader"],
             .initialized = true
         });
-        Mesh mesh = Primitives::CreateUVSphereMesh();
+        Mesh mesh = Primitives::CreateUVSphereMesh(registry);
         registry.emplace<Mesh>(lightEntity, mesh);
 
         registry.emplace<DirectionalLight>(lightEntity, directional_light);

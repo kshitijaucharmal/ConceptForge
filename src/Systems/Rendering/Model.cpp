@@ -4,54 +4,76 @@
 
 #include "Model.hpp"
 
-#include <iostream>
 #include "Systems/Rendering/MeshSystem.hpp"
 #include <stb_image.h>
 
+#include "Components/Primitives/Transform.hpp"
+#include "Components/Rendering/Material.hpp"
+
 namespace ModelSystem {
-    Model::Model(std::string path, bool flipUVs) {
+    InitModel::InitModel(
+        entt::registry& registry,
+        const entt::entity& shader_entity,
+        const std::string& path,
+        const Transform &transform,
+        const bool flipUVs
+        ) {
         Assimp::Importer import;
         const auto flags = aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | (flipUVs ? aiProcess_FlipUVs : 0);
         const aiScene *scene = import.ReadFile(path, flags);
 
         if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
         {
-            std::cout << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
+            printf("ERROR::ASSIMP::%s\n",import.GetErrorString());
             return;
         }
         directory = path.substr(0, path.find_last_of('/'));
 
-        processNode(scene->mRootNode, scene);
+        // Process recursively
+        processNode(registry, scene->mRootNode, scene, shader_entity, transform);
     }
 
-    void Model::Draw(entt::registry &registry, Shader &shader) {
-        for(unsigned int i = 0; i < meshes.size(); i++) {
-            MeshManager::Draw(registry, meshes[i], shader);
-        }
-    }
-
-    void Model::processNode(const aiNode *node, const aiScene *scene) {
+    // TODO: No hierarchy system for now, just stores in meshes.
+    // Will contain a parent-child relation later
+    void InitModel::processNode(
+        entt::registry &registry,
+        const aiNode *node,
+        const aiScene *scene,
+        const entt::entity &shader_entity,
+        const Transform &parent
+        ) {
         // process all the node's meshes (if any)
         for(unsigned int i = 0; i < node->mNumMeshes; i++)
         {
             aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
-            meshes.push_back(processMesh(mesh, scene));
+
+            // Make it an entity (Transform, Material, Mesh)
+            // TODO: Parent-Child Relation to other meshes
+            // TODO: Local Transformation apply (Applying base transformation to all now)
+            const auto entity = registry.create();
+            auto transform = parent;
+            transform.name = mesh->mName.C_Str();
+            registry.emplace<Transform>(entity, transform);
+            registry.emplace<Material>(entity, Material{shader_entity, true});
+            registry.emplace<Mesh>(entity, processMesh(mesh, scene));
         }
         // then do the same for each of its children
         for(unsigned int i = 0; i < node->mNumChildren; i++)
         {
-            processNode(node->mChildren[i], scene);
+            const auto child = node->mChildren[i];
+            // TODO: Just passing the main transform as parent, should be actual parent
+            processNode(registry, child, scene, shader_entity, parent);
         }
     }
 
-    Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
+    Mesh InitModel::processMesh(aiMesh *mesh, const aiScene *scene) {
         std::vector<Vertex> vertices;
         std::vector<unsigned int> indices;
         std::vector<Texture> textures;
 
         for(unsigned int i = 0; i < mesh->mNumVertices; i++)
         {
-            Vertex vertex;
+            Vertex vertex{};
             // process vertex positions, normals and texture coordinates
             glm::vec3 vector;
 
@@ -99,7 +121,7 @@ namespace ModelSystem {
         return MeshManager::InitMesh(vertices, indices, textures);
     }
 
-    std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName) {
+    std::vector<Texture> InitModel::loadMaterialTextures(const aiMaterial *mat, const aiTextureType type, const std::string& typeName) {
         std::vector<Texture> textures;
         for(unsigned int i = 0; i < mat->GetTextureCount(type); i++)
         {
@@ -128,7 +150,7 @@ namespace ModelSystem {
         return textures;
     }
 
-    unsigned int Model::TextureFromFile(const char *path, const std::string &directory, bool gamma)
+    unsigned int InitModel::TextureFromFile(const char *path, const std::string &directory, bool gamma)
     {
         std::string filename = std::string(path);
         filename = directory + '/' + filename;
@@ -161,7 +183,7 @@ namespace ModelSystem {
         }
         else
         {
-            std::cout << "Texture failed to load at path: " << path << std::endl;
+            printf("Texture failed to load at path: %s\n", path);
             stbi_image_free(data);
         }
 
