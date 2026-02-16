@@ -11,26 +11,33 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include "Components/Primitives/Transform.hpp"
+
 namespace ModelSystem {
     // Probably will let this be a class, like a helper
-    class Model {
+    class InitModel {
     public:
-        Model(std::string path, bool flipUVs = false);
-
-        void Draw(entt::registry &registry, Shader &shader);
+        InitModel(entt::registry &registry,
+            const entt::entity& shader_entity,
+            const std::string& path,
+            const Transform& transform,
+            bool flipUVs = false);
 
     private:
-        // model data
-        std::vector<Mesh> meshes;
         std::string directory;
 
         std::vector<Texture> textures_loaded;
 
-        void processNode(const aiNode *node, const aiScene *scene);
+        void processNode(entt::registry &registry,
+            const aiNode *node,
+            const aiScene *scene,
+            const entt::entity &shader_entity,
+            const Transform &transform
+            );
         Mesh processMesh(aiMesh *mesh, const aiScene *scene);
 
-        unsigned int TextureFromFile(const char *path, const std::string &directory, bool gamma);
+        static unsigned int TextureFromFile(const char *path, const std::string &directory, bool gamma);
 
-        std::vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName);
+        std::vector<Texture> loadMaterialTextures(const aiMaterial *mat, aiTextureType type, const std::string& typeName);
     };
 }

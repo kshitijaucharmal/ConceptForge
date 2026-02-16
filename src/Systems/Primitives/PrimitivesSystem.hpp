@@ -17,11 +17,13 @@ namespace Primitives {
 
     // Cube
     entt::entity CreateCubeObject(entt::registry& registry, const Transform& transform, const entt::entity &shader, bool movable=true);
-    Mesh CreateCubeMesh();
+    Mesh CreateCubeMesh(entt::registry &registry);
 
     // Sphere
     entt::entity CreateUVSphereObject(entt::registry& registry, const Transform& transform, const entt::entity &shader, bool movable=true);
-    Mesh CreateUVSphereMesh();
-    void GenerateSphereVertices(const UVSphere &sphere, std::vector<float> &vertices);
+    Mesh CreateUVSphereMesh(entt::registry &registry);
+    void GenerateSphereVertices(const UVSphere &sphere, std::vector<Vertex> &vertices);
     void GenerateSphereIndices(const UVSphere &sphere, std::vector<unsigned int> &indices);
+
+    void GenerateDefaultTextures(entt::registry &registry, std::vector<Texture> &textures);
 }

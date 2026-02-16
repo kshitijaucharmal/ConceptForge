@@ -9,7 +9,4 @@
 
 namespace MeshManager {
     Mesh InitMesh(const std::vector<Vertex> &vertices, const std::vector<unsigned int> &indices, const std::vector<Texture> &textures);
-
-    // To Remove
-    void Draw(entt::registry &registry, Mesh mesh, Shader &shader);
 }

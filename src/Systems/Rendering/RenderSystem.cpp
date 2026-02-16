@@ -86,61 +86,50 @@ namespace RenderSystem {
         // Draw All meshes
         // Everything that has Transform, Mesh and Material will be Rendered
         for (const auto view = registry.view<Transform, Mesh, Material>(); const auto entity : view) {
-            auto& t = view.get<Transform>(entity);
-            auto& m = view.get<Material>(entity);
-            const auto &fallback = registry.ctx().get<MaterialSystem::FallbackTexture>();
+            auto& _transform = view.get<Transform>(entity);
+            auto& _material = view.get<Material>(entity);
+            const auto _mesh = &view.get<Mesh>(entity);
 
-            const auto mesh = &view.get<Mesh>(entity);
+            // Check if anything is missing
+            Shader* shader = registry.try_get<Shader>(_material.shader);
+            if (!shader || !_mesh || !shader->initialized || !_mesh->initialized) continue;
 
-            Shader* shader = registry.try_get<Shader>(m.shader);
-            if (!shader || !mesh || !shader->initialized || !mesh->initialized) continue;
+            // Apply the transform
+            const auto model = SimObject::ComposeTransform(_transform);
 
-            const auto model = SimObject::ComposeTransform(t);
+            // Always use the shader before passing parameters
             ShaderSystem::Use(*shader);
             ShaderSystem::setMat4(*shader, "model", model);
             unsigned int diffuseNr = 1;
             unsigned int specularNr = 1;
             unsigned int unit_counter = 0; // Use one counter for all texture units
 
-            // --- Main Loop for model's actual textures ---
-            for (const auto & texture : mesh->textures) {
+            // Texture rendering
+            for (const auto & texture : _mesh->textures) {
                 glActiveTexture(GL_TEXTURE0 + unit_counter); // Use the main counter
 
                 std::string number;
                 std::string name = texture.type;
 
-                // TODO: If none of these match, number is null. Fix
                 if (name == "texture_diffuse") number = std::to_string(diffuseNr++);
                 else if (name == "texture_specular") number = std::to_string(specularNr++);
+                else
+                {
+                    printf("[WARN] Texture with name %s cannot be rendered",name.c_str());
+                    continue;
+                };
 
-                ShaderSystem::setInt(*shader, ("material." + name + number).c_str(), unit_counter);
+                ShaderSystem::setInt(*shader, "material." + name + number, unit_counter);
                 glBindTexture(GL_TEXTURE_2D, texture.id);
                 unit_counter++; // Increment for each texture used
             }
 
-            // --- Fallback Handling ---
-            // If no diffuse map was bound, add the fallback in the next available slot.
-            if (diffuseNr == 1) {
-                glActiveTexture(GL_TEXTURE0 + unit_counter);
-                ShaderSystem::setInt(*shader, "material.texture_diffuse1", unit_counter);
-                glBindTexture(GL_TEXTURE_2D, fallback);
-                unit_counter++;
-            }
-
-            // If no specular map was bound, add the fallback.
-            if (specularNr == 1) {
-                glActiveTexture(GL_TEXTURE0 + unit_counter);
-                ShaderSystem::setInt(*shader, "material.texture_specular1", unit_counter);
-                glBindTexture(GL_TEXTURE_2D, fallback);
-                unit_counter++;
-            }
-
             // Drawing
-            glBindVertexArray(mesh->VAO);
+            glBindVertexArray(_mesh->VAO);
 
             // Draw differently depending on EBO availability
-            if (mesh->elemental) glDrawElements(GL_TRIANGLES, mesh->indexCount, GL_UNSIGNED_INT, nullptr);
-            else glDrawArrays(GL_TRIANGLES, 0, mesh->indexCount);
+            if (_mesh->elemental) glDrawElements(GL_TRIANGLES, _mesh->indexCount, GL_UNSIGNED_INT, nullptr);
+            else glDrawArrays(GL_TRIANGLES, 0, _mesh->indexCount);
 
             // Unbind
             glBindVertexArray(0);

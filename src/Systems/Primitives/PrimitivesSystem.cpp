@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+#include "imgui_impl_opengl3_loader.h"
 #include "Components/Rendering/Material.hpp"
 #include "Components/Rendering/Mesh.hpp"
 
@@ -9,6 +10,8 @@
 #include "Components/Primitives/Cube.hpp"
 #include "Components/Primitives/UVSphere.hpp"
 #include "Core/Physics/PhysicsSystem.hpp"
+#include "Systems/Rendering/MaterialSystem.hpp"
+#include "Systems/Rendering/MeshSystem.hpp"
 
 namespace Primitives {
     entt::entity Create(entt::registry &registry, PrimitiveType primitiveType, Transform transform, entt::entity &material) {
@@ -23,41 +26,11 @@ namespace Primitives {
         return entt::null;
     }
 
-    Mesh CreateCubeMesh() {
-        GLuint VAO, VBO, EBO;
+    Mesh CreateCubeMesh(entt::registry &registry) {
+        std::vector<Texture> textures;
+        GenerateDefaultTextures(registry, textures);
 
-        glGenVertexArrays(1, &VAO);
-        glBindVertexArray(VAO);
-
-        glGenBuffers(1, &VBO);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
-
-        // ADD EBO for indices
-        glGenBuffers(1, &EBO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cubeIndices), cubeIndices, GL_STATIC_DRAW);
-
-        // Match shader locations EXACTLY: pos(0), normal(1), tex(2)
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);                  // loc0: pos ✓
-        glEnableVertexAttribArray(0);
-
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float))); // loc1: normal (offsets 3+2=5) ✓
-        glEnableVertexAttribArray(1);
-
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float))); // loc2: texcoord (after pos) ✓
-        glEnableVertexAttribArray(2);
-
-        // CRITICAL: Unbind everything
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
-
-        return Mesh{
-            .VAO = VAO, .VBO = VBO, .EBO = EBO,  // Add EBO field
-            .indexCount = 36,
-            .initialized = true
-        };
+        return MeshManager::InitMesh(cubeVertices, cubeIndices, textures);
     }
 
     entt::entity CreateUVSphereObject(entt::registry &registry, const Transform& transform, const entt::entity &shader, const bool movable) {
@@ -68,7 +41,7 @@ namespace Primitives {
             .initialized = true
         });
 
-        const Mesh mesh = CreateUVSphereMesh();
+        const Mesh mesh = CreateUVSphereMesh(registry);
         registry.emplace<Mesh>(e, mesh);
         registry.emplace<UVSphere>(e);
         registry.emplace<PrimitiveType>(e, UV_SPHERE);
@@ -104,64 +77,51 @@ namespace Primitives {
         }
     }
 
-    Mesh CreateUVSphereMesh() {
-        std::vector<unsigned int> indices;
-        std::vector<float> vertices;
-
-        // Default UVSphere
-        constexpr auto sphere = UVSphere{};
-
-        GenerateSphereVertices(sphere, vertices);
-        GenerateSphereIndices(sphere, indices);
-
-        GLuint VAO, VBO, EBO;
-        glGenVertexArrays(1, &VAO);
-        glBindVertexArray(VAO);
-
-        glGenBuffers(1, &VBO);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
-
-        glGenBuffers(1, &EBO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
-
-        constexpr GLsizei stride = 8 * sizeof(float);  // pos(3)+normal(3)+tex(2)
-
-        // Position: layout(location = 0)
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, 0);
-        glEnableVertexAttribArray(0);
-
-        // Normal: layout(location = 1)
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(1);
-
-        // TexCoord: layout(location = 2)
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, (void*)(6 * sizeof(float)));
-        glEnableVertexAttribArray(2);
-
-        glBindVertexArray(0);
-
-        const int indicesSize = indices.size();
-
-        return Mesh{
-            .VAO = VAO,
-            .VBO = VBO,
-            .EBO = EBO,
-            .indexCount = indicesSize,
-            .elemental = true,
-            .initialized = true
+    void GenerateDefaultTextures(entt::registry &registry, std::vector<Texture> &textures)
+    {
+        // Just use the White fallback texture for now
+        const auto fallback = registry.ctx().get<MaterialSystem::FallbackTexture>();
+        textures = {
+            Texture{
+                .id = fallback,
+                .type = "texture_diffuse",
+                .path = "fallback"
+            },
+            Texture{
+                .id = fallback,
+                .type = "texture_specular",
+                .path = "fallback"
+            }
         };
     }
 
-    void GenerateSphereVertices(const UVSphere &sphere, std::vector<float> &vertices) {
-        const float sectorStep = M_PI * 2 / sphere.sectorCount;
+    Mesh CreateUVSphereMesh(entt::registry &registry) {
+        // Default UVSphere
+        constexpr auto sphere = UVSphere{};
+
+        std::vector<unsigned int> indices;
+        std::vector<Vertex> vertices;
+        std::vector<Texture> textures;
+
+        GenerateSphereVertices(sphere, vertices);
+        GenerateSphereIndices(sphere, indices);
+        GenerateDefaultTextures(registry, textures);
+
+        return MeshManager::InitMesh(vertices, indices, textures);
+    }
+
+    void GenerateSphereVertices(const UVSphere &sphere, std::vector<Vertex> &vertices) {
+        vertices.clear();
+        vertices.reserve((sphere.stackCount + 1) * (sphere.sectorCount + 1));
+
+        const float sectorStep = 2.0f * M_PI / sphere.sectorCount;
         const float stackStep = M_PI / sphere.stackCount;
 
         for (int i = 0; i <= sphere.stackCount; ++i) {
-            const float stackAngle = M_PI / 2 - i * stackStep; // from pi/2 to -pi/2
+            // stackAngle from pi/2 to -pi/2
+            const float stackAngle = M_PI / 2.0f - i * stackStep;
             const float xy = sphere.radius * cosf(stackAngle);
-            float y = sphere.radius * sinf(stackAngle);
+            const float y = sphere.radius * sinf(stackAngle);
 
             for (int j = 0; j <= sphere.sectorCount; ++j) {
                 const float sectorAngle = j * sectorStep;
@@ -169,15 +129,20 @@ namespace Primitives {
                 float x = xy * cosf(sectorAngle);
                 float z = xy * sinf(sectorAngle);
 
-                // normalized normal
-                glm::vec3 norm = glm::normalize(glm::vec3(x, y, z));
+                // Normalized normal (for a sphere centered at 0,0,0, this is just pos/radius)
+                glm::vec3 normal = glm::normalize(glm::vec3(x, y, z));
 
-                // texture coords (u, v)
+                // Texture coords (u, v)
                 float u = static_cast<float>(j) / sphere.sectorCount;
                 float v = static_cast<float>(i) / sphere.stackCount;
 
-                // Push in position, texcoord, normal
-                vertices.insert(vertices.end(), {x, y, z, u, v, norm.x, norm.y, norm.z});
+                // Push into the Vertex vector matching your struct layout:
+                // struct Vertex { glm::vec3 Position; glm::vec3 Normal; glm::vec2 TexCoords; };
+                vertices.emplace_back(Vertex{
+                    .Position  = {x, y, z},
+                    .Normal    = normal,
+                    .TexCoords = {u, v}
+                });
             }
         }
     }
@@ -190,7 +155,7 @@ namespace Primitives {
             .shader = shader,
             .initialized = true
         });
-        Mesh mesh = CreateCubeMesh();
+        Mesh mesh = CreateCubeMesh(registry);
         registry.emplace<Mesh>(e, mesh);
         registry.emplace<Cube>(e);
         registry.emplace<PrimitiveType>(e, PrimitiveType::CUBE);

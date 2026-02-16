@@ -67,7 +67,7 @@ public:
 
     // Grid
     entt::entity grid;
-    ModelSystem::Model *myModel;
+    ModelSystem::InitModel *myModel;
 
 private:
     // Init Functions
@@ -166,7 +166,9 @@ private:
 
         // 3d model
         {
-            myModel = new ModelSystem::Model("/home/kshitij/Assets/backpack/backpack.obj");
+            myModel = new ModelSystem::InitModel(registry, litShader, "/home/kshitij/Assets/backpack/backpack.obj", Transform{
+                .position = glm::vec3(2.5f, 2.5f, 0.0f)
+            });
         }
 
         // Ground (Static)
@@ -248,24 +250,14 @@ public:
         // Grid
         GridSystem::Render(registry, grid, registry.get<Shader>(gridShader));
 
-        {
-            auto model = glm::mat4(1.0f);
-            model = glm::translate(model, glm::vec3(2.0f, 2.5f, 0.0f)); // translate it down so it's at the center of the scene
-            model = glm::scale(model, glm::vec3(1., 1., 1.));	// it's a bit too big for our scene, so scale it down
-            auto unlit = registry.get<Shader>(litShader);
-            ShaderSystem::Use(unlit);
-            ShaderSystem::setMat4(unlit, "model", model);
-            myModel->Draw(registry, unlit);
-        }
-
-        {
-            auto model = glm::mat4(1.0f);
-            model = glm::translate(model, glm::vec3(-2.0f, 2.0f, 0.0f)); // translate it down so it's at the center of the scene
-            model = glm::scale(model, glm::vec3(1., 1., 1.));	// it's a bit too big for our scene, so scale it down
-            auto unlit = registry.get<Shader>(unlitShader);
-            ShaderSystem::Use(unlit);
-            ShaderSystem::setMat4(unlit, "model", model);
-        }
+        // {
+        //     auto model = glm::mat4(1.0f);
+        //     model = glm::translate(model, glm::vec3(2.0f, 2.5f, 0.0f)); // translate it down so it's at the center of the scene
+        //     model = glm::scale(model, glm::vec3(1., 1., 1.));	// it's a bit too big for our scene, so scale it down
+        //     auto unlit = registry.get<Shader>(litShader);
+        //     ShaderSystem::Use(unlit);
+        //     ShaderSystem::setMat4(unlit, "model", model);
+        // }
 
         // Render every object
         RenderSystem::Render(registry);
