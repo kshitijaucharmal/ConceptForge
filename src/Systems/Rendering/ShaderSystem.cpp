@@ -24,7 +24,7 @@ namespace ShaderSystem {
         }
     }
 
-    void Use(Shader &shader) {
+    void Use(const Shader &shader) {
         glUseProgram(shader.shaderID);
 
         switch(shader.drawMode){
@@ -37,7 +37,7 @@ namespace ShaderSystem {
         }
     }
 
-    void SetDrawMode(entt::registry &registry, DrawMode mode){
+    void SetDrawMode(entt::registry &registry, const DrawMode mode){
         auto view = registry.view<Shader>();
         for(auto &entity : view){
             auto &shader = view.get<Shader>(entity);
