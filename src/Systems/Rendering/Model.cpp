@@ -11,15 +11,20 @@
 #include "Components/Rendering/Material.hpp"
 
 namespace ModelSystem {
-    InitModel::InitModel(
+    Model::Model(
         entt::registry& registry,
         const entt::entity& shader_entity,
         const std::string& path,
         const Transform &transform,
-        const bool flipUVs
+        const bool flipUVs,
+        const bool treatAsSingle
         ) {
         Assimp::Importer import;
-        const auto flags = aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | (flipUVs ? aiProcess_FlipUVs : 0);
+        const auto flags = aiProcess_Triangulate
+            | aiProcess_GenSmoothNormals
+            | aiProcess_CalcTangentSpace
+            | (treatAsSingle ? aiProcess_PreTransformVertices : 0)
+            | (flipUVs ? aiProcess_FlipUVs : 0);
         const aiScene *scene = import.ReadFile(path, flags);
 
         if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
@@ -35,7 +40,7 @@ namespace ModelSystem {
 
     // TODO: No hierarchy system for now, just stores in meshes.
     // Will contain a parent-child relation later
-    void InitModel::processNode(
+    void Model::processNode(
         entt::registry &registry,
         const aiNode *node,
         const aiScene *scene,
@@ -66,7 +71,7 @@ namespace ModelSystem {
         }
     }
 
-    Mesh InitModel::processMesh(aiMesh *mesh, const aiScene *scene) {
+    Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
         std::vector<Vertex> vertices;
         std::vector<unsigned int> indices;
         std::vector<Texture> textures;
@@ -121,7 +126,7 @@ namespace ModelSystem {
         return MeshManager::InitMesh(vertices, indices, textures);
     }
 
-    std::vector<Texture> InitModel::loadMaterialTextures(const aiMaterial *mat, const aiTextureType type, const std::string& typeName) {
+    std::vector<Texture> Model::loadMaterialTextures(const aiMaterial *mat, const aiTextureType type, const std::string& typeName) {
         std::vector<Texture> textures;
         for(unsigned int i = 0; i < mat->GetTextureCount(type); i++)
         {
@@ -150,9 +155,9 @@ namespace ModelSystem {
         return textures;
     }
 
-    unsigned int InitModel::TextureFromFile(const char *path, const std::string &directory, bool gamma)
+    unsigned int Model::TextureFromFile(const char *path, const std::string &directory, bool gamma)
     {
-        std::string filename = std::string(path);
+        auto filename = std::string(path);
         filename = directory + '/' + filename;
 
         unsigned int textureID;

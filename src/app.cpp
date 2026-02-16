@@ -67,7 +67,7 @@ public:
 
     // Grid
     entt::entity grid;
-    ModelSystem::InitModel *myModel;
+    ModelSystem::Model *myModel;
 
 private:
     // Init Functions
@@ -166,7 +166,7 @@ private:
 
         // 3d model
         {
-            myModel = new ModelSystem::InitModel(registry, litShader, "/home/kshitij/Assets/backpack/backpack.obj", Transform{
+            myModel = new ModelSystem::Model(registry, litShader, "/home/kshitij/Assets/backpack/backpack.obj", Transform{
                 .position = glm::vec3(2.5f, 2.5f, 0.0f)
             });
         }
