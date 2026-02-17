@@ -15,46 +15,58 @@ struct Transform {
 
     glm::mat4 model = glm::mat4(1.0f);
 
-    entt::entity parent = entt::null;
-    std::vector<entt::entity> children;
+    entt::entity parent        = entt::null;
+    entt::entity first_child   = entt::null;
+    entt::entity prev_sibling  = entt::null;
+    entt::entity next_sibling  = entt::null;
 
-    static void DetachFromParent(entt::registry& registry, entt::entity child) {
-        if (!registry.valid(child)) return;
+    static void DetachFromParent(entt::registry& registry, const entt::entity entity) {
+        auto& node = registry.get<Transform>(entity);
 
-        auto& transform = registry.get<Transform>(child);
-        entt::entity oldParent = transform.parent;
+        if (node.parent == entt::null) return;
 
-        if (oldParent != entt::null && registry.valid(oldParent)) {
-            auto& parentTransform = registry.get<Transform>(oldParent);
-            auto& children = parentTransform.children;
+        auto& parentNode = registry.get<Transform>(node.parent);
 
-            // Erase-remove idiom to clean up the vector
-            children.erase(std::remove(children.begin(), children.end(), child), children.end());
+        // 1. If this is the "head" child, move the parent's pointer to the next sibling
+        if (parentNode.first_child == entity) {
+            parentNode.first_child = node.next_sibling;
         }
 
-        transform.parent = entt::null;
+        // 2. Stitch neighbors together
+        if (node.prev_sibling != entt::null) {
+            registry.get<Transform>(node.prev_sibling).next_sibling = node.next_sibling;
+        }
+        if (node.next_sibling != entt::null) {
+            registry.get<Transform>(node.next_sibling).prev_sibling = node.prev_sibling;
+        }
+
+        // 3. Reset entity pointers
+        node.parent = entt::null;
+        node.prev_sibling = entt::null;
+        node.next_sibling = entt::null;
     }
 
-    static void AddChild(entt::registry& registry, const entt::entity parent, const entt::entity child) {
-        if (!registry.valid(parent) || !registry.valid(child) || parent == child) return;
+    static void Reparent(entt::registry& registry, entt::entity parent, entt::entity child) {
+        if (parent == child || parent == entt::null) return;
 
-        // 1. Remove from old parent if it exists
+        // Ensure child is detached from any previous parent first
         DetachFromParent(registry, child);
 
-        // Set the parent
-        auto& childTransform = registry.get<Transform>(child);
-        childTransform.parent = parent;
+        auto& pNode = registry.get<Transform>(parent);
+        auto& cNode = registry.get<Transform>(child);
 
-        // Add to parent's children list
-        if (parent != entt::null) {
-            auto& parentTransform = registry.get<Transform>(parent);
+        // 1. Assign parent
+        cNode.parent = parent;
 
-            auto it = std::find(parentTransform.children.begin(), parentTransform.children.end(), child);
-
-            if (it == parentTransform.children.end()) {
-                parentTransform.children.push_back(child);
-            }
+        // 2. Insert at the head of the list
+        if (pNode.first_child != entt::null) {
+            // Link the current first child to our new child
+            auto& oldFirst = registry.get<Transform>(pNode.first_child);
+            oldFirst.prev_sibling = child;
+            cNode.next_sibling = pNode.first_child;
         }
-    }
 
+        // 3. Parent now recognizes this child as the first
+        pNode.first_child = child;
+    }
 };

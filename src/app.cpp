@@ -178,7 +178,7 @@ private:
                 .scale = glm::vec3(20.0, 1.0f, 20.0f),
             };
             auto ground = Primitives::CreateCubeObject(registry, transform, litShader, false);
-            Transform::AddChild(registry, scene_root, ground);
+            Transform::Reparent(registry, scene_root, ground);
 
             auto transform2 = Transform{
                 .name = "Cube 1",
@@ -187,7 +187,7 @@ private:
                 .scale = glm::vec3(2.0),
             };
             auto cube= Primitives::CreateCubeObject(registry, transform2, litShader, false);
-            Transform::AddChild(registry, ground, cube);
+            Transform::Reparent(registry, ground, cube);
 
             auto transform3 = Transform{
                 .name = "Cube 2",
@@ -196,7 +196,7 @@ private:
                 .scale = glm::vec3(1.0),
             };
             auto cube2 = Primitives::CreateCubeObject(registry, transform3, litShader, false);
-            Transform::AddChild(registry, cube, cube2);
+            Transform::Reparent(registry, cube, cube2);
         }
 
         // Sphere

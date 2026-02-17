@@ -38,45 +38,46 @@ namespace ModelSystem {
 
         const auto scene_root = registry.ctx().get<SceneRoot>().entity;
         entity = processNode(registry, scene->mRootNode, scene, shader_entity, entt::null);
-        Transform::AddChild(registry, scene_root, entity);
+        Transform::Reparent(registry, scene_root, entity);
     }
 
     entt::entity Model::processNode(
-        entt::registry &registry,
-        const aiNode *node,
-        const aiScene *scene,
-        const entt::entity &shader_entity,
-        const entt::entity parent
-        ) {
-
-        // Entity for this node
+    entt::registry &registry,
+    const aiNode *node,
+    const aiScene *scene,
+    const entt::entity &shader_entity,
+    const entt::entity parent
+) {
+        // 1. Create the entity for this node
         const entt::entity entity = registry.create();
 
-        // set transform name and parent
+        // 2. Initialize the Transform.
+        // We don't set the parent directly in the constructor anymore
+        // because AddChild handles the linked list stitching.
         registry.emplace<Transform>(entity, Transform{
-            .name = node->mName.C_Str(),
-            .parent = parent
+            .name = node->mName.C_Str()
         });
 
-        // process all the node's meshes (if any)
+        // 3. Link to parent if it's not null
+        if (parent != entt::null) {
+            Transform::Reparent(registry, parent, entity);
+        }
+
+        // 4. Process meshes for this entity
         std::vector<Mesh> meshes;
-        for(unsigned int i = 0; i < node->mNumMeshes; i++)
-        {
+        for(unsigned int i = 0; i < node->mNumMeshes; i++) {
             aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
             meshes.emplace_back(processMesh(mesh, scene));
         }
         registry.emplace<std::vector<Mesh>>(entity, meshes);
         registry.emplace<Material>(entity, Material{shader_entity, true});
 
-        // then do the same for each of its children
-        std::vector<entt::entity> children;
-        for(unsigned int i = 0; i < node->mNumChildren; i++)
-        {
-            entt::entity child = processNode(registry, node->mChildren[i], scene, shader_entity, entity);
-            children.emplace_back(child);
+        // 5. Recursively process children
+        // Note: We no longer need a local std::vector<entt::entity> children here.
+        // The recursive call to processNode will handle the linking via AddChild.
+        for(unsigned int i = 0; i < node->mNumChildren; i++) {
+            processNode(registry, node->mChildren[i], scene, shader_entity, entity);
         }
-        auto &transform = registry.get<Transform>(entity);
-        transform.children = children;
 
         return entity;
     }

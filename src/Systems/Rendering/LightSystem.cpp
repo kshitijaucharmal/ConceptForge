@@ -29,7 +29,7 @@ namespace LightSystem {
 
         auto &handle = registry.ctx().get<PointLightsHandle>();
         handle.entities.push_back(lightEntity);
-        Transform::AddChild(registry, registry.ctx().get<SceneRoot>().entity, lightEntity);
+        Transform::Reparent(registry, registry.ctx().get<SceneRoot>().entity, lightEntity);
 
         return lightEntity;
     }
@@ -51,7 +51,7 @@ namespace LightSystem {
         registry.emplace<DirectionalLight>(lightEntity, directional_light);
         auto &handle = registry.ctx().get<DirectionalLightsHandle>();
         handle.entities.push_back(lightEntity);
-        Transform::AddChild(registry, registry.ctx().get<SceneRoot>().entity, lightEntity);
+        Transform::Reparent(registry, registry.ctx().get<SceneRoot>().entity, lightEntity);
 
         return lightEntity;
     }
