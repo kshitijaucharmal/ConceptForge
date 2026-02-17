@@ -37,10 +37,12 @@ namespace ModelSystem {
             bool flipUVs = false,
             bool treatAsSingle = false
             );
+        entt::entity entity = entt::null;
 
     private:
         /// The directory path of the loaded model, used for resolving relative texture paths.
         std::string directory;
+
 
         /** @brief Cache of textures already loaded to prevent redundant GPU uploads. */
         std::vector<Texture> textures_loaded;

@@ -168,16 +168,6 @@ private:
         // Grid
         grid = GridSystem::CreateGrid(registry, gridShader, "Grid");
 
-        // 3d model
-        {
-            auto transform = Transform{
-                .name = "Backpack",
-                .position = glm::vec3(2.5f, 2.5f, 0.0f),
-                .parent = scene_root
-            };
-            myModel = new ModelSystem::Model(registry, litShader, "/home/kshitij/Assets/backpack/backpack.obj", transform);
-        }
-
         // BUG: This does not work, as both parent and child needs to be set
         // Alternative: Try linked list approach for Parent-Child
         {
@@ -210,16 +200,15 @@ private:
         }
 
         // Sphere
-        // {
-        //     auto transform = Transform{
-        //         .name = "Sphere",
-        //         .position = glm::vec3(-2.0f, 2.0f, 0.0f),
-        //         .rotation = glm::quat(1, 0, 0, 0),
-        //         .scale = glm::vec3(2.0f),
-        //         .parent = scene_root
-        //     };
-        //     Primitives::CreateUVSphereObject(registry, transform, litShader, false);
-        // }
+        {
+            auto transform = Transform{
+                .name = "Sphere",
+                .position = glm::vec3(-2.0f, 2.0f, 0.0f),
+                .rotation = glm::quat(1, 0, 0, 0),
+                .scale = glm::vec3(2.0f),
+            };
+            Primitives::CreateUVSphereObject(registry, transform, litShader, false);
+        }
 
         // Directional Lights
         {
@@ -228,7 +217,6 @@ private:
                 .position = glm::vec3(0.0f, 5.0f, 0.0f),
                 .rotation = glm::quat(0.6484594, 0.2819582, -0.6484594, -0.2819582),
                 .scale = glm::vec3(0.3, 0.3, 0.3),
-                .parent = scene_root
             };
             auto light = DirectionalLight{
                 .direction = glm::eulerAngles(transform.rotation),
@@ -236,8 +224,18 @@ private:
                 .diffuse = glm::vec3(1.0),
                 .specular = glm::vec3(1.0),
             };
-            LightSystem::AddDirectionalLight(registry, transform, light);
+            const auto l = LightSystem::AddDirectionalLight(registry, transform, light);
         }
+
+        // 3d model
+        {
+            auto transform = Transform{
+                .name = "Backpack",
+                .position = glm::vec3(2.5f, 2.5f, 0.0f),
+            };
+            myModel = new ModelSystem::Model(registry, litShader, "/home/kshitij/Assets/backpack/backpack.obj", transform);
+        }
+
         // ------------------------------------------------------------------
     }
 
