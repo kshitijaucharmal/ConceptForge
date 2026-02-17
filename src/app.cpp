@@ -45,6 +45,7 @@
 #include "Components/SceneRoot.hpp"
 #include "Core/EditorWindows/PythonEditor.hpp"
 #include "Systems/SceneRootSystem.hpp"
+#include "Systems/SimObjectSystem.hpp"
 
 class App {
 //Variables
@@ -175,16 +176,16 @@ private:
                 .name = "Ground",
                 .position = glm::vec3(0.0f, 0.0f, 0.0f),
                 .rotation = glm::quat(1, 0, 0, 0),
-                .scale = glm::vec3(20.0, 1.0f, 20.0f),
+                .scale = glm::vec3(1.0, 1.0f, 1.0f),
             };
             auto ground = Primitives::CreateCubeObject(registry, transform, litShader, false);
             Transform::Reparent(registry, scene_root, ground);
 
             auto transform2 = Transform{
                 .name = "Cube 1",
-                .position = glm::vec3(0.0f, 2.0f, 0.0f),
+                .position = glm::vec3(0.0f, 4.0f, 0.0f),
                 .rotation = glm::quat(1, 0, 0, 0),
-                .scale = glm::vec3(2.0),
+                .scale = glm::vec3(1.0),
             };
             auto cube= Primitives::CreateCubeObject(registry, transform2, litShader, false);
             Transform::Reparent(registry, ground, cube);
@@ -224,7 +225,7 @@ private:
                 .diffuse = glm::vec3(1.0),
                 .specular = glm::vec3(1.0),
             };
-            const auto l = LightSystem::AddDirectionalLight(registry, transform, light);
+            LightSystem::AddDirectionalLight(registry, transform, light);
         }
 
         // 3d model
@@ -233,7 +234,7 @@ private:
                 .name = "Backpack",
                 .position = glm::vec3(2.5f, 2.5f, 0.0f),
             };
-            myModel = new ModelSystem::Model(registry, litShader, "/home/kshitij/Assets/backpack/backpack.obj", transform);
+            myModel = new ModelSystem::Model(registry, litShader, "/home/kshitij/Assets/backpack/backpack.obj", transform, false, true);
         }
 
         // ------------------------------------------------------------------
@@ -362,6 +363,9 @@ public:
             // Call Late Update
             auto &lateUpdateQueue = registry.ctx().get<EventSystem::LateUpdateQueue>();
             for (auto &fn : lateUpdateQueue.functions) fn();
+
+            // Update all matrices
+            SimObject::UpdateHierarchyMatrices(registry, registry.ctx().get<SceneRoot>().entity, glm::mat4(1.0f));
             // --------------------------------------------------------------
 
             // Rendering --------------------------------------------------

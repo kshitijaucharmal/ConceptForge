@@ -18,7 +18,6 @@ namespace Hierarchy {
     void DrawEntityNode(entt::registry& registry, entt::entity entity, entt::entity& selectedEntity) {
         auto& transform = registry.get<Transform>(entity);
 
-        // 1. Setup Flags
         ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow
                                  | ImGuiTreeNodeFlags_OpenOnDoubleClick
                                  | ImGuiTreeNodeFlags_SpanAvailWidth
@@ -26,33 +25,54 @@ namespace Hierarchy {
                                  | ImGuiTreeNodeFlags_SpanFullWidth;
 
         if (entity == selectedEntity) flags |= ImGuiTreeNodeFlags_Selected;
-
-        // NEW: Check if first_child is null instead of checking vector size
         if (transform.first_child == entt::null) flags |= ImGuiTreeNodeFlags_Leaf;
 
-        // 2. Draw the node
-        // Note: We use the entity ID as the unique ImGui ID
         const bool opened = ImGui::TreeNodeEx((void*)(uintptr_t)entity, flags, "%s", transform.name.c_str());
 
-        // 3. Handle Selection
+        // --- Drag and Drop Source ---
+        if (ImGui::BeginDragDropSource()) {
+            // We pass the entity handle as the payload
+            ImGui::SetDragDropPayload("HIERARCHY_NODE", &entity, sizeof(entt::entity));
+
+            // Display what we are dragging
+            ImGui::Text("Moving %s", transform.name.c_str());
+            ImGui::EndDragDropSource();
+        }
+
+        // --- Drag and Drop Target ---
+        if (ImGui::BeginDragDropTarget()) {
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("HIERARCHY_NODE")) {
+                entt::entity draggedEntity = *(const entt::entity*)payload->Data;
+
+                // Safety: Don't parent to self, and don't parent to an existing child
+                // (Reparent usually handles this, but good to check)
+                if (draggedEntity != entity) {
+                    Transform::Reparent(registry, entity, draggedEntity);
+
+                    // Important: Update matrices immediately so the visual doesn't pop
+                    auto root = registry.ctx().get<SceneRoot>().entity;
+                    SimObject::UpdateHierarchyMatrices(registry, root, glm::mat4(1.0f));
+                }
+            }
+            ImGui::EndDragDropTarget();
+        }
+
+        // Selection logic
         if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
             selectedEntity = entity;
         }
 
-        // 4. Custom Highlight Border
+        // Highlight
         if (entity == selectedEntity) {
             const ImVec2 min = ImGui::GetItemRectMin();
             const ImVec2 max = ImGui::GetItemRectMax();
             ImGui::GetWindowDrawList()->AddRect(min, max, IM_COL32(0, 215, 255, 255), 4.0f, 0, 2.0f);
         }
 
-        // 5. Recursion via Linked List Traversal
         if (opened) {
             entt::entity currentChild = transform.first_child;
             while (currentChild != entt::null) {
                 DrawEntityNode(registry, currentChild, selectedEntity);
-
-                // Move to the next sibling in the list
                 currentChild = registry.get<Transform>(currentChild).next_sibling;
             }
             ImGui::TreePop();
@@ -78,6 +98,18 @@ namespace Hierarchy {
 
         if (registry.valid(root)) {
             DrawEntityNode(registry, root, selectedEntity);
+        }
+
+        if (ImGui::BeginDragDropTarget()) {
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("HIERARCHY_NODE")) {
+                entt::entity draggedEntity = *(const entt::entity*)payload->Data;
+
+                if (draggedEntity != root) {
+                    Transform::Reparent(registry, root, draggedEntity);
+                    SimObject::UpdateHierarchyMatrices(registry, root, glm::mat4(1.0f));
+                }
+            }
+            ImGui::EndDragDropTarget();
         }
 
         if (ImGui::IsWindowHovered() && !ImGui::IsAnyItemHovered() && ImGui::IsMouseClicked(0)) {

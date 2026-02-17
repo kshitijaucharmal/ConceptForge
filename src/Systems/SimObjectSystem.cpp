@@ -30,4 +30,22 @@ namespace SimObject {
         return model;
     }
 
+    void UpdateHierarchyMatrices(entt::registry& registry, const entt::entity entity, const glm::mat4& parentWorld) {
+        auto& transform = registry.get<Transform>(entity);
+
+        // 1. Calculate Local Matrix using your Compose function
+        glm::mat4 local = ComposeTransform(transform);
+
+        // 2. Calculate World Matrix (Parent * Local)
+        // If it's the root, parentWorld should be identity
+        transform.model = parentWorld * local;
+
+        // 3. Propagate to children using the Next-Sibling links
+        entt::entity child = transform.first_child;
+        while (child != entt::null) {
+            UpdateHierarchyMatrices(registry, child, transform.model);
+            child = registry.get<Transform>(child).next_sibling;
+        }
+    }
+
 }

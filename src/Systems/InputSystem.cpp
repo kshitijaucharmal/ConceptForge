@@ -9,9 +9,11 @@
 #include <Components/Time.hpp>
 #include <Systems/CameraSystem.hpp>
 
+#include "Components/Rendering/GizmoControls.hpp"
+
 namespace InputSystem {
     void ProcessInput(entt::registry &registry, GLFWwindow *window) {
-        auto deltaTime = registry.ctx().get<Time>().deltaTime;
+        const auto deltaTime = registry.ctx().get<Time>().deltaTime;
         auto &constants = registry.ctx().get<Constants>();
 
         // Camera
@@ -43,6 +45,13 @@ namespace InputSystem {
             camera.lastY = ypos;
 
             CameraSystem::ProcessMouseMovement(camera, transform, xoffset, yoffset, true);
+        }
+        else
+        {
+            auto &[operation, mode] = registry.ctx().get<GizmoControls>();
+            if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) operation = ImGuizmo::TRANSLATE;
+            if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) operation = ImGuizmo::ROTATE;
+            if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) operation = ImGuizmo::SCALE;
         }
     }
 }

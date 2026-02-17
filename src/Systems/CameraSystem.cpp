@@ -20,6 +20,8 @@ entt::entity CreateCamera(entt::registry &registry, std::string name){
         .Fov = 60.0f,
     });
 
+    Transform::Reparent(registry, registry.ctx().get<SceneRoot>().entity, camera);
+
     // Only initialize _this_ camera
     InitCamera(registry, camera);
 
@@ -75,7 +77,7 @@ void ProcessKeyboard(Camera &cam, Transform &transform, glm::vec3 direction, con
 
     // Does not work like i want it to
     auto lerp = [](glm::vec3 a, glm::vec3 b, float t, float deltaTime) -> glm::vec3 {
-        float time = 1.0f - std::exp(-t * deltaTime);
+        const float time = 1.0f - std::exp(-t * deltaTime);
         return glm::mix(a, b, time);
     };
 

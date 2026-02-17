@@ -14,8 +14,10 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Components/Inspectable.hpp"
+#include "Components/SceneRoot.hpp"
 #include "Components/Rendering/DirectionalLight.hpp"
 #include "Components/Rendering/PointLight.hpp"
+#include "Systems/SimObjectSystem.hpp"
 
 namespace Inspector {
 
@@ -83,28 +85,57 @@ namespace Inspector {
     }
 
     void ShowTransform(entt::registry& registry, const entt::entity& selectedObject)
-    {
-        if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen) && selectedObject != entt::null) {
+{
+    if (selectedObject == entt::null) return;
 
-            auto &transform = registry.get<Transform>(selectedObject);
+    if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
+        auto &transform = registry.get<Transform>(selectedObject);
 
-            static char nameBuf[128];
-            strncpy(nameBuf, transform.name.c_str(), sizeof(nameBuf));
-            nameBuf[sizeof(nameBuf) - 1] = '\0';
-
-            if (ImGui::InputText("Name", nameBuf, sizeof(nameBuf))) {
-                transform.name = nameBuf;
-            }
-            ImGui::DragFloat3("Position", glm::value_ptr(transform.position), 0.01,  -1000.0, 1000.0);
-
-            glm::vec3 eulerAngles = glm::degrees(glm::eulerAngles(transform.rotation));
-            if (ImGui::DragFloat3("Rotation", glm::value_ptr(eulerAngles), .5,  -180.0, 180.0) ){
-                transform.rotation = glm::quat(glm::radians(eulerAngles));
-            }
-
-            ImGui::DragFloat3("Scale", glm::value_ptr(transform.scale), 0.1,  0.0, 100.0);
+        // Name
+        char nameBuf[128];
+        strncpy(nameBuf, transform.name.c_str(), sizeof(nameBuf));
+        if (ImGui::InputText("Name", nameBuf, sizeof(nameBuf))) {
+            transform.name = nameBuf;
         }
+
+        bool changed = false;
+
+        // Position
+        if (ImGui::DragFloat3("Position", glm::value_ptr(transform.position), 0.05f)) {
+            changed = true;
+        }
+
+        // Rotation (Euler conversion)
+        if (ImGui::DragFloat3("Rotation", glm::value_ptr(transform.eulerAngles), 0.5f)) {
+            transform.rotation = glm::quat(glm::radians(transform.eulerAngles));
+            changed = true;
+        }
+
+        // Scale
+        if (ImGui::DragFloat3("Scale", glm::value_ptr(transform.scale), 0.05f)) {
+            changed = true;
+        }
+
+        // 1. Reset Scale safety
+        if (transform.scale.x < 0.001f) transform.scale.x = 0.001f;
+        if (transform.scale.y < 0.001f) transform.scale.y = 0.001f;
+        if (transform.scale.z < 0.001f) transform.scale.z = 0.001f;
+
+        // 2. Trigger Hierarchy Update if values changed via UI
+        if (changed) {
+            // Get your SceneRoot or call your UpdateHierarchyMatrices function here
+            // to make sure children follow the slider movement instantly.
+            const auto root = registry.ctx().get<SceneRoot>().entity;
+            SimObject::UpdateHierarchyMatrices(registry, root, glm::mat4(1.0f));
+        }
+
+        // Optional: Read-only World Position for debugging
+        ImGui::BeginDisabled();
+        glm::vec3 worldPos = glm::vec3(transform.model[3]);
+        ImGui::DragFloat3("World Position", glm::value_ptr(worldPos));
+        ImGui::EndDisabled();
     }
+}
 
     void ShowDirectionalLight(entt::registry& registry, const entt::entity& selectedObject)
     {

@@ -95,7 +95,7 @@ namespace RenderSystem {
             if (!shader || _meshes.empty() || !shader->initialized) continue;
 
             // Apply the transform
-            const auto model = SimObject::ComposeTransform(_transform);
+            const auto model = _transform.model;
 
             // Always use the shader before passing parameters
             ShaderSystem::Use(*shader);

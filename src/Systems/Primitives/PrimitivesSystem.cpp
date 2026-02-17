@@ -2,7 +2,6 @@
 
 #include <iostream>
 
-#include "imgui_impl_opengl3_loader.h"
 #include "Components/Rendering/Material.hpp"
 #include "Components/Rendering/Mesh.hpp"
 
