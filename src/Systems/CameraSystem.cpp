@@ -3,6 +3,7 @@
 #include <utility>
 #include <Core/GameState.hpp>
 
+#include "Components/SceneRoot.hpp"
 #include "Components/Rendering/Shader.hpp"
 #include "Systems/Rendering/ShaderSystem.hpp"
 
@@ -13,13 +14,14 @@ entt::entity CreateCamera(entt::registry &registry, std::string name){
     registry.emplace<Transform>(camera, Transform{
         .name = std::move(name),
         .position = glm::vec3(0, 2, 10),
+        .parent = registry.ctx().get<SceneRoot>().entity,
     });
     registry.emplace<Camera>(camera, Camera{
         .Fov = 60.0f,
     });
 
     // Only initialize _this_ camera
-    CameraSystem::InitCamera(registry, camera);
+    InitCamera(registry, camera);
 
     return camera;
 }

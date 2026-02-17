@@ -58,7 +58,7 @@ namespace ModelSystem {
             const aiNode *node,
             const aiScene *scene,
             const entt::entity &shader_entity,
-            Transform &transform
+            entt::entity parent
             );
 
         /**

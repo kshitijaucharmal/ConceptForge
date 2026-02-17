@@ -9,6 +9,8 @@
 #include <Systems/Primitives/PrimitivesSystem.hpp>
 #include <Systems/Rendering/LightSystem.hpp>
 
+#include "Components/SceneRoot.hpp"
+
 namespace Hierarchy {
     void Show(entt::registry &registry){
         // Should be: Anything that has any InspectableComponent
@@ -59,7 +61,9 @@ namespace Hierarchy {
             ImGui::PushID(i);
 
             auto &transform = registry.get<Transform>(entities[i]);
-            if (ImGui::Selectable( (" " + transform.name).c_str(), i == selectedID, ImGuiSelectableFlags_SpanAllColumns)) {
+            const auto &parent_name = (transform.parent == entt::null) ? "Null" : registry.get<Transform>(transform.parent).name;
+
+            if (ImGui::Selectable( (" " + transform.name + ": " + parent_name).c_str(), i == selectedID, ImGuiSelectableFlags_SpanAllColumns)) {
                 selectedID = i;
             }
 
@@ -128,13 +132,19 @@ namespace Hierarchy {
                     }
                     if (ImGui::MenuItem("Cube")) {
                         // Handle Cube creation
-                        const auto transform = Transform { .name = "Cube", };
+                        const auto transform = Transform {
+                            .name = "Cube",
+                            .parent = registry.ctx().get<SceneRoot>().entity,
+                        };
                         auto &shaders = registry.ctx().get<ShaderStore>().shaders;
                         entity = Primitives::Create(registry, Primitives::PrimitiveType::CUBE, transform, shaders["LitShader"]);
                     }
                     if (ImGui::MenuItem("UV Sphere")) {
                         // Handle UV Sphere creation
-                        const auto transform = Transform { .name = "UV Sphere", };
+                        const auto transform = Transform {
+                            .name = "UV Sphere",
+                            .parent = registry.ctx().get<SceneRoot>().entity,
+                        };
                         auto &shaders = registry.ctx().get<ShaderStore>().shaders;
                         entity = Primitives::Create(registry, Primitives::PrimitiveType::UV_SPHERE, transform, shaders["LitShader"]);
                     }
@@ -149,7 +159,8 @@ namespace Hierarchy {
                                 .name = "Directional Light",
                                 .position = glm::vec3(0.0, 10.0, 3.0),
                                 .rotation = glm::quat(glm::radians(glm::vec3(180.0f, -30.0f, -60.0f))),
-                                .scale = glm::vec3(0.4)
+                                .scale = glm::vec3(0.4),
+                                .parent = registry.ctx().get<SceneRoot>().entity,
                             },
                             DirectionalLight());
                     }
@@ -159,14 +170,14 @@ namespace Hierarchy {
                             Transform{
                                 .name = "Point Light",
                                 .position = glm::vec3(0.0, 4.0, 3.0),
-                                .scale = glm::vec3(0.4)
+                                .scale = glm::vec3(0.4),
+                                .parent = registry.ctx().get<SceneRoot>().entity,
                             },
                             PointLight());
                     }
                     ImGui::EndMenu();
                 }
                 if (ImGui::MenuItem("Camera")) {
-                    // Handle Empty creation
                     entity = CameraSystem::CreateCamera(registry);
                 }
                 ImGui::EndMenu();

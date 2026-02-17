@@ -8,6 +8,7 @@
 #include <stb_image.h>
 
 #include "BulletCollision/Gimpact/gim_linear_math.h"
+#include "Components/SceneRoot.hpp"
 #include "Components/Primitives/Transform.hpp"
 #include "Components/Rendering/Material.hpp"
 
@@ -35,9 +36,8 @@ namespace ModelSystem {
         }
         directory = path.substr(0, path.find_last_of('/'));
 
-        // Process recursively
-        // BUG: Not gonna take the name from the transform
-        processNode(registry, scene->mRootNode, scene, shader_entity, transform);
+        auto scene_root = registry.ctx().get<SceneRoot>().entity;
+        processNode(registry, scene->mRootNode, scene, shader_entity, scene_root);
     }
 
     entt::entity Model::processNode(
@@ -45,13 +45,17 @@ namespace ModelSystem {
         const aiNode *node,
         const aiScene *scene,
         const entt::entity &shader_entity,
-        Transform &transform
+        const entt::entity parent
         ) {
 
         // Entity for this node
         const entt::entity entity = registry.create();
-        // set parent's transform name
-        transform.name = node->mName.C_Str();
+
+        // set transform name and parent
+        auto transform = Transform{
+            .name = node->mName.C_Str(),
+            .parent = parent
+        };
 
         // process all the node's meshes (if any)
         std::vector<Mesh> meshes;
@@ -66,8 +70,7 @@ namespace ModelSystem {
         // then do the same for each of its children
         for(unsigned int i = 0; i < node->mNumChildren; i++)
         {
-            // TODO: Just passing the main transform as parent, should be actual parent
-            entt::entity child = processNode(registry, node->mChildren[i], scene, shader_entity, transform);
+            entt::entity child = processNode(registry, node->mChildren[i], scene, shader_entity, entity);
             children.emplace_back(child);
         }
         transform.children = children;
