@@ -42,7 +42,8 @@ namespace Primitives {
         });
 
         const Mesh mesh = CreateUVSphereMesh(registry);
-        registry.emplace<Mesh>(e, mesh);
+        std::vector meshes = {CreateUVSphereMesh(registry)};
+        registry.emplace<std::vector<Mesh>>(e, meshes);
         registry.emplace<UVSphere>(e);
         registry.emplace<PrimitiveType>(e, UV_SPHERE);
 
@@ -155,8 +156,8 @@ namespace Primitives {
             .shader = shader,
             .initialized = true
         });
-        Mesh mesh = CreateCubeMesh(registry);
-        registry.emplace<Mesh>(e, mesh);
+        std::vector meshes = {CreateCubeMesh(registry)};
+        registry.emplace<std::vector<Mesh>>(e, meshes);
         registry.emplace<Cube>(e);
         registry.emplace<PrimitiveType>(e, PrimitiveType::CUBE);
 

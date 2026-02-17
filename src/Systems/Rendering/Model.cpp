@@ -7,6 +7,7 @@
 #include "Systems/Rendering/MeshSystem.hpp"
 #include <stb_image.h>
 
+#include "BulletCollision/Gimpact/gim_linear_math.h"
 #include "Components/Primitives/Transform.hpp"
 #include "Components/Rendering/Material.hpp"
 
@@ -15,7 +16,7 @@ namespace ModelSystem {
         entt::registry& registry,
         const entt::entity& shader_entity,
         const std::string& path,
-        const Transform &transform,
+        Transform &transform,
         const bool flipUVs,
         const bool treatAsSingle
         ) {
@@ -35,40 +36,46 @@ namespace ModelSystem {
         directory = path.substr(0, path.find_last_of('/'));
 
         // Process recursively
+        // BUG: Not gonna take the name from the transform
         processNode(registry, scene->mRootNode, scene, shader_entity, transform);
     }
 
-    // TODO: No hierarchy system for now, just stores in meshes.
-    // Will contain a parent-child relation later
-    void Model::processNode(
+    entt::entity Model::processNode(
         entt::registry &registry,
         const aiNode *node,
         const aiScene *scene,
         const entt::entity &shader_entity,
-        const Transform &parent
+        Transform &transform
         ) {
+
+        // Entity for this node
+        const entt::entity entity = registry.create();
+        // set parent's transform name
+        transform.name = node->mName.C_Str();
+
         // process all the node's meshes (if any)
+        std::vector<Mesh> meshes;
         for(unsigned int i = 0; i < node->mNumMeshes; i++)
         {
             aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
-
-            // Make it an entity (Transform, Material, Mesh)
-            // TODO: Parent-Child Relation to other meshes
-            // TODO: Local Transformation apply (Applying base transformation to all now)
-            const auto entity = registry.create();
-            auto transform = parent;
-            transform.name = mesh->mName.C_Str();
-            registry.emplace<Transform>(entity, transform);
-            registry.emplace<Material>(entity, Material{shader_entity, true});
-            registry.emplace<Mesh>(entity, processMesh(mesh, scene));
+            meshes.emplace_back(processMesh(mesh, scene));
         }
+        registry.emplace<std::vector<Mesh>>(entity, meshes);
+
+        std::vector<entt::entity> children;
         // then do the same for each of its children
         for(unsigned int i = 0; i < node->mNumChildren; i++)
         {
-            const auto child = node->mChildren[i];
             // TODO: Just passing the main transform as parent, should be actual parent
-            processNode(registry, child, scene, shader_entity, parent);
+            entt::entity child = processNode(registry, node->mChildren[i], scene, shader_entity, transform);
+            children.emplace_back(child);
         }
+        transform.children = children;
+
+        registry.emplace<Transform>(entity, transform);
+        registry.emplace<Material>(entity, Material{shader_entity, true});
+
+        return entity;
     }
 
     Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {

@@ -11,7 +11,6 @@
 
 namespace Hierarchy {
     void Show(entt::registry &registry){
-        // BUG: Anything that has a transform is part of the Hierarchy
         // Should be: Anything that has any InspectableComponent
         auto &[entities, selectedID, selectedEntity] = registry.ctx().get<Hierarchy>();
         const auto transformView = registry.view<Transform>();
@@ -24,8 +23,8 @@ namespace Hierarchy {
 
         // Map selectedEntity to selectedID
         if (selectedEntity != entt::null) {
-            auto it = std::find(entities.begin(), entities.end(), selectedEntity);
-            selectedID = (it != entities.end()) ? std::distance(entities.begin(), it) : -1;
+            const auto it = std::ranges::find(entities, selectedEntity);
+            selectedID = it != entities.end() ? std::distance(entities.begin(), it) : -1;
         }
 
         const auto &c = registry.ctx().get<Constants>();

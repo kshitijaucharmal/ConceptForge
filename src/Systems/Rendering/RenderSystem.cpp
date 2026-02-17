@@ -85,14 +85,14 @@ namespace RenderSystem {
 
         // Draw All meshes
         // Everything that has Transform, Mesh and Material will be Rendered
-        for (const auto view = registry.view<Transform, Mesh, Material>(); const auto entity : view) {
+        for (const auto view = registry.view<Transform, std::vector<Mesh>, Material>(); const auto entity : view) {
             auto& _transform = view.get<Transform>(entity);
             auto& _material = view.get<Material>(entity);
-            const auto _mesh = &view.get<Mesh>(entity);
+            auto& _meshes = view.get<std::vector<Mesh>>(entity);
 
             // Check if anything is missing
             Shader* shader = registry.try_get<Shader>(_material.shader);
-            if (!shader || !_mesh || !shader->initialized || !_mesh->initialized) continue;
+            if (!shader || _meshes.empty() || !shader->initialized) continue;
 
             // Apply the transform
             const auto model = SimObject::ComposeTransform(_transform);
@@ -105,31 +105,34 @@ namespace RenderSystem {
             unsigned int unit_counter = 0; // Use one counter for all texture units
 
             // Texture rendering
-            for (const auto & texture : _mesh->textures) {
-                glActiveTexture(GL_TEXTURE0 + unit_counter); // Use the main counter
+            for (auto &_mesh : _meshes)
+            {
+                for (const auto & texture : _mesh.textures) {
+                    glActiveTexture(GL_TEXTURE0 + unit_counter); // Use the main counter
 
-                std::string number;
-                std::string name = texture.type;
+                    std::string number;
+                    std::string name = texture.type;
 
-                if (name == "texture_diffuse") number = std::to_string(diffuseNr++);
-                else if (name == "texture_specular") number = std::to_string(specularNr++);
-                else
-                {
-                    printf("[WARN] Texture with name %s cannot be rendered",name.c_str());
-                    continue;
-                };
+                    if (name == "texture_diffuse") number = std::to_string(diffuseNr++);
+                    else if (name == "texture_specular") number = std::to_string(specularNr++);
+                    else
+                    {
+                        printf("[WARN] Texture with name %s cannot be rendered",name.c_str());
+                        continue;
+                    };
 
-                ShaderSystem::setInt(*shader, "material." + name + number, unit_counter);
-                glBindTexture(GL_TEXTURE_2D, texture.id);
-                unit_counter++; // Increment for each texture used
+                    ShaderSystem::setInt(*shader, "material." + name + number, unit_counter);
+                    glBindTexture(GL_TEXTURE_2D, texture.id);
+                    unit_counter++; // Increment for each texture used
+                }
+
+                // Drawing
+                glBindVertexArray(_mesh.VAO);
+
+                // Draw differently depending on EBO availability
+                if (_mesh.elemental) glDrawElements(GL_TRIANGLES, _mesh.indexCount, GL_UNSIGNED_INT, nullptr);
+                else glDrawArrays(GL_TRIANGLES, 0, _mesh.indexCount);
             }
-
-            // Drawing
-            glBindVertexArray(_mesh->VAO);
-
-            // Draw differently depending on EBO availability
-            if (_mesh->elemental) glDrawElements(GL_TRIANGLES, _mesh->indexCount, GL_UNSIGNED_INT, nullptr);
-            else glDrawArrays(GL_TRIANGLES, 0, _mesh->indexCount);
 
             // Unbind
             glBindVertexArray(0);

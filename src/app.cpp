@@ -166,9 +166,11 @@ private:
 
         // 3d model
         {
-            myModel = new ModelSystem::Model(registry, litShader, "/home/kshitij/Assets/backpack/backpack.obj", Transform{
+            auto transform = Transform{
+                .name = "Backpack",
                 .position = glm::vec3(2.5f, 2.5f, 0.0f)
-            });
+            };
+            myModel = new ModelSystem::Model(registry, litShader, "/home/kshitij/Assets/backpack/backpack.obj", transform);
         }
 
         // Ground (Static)
@@ -180,6 +182,17 @@ private:
                 .scale = glm::vec3(20.0, 1.0f, 20.0f)
             };
             Primitives::CreateCubeObject(registry, transform, litShader, false);
+        }
+
+        // Sphere
+        {
+            auto transform = Transform{
+                .name = "Sphere",
+                .position = glm::vec3(-2.0f, 2.0f, 0.0f),
+                .rotation = glm::quat(1, 0, 0, 0),
+                .scale = glm::vec3(2.0f)
+            };
+            Primitives::CreateUVSphereObject(registry, transform, litShader, false);
         }
 
         // Directional Lights
