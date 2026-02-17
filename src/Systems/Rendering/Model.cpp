@@ -38,6 +38,7 @@ namespace ModelSystem {
 
         const auto scene_root = registry.ctx().get<SceneRoot>().entity;
         entity = processNode(registry, scene->mRootNode, scene, shader_entity, entt::null);
+        registry.get<Transform>(entity) = transform;
         Transform::Reparent(registry, scene_root, entity);
     }
 
@@ -48,22 +49,34 @@ namespace ModelSystem {
     const entt::entity &shader_entity,
     const entt::entity parent
 ) {
-        // 1. Create the entity for this node
         const entt::entity entity = registry.create();
 
-        // 2. Initialize the Transform.
-        // We don't set the parent directly in the constructor anymore
-        // because AddChild handles the linked list stitching.
+        // 1. Decompose Assimp Matrix to GLM components
+        aiVector3D aiPos, aiRot, aiScale;
+        node->mTransformation.Decompose(aiScale, aiRot, aiPos);
+
+        // 2. Convert to GLM types
+        glm::vec3 pos = { aiPos.x, aiPos.y, aiPos.z };
+        glm::vec3 sca = { aiScale.x, aiScale.y, aiScale.z };
+
+        // Assimp decomposition gives Euler angles in radians
+        glm::quat rot = glm::quat(glm::vec3(aiRot.x, aiRot.y, aiRot.z));
+
+        // 3. Emplace Transform with extracted data
         registry.emplace<Transform>(entity, Transform{
-            .name = node->mName.C_Str()
+            .name = node->mName.C_Str(),
+            .position = pos,
+            .rotation = rot,
+            .eulerAngles = glm::degrees(glm::vec3(aiRot.x, aiRot.y, aiRot.z)),
+            .scale = sca
         });
 
-        // 3. Link to parent if it's not null
+        // 4. Link to parent (handles the linked list pointers)
         if (parent != entt::null) {
             Transform::Reparent(registry, parent, entity);
         }
 
-        // 4. Process meshes for this entity
+        // Process meshes
         std::vector<Mesh> meshes;
         for(unsigned int i = 0; i < node->mNumMeshes; i++) {
             aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
@@ -72,9 +85,7 @@ namespace ModelSystem {
         registry.emplace<std::vector<Mesh>>(entity, meshes);
         registry.emplace<Material>(entity, Material{shader_entity, true});
 
-        // 5. Recursively process children
-        // Note: We no longer need a local std::vector<entt::entity> children here.
-        // The recursive call to processNode will handle the linking via AddChild.
+        // Recursively process children
         for(unsigned int i = 0; i < node->mNumChildren; i++) {
             processNode(registry, node->mChildren[i], scene, shader_entity, entity);
         }
