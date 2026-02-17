@@ -2,6 +2,7 @@
 
 #include <utility>
 
+#include "Components/SceneRoot.hpp"
 #include "Components/Rendering/Material.hpp"
 
 #include "glm/gtc/quaternion.hpp"
@@ -16,6 +17,7 @@ namespace SimObject {
         registry.emplace<Transform>(entity, Transform{
             .name = std::move(name)
         });
+        Transform::AddChild(registry, registry.ctx().get<SceneRoot>().entity, entity);
 
         return entity;
     }

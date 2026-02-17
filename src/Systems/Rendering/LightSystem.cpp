@@ -7,6 +7,7 @@
 #include <glad/glad.h>
 #include <Systems/Primitives/PrimitivesSystem.hpp>
 
+#include "Components/SceneRoot.hpp"
 #include "Components/Rendering/DirectionalLight.hpp"
 #include "Components/Rendering/PointLight.hpp"
 
@@ -28,6 +29,7 @@ namespace LightSystem {
 
         auto &handle = registry.ctx().get<PointLightsHandle>();
         handle.entities.push_back(lightEntity);
+        Transform::AddChild(registry, registry.ctx().get<SceneRoot>().entity, lightEntity);
 
         return lightEntity;
     }
@@ -49,6 +51,7 @@ namespace LightSystem {
         registry.emplace<DirectionalLight>(lightEntity, directional_light);
         auto &handle = registry.ctx().get<DirectionalLightsHandle>();
         handle.entities.push_back(lightEntity);
+        Transform::AddChild(registry, registry.ctx().get<SceneRoot>().entity, lightEntity);
 
         return lightEntity;
     }

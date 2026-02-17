@@ -37,8 +37,8 @@ namespace ModelSystem {
         directory = path.substr(0, path.find_last_of('/'));
 
         const auto scene_root = registry.ctx().get<SceneRoot>().entity;
-        const auto root = processNode(registry, scene->mRootNode, scene, shader_entity, entt::null);
-        Transform::AddChild(registry, scene_root, root);
+        entity = processNode(registry, scene->mRootNode, scene, shader_entity, entt::null);
+        Transform::AddChild(registry, scene_root, entity);
     }
 
     entt::entity Model::processNode(
