@@ -18,7 +18,7 @@ namespace Hierarchy {
     void DrawEntityNode(entt::registry& registry, entt::entity entity, entt::entity& selectedEntity) {
         auto& transform = registry.get<Transform>(entity);
 
-        // 1. Setup Flags for full-row selection and highlighting
+        // 1. Setup Flags
         ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow
                                  | ImGuiTreeNodeFlags_OpenOnDoubleClick
                                  | ImGuiTreeNodeFlags_SpanAvailWidth
@@ -26,27 +26,34 @@ namespace Hierarchy {
                                  | ImGuiTreeNodeFlags_SpanFullWidth;
 
         if (entity == selectedEntity) flags |= ImGuiTreeNodeFlags_Selected;
-        if (transform.children.empty()) flags |= ImGuiTreeNodeFlags_Leaf;
+
+        // NEW: Check if first_child is null instead of checking vector size
+        if (transform.first_child == entt::null) flags |= ImGuiTreeNodeFlags_Leaf;
 
         // 2. Draw the node
+        // Note: We use the entity ID as the unique ImGui ID
         const bool opened = ImGui::TreeNodeEx((void*)(uintptr_t)entity, flags, "%s", transform.name.c_str());
 
-        // 3. Handle Selection (Clicking anywhere on the row)
+        // 3. Handle Selection
         if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
             selectedEntity = entity;
         }
 
-        // 4. Restore your Custom Highlight Border
+        // 4. Custom Highlight Border
         if (entity == selectedEntity) {
             const ImVec2 min = ImGui::GetItemRectMin();
             const ImVec2 max = ImGui::GetItemRectMax();
             ImGui::GetWindowDrawList()->AddRect(min, max, IM_COL32(0, 215, 255, 255), 4.0f, 0, 2.0f);
         }
 
-        // 5. Recursion
+        // 5. Recursion via Linked List Traversal
         if (opened) {
-            for (const auto child : transform.children) {
-                DrawEntityNode(registry, child, selectedEntity);
+            entt::entity currentChild = transform.first_child;
+            while (currentChild != entt::null) {
+                DrawEntityNode(registry, currentChild, selectedEntity);
+
+                // Move to the next sibling in the list
+                currentChild = registry.get<Transform>(currentChild).next_sibling;
             }
             ImGui::TreePop();
         }
@@ -56,35 +63,30 @@ namespace Hierarchy {
         auto &[entities, selectedID, selectedEntity] = registry.ctx().get<Hierarchy>();
         const auto &c = registry.ctx().get<Constants>();
 
-        // Window Setup
         const int width = c.WINDOW_WIDTH - (c.SCENE_WIDTH + c.SCENE_X);
         const int height = c.SCENE_HEIGHT;
         ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Appearing);
         ImGui::SetNextWindowSize(ImVec2(width, height), ImGuiCond_Appearing);
 
-        // --- Style Adjustments ---
-        // Reduce the indentation for child nodes
         ImGui::PushStyleVar(ImGuiStyleVar_IndentSpacing, 16.0f);
-        // Remove gaps between items
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 
         ImGui::Begin("Hierarchy", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 
-        // Find the SceneRoot (The only one with parent == entt::null)
+        // Get the root from context
         auto root = registry.ctx().get<SceneRoot>().entity;
 
-        if (root != entt::null) {
+        if (registry.valid(root)) {
             DrawEntityNode(registry, root, selectedEntity);
         }
 
-        // Deselect if clicking empty space
         if (ImGui::IsWindowHovered() && !ImGui::IsAnyItemHovered() && ImGui::IsMouseClicked(0)) {
             selectedEntity = entt::null;
         }
 
-        PopupMenus(registry, (int)selectedEntity); // Passed entity as ID for your popup logic
+        PopupMenus(registry, (int)selectedEntity);
+
         ImGui::End();
-        // Cleanup style stack
         ImGui::PopStyleVar(2);
     }
 

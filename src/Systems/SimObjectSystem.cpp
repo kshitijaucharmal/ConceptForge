@@ -17,7 +17,7 @@ namespace SimObject {
         registry.emplace<Transform>(entity, Transform{
             .name = std::move(name)
         });
-        Transform::AddChild(registry, registry.ctx().get<SceneRoot>().entity, entity);
+        Transform::Reparent(registry, registry.ctx().get<SceneRoot>().entity, entity);
 
         return entity;
     }

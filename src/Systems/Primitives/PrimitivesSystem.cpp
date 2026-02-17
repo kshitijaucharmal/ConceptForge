@@ -52,7 +52,7 @@ namespace Primitives {
         const auto mass = movable ? 1.0f : 0.0f;
         BulletPhysicsSystem::AddRigidbody(e, registry, mass, UV_SPHERE); // mass = 1 -> dynamic
 
-        Transform::AddChild(registry, registry.ctx().get<SceneRoot>().entity, e);
+        Transform::Reparent(registry, registry.ctx().get<SceneRoot>().entity, e);
 
         return e;
     }
@@ -168,7 +168,7 @@ namespace Primitives {
         const auto mass = movable ? 1.0f : 0.0f;
         BulletPhysicsSystem::AddRigidbody(e, registry, mass, PrimitiveType::CUBE); // mass = 1 -> dynamic
 
-        Transform::AddChild(registry, registry.ctx().get<SceneRoot>().entity, e);
+        Transform::Reparent(registry, registry.ctx().get<SceneRoot>().entity, e);
 
         return e;
     }
