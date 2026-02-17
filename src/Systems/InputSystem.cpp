@@ -4,7 +4,7 @@
 
 #include "InputSystem.hpp"
 
-#include <iostream>
+#include <imgui.h>
 #include <Components/Camera.hpp>
 #include <Components/Time.hpp>
 #include <Systems/CameraSystem.hpp>
@@ -36,8 +36,8 @@ namespace InputSystem {
                 camera.firstMouse = false;
             }
 
-            float xoffset = xpos - camera.lastX;
-            float yoffset = ypos - camera.lastY;
+            const float xoffset = xpos - camera.lastX;
+            const float yoffset = ypos - camera.lastY;
 
             camera.lastX = xpos;
             camera.lastY = ypos;

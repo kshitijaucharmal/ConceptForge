@@ -33,7 +33,7 @@ namespace ModelSystem {
         Model(entt::registry &registry,
             const entt::entity& shader_entity,
             const std::string& path,
-            const Transform& transform,
+            Transform& transform,
             bool flipUVs = false,
             bool treatAsSingle = false
             );
@@ -54,11 +54,11 @@ namespace ModelSystem {
          * @param shader_entity The shader to associate with the generated mesh entities.
          * @param transform The parent transform to propagate down the hierarchy.
          */
-        void processNode(entt::registry &registry,
+        entt::entity processNode(entt::registry &registry,
             const aiNode *node,
             const aiScene *scene,
             const entt::entity &shader_entity,
-            const Transform &transform
+            Transform &transform
             );
 
         /**
