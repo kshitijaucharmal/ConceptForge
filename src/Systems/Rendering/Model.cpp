@@ -36,8 +36,9 @@ namespace ModelSystem {
         }
         directory = path.substr(0, path.find_last_of('/'));
 
-        auto scene_root = registry.ctx().get<SceneRoot>().entity;
-        processNode(registry, scene->mRootNode, scene, shader_entity, scene_root);
+        const auto scene_root = registry.ctx().get<SceneRoot>().entity;
+        const auto root = processNode(registry, scene->mRootNode, scene, shader_entity, entt::null);
+        Transform::AddChild(registry, scene_root, root);
     }
 
     entt::entity Model::processNode(
@@ -52,10 +53,10 @@ namespace ModelSystem {
         const entt::entity entity = registry.create();
 
         // set transform name and parent
-        auto transform = Transform{
+        registry.emplace<Transform>(entity, Transform{
             .name = node->mName.C_Str(),
             .parent = parent
-        };
+        });
 
         // process all the node's meshes (if any)
         std::vector<Mesh> meshes;
@@ -65,18 +66,17 @@ namespace ModelSystem {
             meshes.emplace_back(processMesh(mesh, scene));
         }
         registry.emplace<std::vector<Mesh>>(entity, meshes);
+        registry.emplace<Material>(entity, Material{shader_entity, true});
 
-        std::vector<entt::entity> children;
         // then do the same for each of its children
+        std::vector<entt::entity> children;
         for(unsigned int i = 0; i < node->mNumChildren; i++)
         {
             entt::entity child = processNode(registry, node->mChildren[i], scene, shader_entity, entity);
             children.emplace_back(child);
         }
+        auto &transform = registry.get<Transform>(entity);
         transform.children = children;
-
-        registry.emplace<Transform>(entity, transform);
-        registry.emplace<Material>(entity, Material{shader_entity, true});
 
         return entity;
     }

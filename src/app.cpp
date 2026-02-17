@@ -178,29 +178,48 @@ private:
             myModel = new ModelSystem::Model(registry, litShader, "/home/kshitij/Assets/backpack/backpack.obj", transform);
         }
 
-        // Ground (Static)
+        // BUG: This does not work, as both parent and child needs to be set
+        // Alternative: Try linked list approach for Parent-Child
         {
             auto transform = Transform{
                 .name = "Ground",
-                .position = glm::vec3(0.0f, .01f, 0.0f),
+                .position = glm::vec3(0.0f, 0.0f, 0.0f),
                 .rotation = glm::quat(1, 0, 0, 0),
                 .scale = glm::vec3(20.0, 1.0f, 20.0f),
-                .parent = scene_root
             };
-            Primitives::CreateCubeObject(registry, transform, litShader, false);
+            auto ground = Primitives::CreateCubeObject(registry, transform, litShader, false);
+            Transform::AddChild(registry, scene_root, ground);
+
+            auto transform2 = Transform{
+                .name = "Cube 1",
+                .position = glm::vec3(0.0f, 2.0f, 0.0f),
+                .rotation = glm::quat(1, 0, 0, 0),
+                .scale = glm::vec3(2.0),
+            };
+            auto cube= Primitives::CreateCubeObject(registry, transform2, litShader, false);
+            Transform::AddChild(registry, ground, cube);
+
+            auto transform3 = Transform{
+                .name = "Cube 2",
+                .position = glm::vec3(0.0f, 4.0f, 0.0f),
+                .rotation = glm::quat(1, 0, 0, 0),
+                .scale = glm::vec3(1.0),
+            };
+            auto cube2 = Primitives::CreateCubeObject(registry, transform3, litShader, false);
+            Transform::AddChild(registry, cube, cube2);
         }
 
         // Sphere
-        {
-            auto transform = Transform{
-                .name = "Sphere",
-                .position = glm::vec3(-2.0f, 2.0f, 0.0f),
-                .rotation = glm::quat(1, 0, 0, 0),
-                .scale = glm::vec3(2.0f),
-                .parent = scene_root
-            };
-            Primitives::CreateUVSphereObject(registry, transform, litShader, false);
-        }
+        // {
+        //     auto transform = Transform{
+        //         .name = "Sphere",
+        //         .position = glm::vec3(-2.0f, 2.0f, 0.0f),
+        //         .rotation = glm::quat(1, 0, 0, 0),
+        //         .scale = glm::vec3(2.0f),
+        //         .parent = scene_root
+        //     };
+        //     Primitives::CreateUVSphereObject(registry, transform, litShader, false);
+        // }
 
         // Directional Lights
         {
@@ -273,15 +292,6 @@ public:
         // Normal Rendering
         // Grid
         GridSystem::Render(registry, grid, registry.get<Shader>(gridShader));
-
-        // {
-        //     auto model = glm::mat4(1.0f);
-        //     model = glm::translate(model, glm::vec3(2.0f, 2.5f, 0.0f)); // translate it down so it's at the center of the scene
-        //     model = glm::scale(model, glm::vec3(1., 1., 1.));	// it's a bit too big for our scene, so scale it down
-        //     auto unlit = registry.get<Shader>(litShader);
-        //     ShaderSystem::Use(unlit);
-        //     ShaderSystem::setMat4(unlit, "model", model);
-        // }
 
         // Render every object
         RenderSystem::Render(registry);

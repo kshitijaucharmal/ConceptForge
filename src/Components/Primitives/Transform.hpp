@@ -17,4 +17,18 @@ struct Transform {
 
     entt::entity parent = entt::null;
     std::vector<entt::entity> children;
+
+    static void AddChild(entt::registry& registry, const entt::entity parent, const entt::entity child) {
+        auto& childTransform = registry.get<Transform>(child);
+
+        // Set the parent
+        childTransform.parent = parent;
+
+        // Add to parent's children list
+        if (parent != entt::null) {
+            auto& parentTransform = registry.get<Transform>(parent);
+            parentTransform.children.push_back(child);
+        }
+    }
+
 };
