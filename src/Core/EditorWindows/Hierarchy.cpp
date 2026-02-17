@@ -1,4 +1,7 @@
 #include "Hierarchy.hpp"
+
+#include <format>
+
 #include "Components/Constants.hpp"
 #include "Components/Primitives/Transform.hpp"
 
@@ -61,9 +64,19 @@ namespace Hierarchy {
             ImGui::PushID(i);
 
             auto &transform = registry.get<Transform>(entities[i]);
-            const auto &parent_name = (transform.parent == entt::null) ? "Null" : registry.get<Transform>(transform.parent).name;
 
-            if (ImGui::Selectable( (" " + transform.name + ": " + parent_name).c_str(), i == selectedID, ImGuiSelectableFlags_SpanAllColumns)) {
+            // Get the actual ID numbers
+            int selfID = (int)entities[i];
+            int parentID = (int)transform.parent;
+
+            std::string parent_name = "Null";
+            if (registry.valid(transform.parent)) {
+                parent_name = registry.get<Transform>(transform.parent).name;
+            }
+
+            std::string label = std::format("[{}] {} -> Parent: [{}] {}",
+                                selfID, transform.name, parentID, parent_name);
+            if (ImGui::Selectable( label.c_str(), i == selectedID, ImGuiSelectableFlags_SpanAllColumns)) {
                 selectedID = i;
             }
 
