@@ -42,7 +42,9 @@
 #include <Systems/Rendering/Model.hpp>
 
 #include "Components/Fonts.hpp"
+#include "Components/SceneRoot.hpp"
 #include "Core/EditorWindows/PythonEditor.hpp"
+#include "Systems/SceneRootSystem.hpp"
 
 class App {
 //Variables
@@ -78,6 +80,7 @@ private:
         registry.ctx().emplace<Fonts>();
         registry.ctx().emplace<Time>();
         registry.ctx().emplace<ActiveCamera>();
+        registry.ctx().emplace<SceneRoot>();
         registry.ctx().emplace<EventSystem::AwakeQueue>();
         registry.ctx().emplace<EventSystem::UpdateQueue>();
         registry.ctx().emplace<EventSystem::LateUpdateQueue>();
@@ -161,6 +164,7 @@ private:
         RayTracer::Init(registry, rtEntity);
     }
     void SetupScene() {
+        auto &scene_root = registry.ctx().get<SceneRoot>().entity;
         // Grid
         grid = GridSystem::CreateGrid(registry, gridShader, "Grid");
 
@@ -168,7 +172,8 @@ private:
         {
             auto transform = Transform{
                 .name = "Backpack",
-                .position = glm::vec3(2.5f, 2.5f, 0.0f)
+                .position = glm::vec3(2.5f, 2.5f, 0.0f),
+                .parent = scene_root
             };
             myModel = new ModelSystem::Model(registry, litShader, "/home/kshitij/Assets/backpack/backpack.obj", transform);
         }
@@ -179,7 +184,8 @@ private:
                 .name = "Ground",
                 .position = glm::vec3(0.0f, .01f, 0.0f),
                 .rotation = glm::quat(1, 0, 0, 0),
-                .scale = glm::vec3(20.0, 1.0f, 20.0f)
+                .scale = glm::vec3(20.0, 1.0f, 20.0f),
+                .parent = scene_root
             };
             Primitives::CreateCubeObject(registry, transform, litShader, false);
         }
@@ -190,7 +196,8 @@ private:
                 .name = "Sphere",
                 .position = glm::vec3(-2.0f, 2.0f, 0.0f),
                 .rotation = glm::quat(1, 0, 0, 0),
-                .scale = glm::vec3(2.0f)
+                .scale = glm::vec3(2.0f),
+                .parent = scene_root
             };
             Primitives::CreateUVSphereObject(registry, transform, litShader, false);
         }
@@ -201,7 +208,8 @@ private:
                 .name = "Directional Light",
                 .position = glm::vec3(0.0f, 5.0f, 0.0f),
                 .rotation = glm::quat(0.6484594, 0.2819582, -0.6484594, -0.2819582),
-                .scale = glm::vec3(0.3, 0.3, 0.3)
+                .scale = glm::vec3(0.3, 0.3, 0.3),
+                .parent = scene_root
             };
             auto light = DirectionalLight{
                 .direction = glm::eulerAngles(transform.rotation),
@@ -231,6 +239,9 @@ public:
         InitContext();
         InitRenderSystem();
 
+        // Initialize the Scene Root (Every entity with a transform derives from this)
+        SceneRootSystem::InitRoot(registry);
+
         // Physics
         BulletPhysicsSystem::Init(registry);
         // ------------------------------------------------------------------
@@ -239,10 +250,10 @@ public:
         InitShaders();
         InitDebuggingAndUI();
 
+        SetupScene();
+
         // Initialize Code Editor
         PythonEditor::Init();
-
-        SetupScene();
 
         // Call Awake
         auto &awakeQueue = registry.ctx().get<EventSystem::AwakeQueue>();

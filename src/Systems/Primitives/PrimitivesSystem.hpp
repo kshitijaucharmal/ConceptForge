@@ -13,7 +13,7 @@ namespace Primitives {
         UV_SPHERE
     };
 
-    entt::entity Create(entt::registry &registry, PrimitiveType primitiveType, Transform transform, entt::entity &material);
+    entt::entity Create(entt::registry &registry, PrimitiveType primitiveType, const Transform& transform, const entt::entity &material);
 
     // Cube
     entt::entity CreateCubeObject(entt::registry& registry, const Transform& transform, const entt::entity &shader, bool movable=true);

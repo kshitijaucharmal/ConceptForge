@@ -14,7 +14,7 @@
 #include "Systems/Rendering/MeshSystem.hpp"
 
 namespace Primitives {
-    entt::entity Create(entt::registry &registry, PrimitiveType primitiveType, Transform transform, entt::entity &material) {
+    entt::entity Create(entt::registry &registry, const PrimitiveType primitiveType, const Transform& transform, const entt::entity &material) {
         switch (primitiveType) {
             case PrimitiveType::CUBE:
                 return CreateCubeObject(registry, transform, material);
