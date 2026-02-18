@@ -169,35 +169,39 @@ private:
         // Grid
         grid = GridSystem::CreateGrid(registry, gridShader, "Grid");
 
-        // BUG: This does not work, as both parent and child needs to be set
-        // Alternative: Try linked list approach for Parent-Child
         {
             auto transform = Transform{
                 .name = "Ground",
-                .position = glm::vec3(0.0f, 0.0f, 0.0f),
+                .position = glm::vec3(0.0f, -0.5f, 0.0f),
+                .rotation = glm::quat(1, 0, 0, 0),
+                .scale = glm::vec3(20.0, 1.0f, 20.0f),
+            };
+            Primitives::CreateCubeObject(registry, transform, litShader, false);
+        }
+        {
+            auto transform = Transform{
+                .name = "Cube",
+                .position = glm::vec3(0.0f, 4.0f, 0.0f),
                 .rotation = glm::quat(1, 0, 0, 0),
                 .scale = glm::vec3(1.0, 1.0f, 1.0f),
             };
-            auto ground = Primitives::CreateCubeObject(registry, transform, litShader, false);
-            Transform::Reparent(registry, scene_root, ground);
+            auto cube = Primitives::CreateCubeObject(registry, transform, litShader, true);
 
             auto transform2 = Transform{
                 .name = "Cube 1",
-                .position = glm::vec3(0.0f, 4.0f, 0.0f),
+                .position = glm::vec3(0.0f, 8.0f, 0.0f),
                 .rotation = glm::quat(1, 0, 0, 0),
                 .scale = glm::vec3(1.0),
             };
-            auto cube= Primitives::CreateCubeObject(registry, transform2, litShader, false);
-            Transform::Reparent(registry, ground, cube);
+            auto cube2= Primitives::CreateCubeObject(registry, transform2, litShader, true);
 
             auto transform3 = Transform{
                 .name = "Cube 2",
-                .position = glm::vec3(0.0f, 4.0f, 0.0f),
+                .position = glm::vec3(0.0f, 12.0f, 0.0f),
                 .rotation = glm::quat(1, 0, 0, 0),
                 .scale = glm::vec3(1.0),
             };
-            auto cube2 = Primitives::CreateCubeObject(registry, transform3, litShader, false);
-            Transform::Reparent(registry, cube, cube2);
+            auto cube3 = Primitives::CreateCubeObject(registry, transform3, litShader, true);
         }
 
         // Sphere
@@ -208,7 +212,7 @@ private:
                 .rotation = glm::quat(1, 0, 0, 0),
                 .scale = glm::vec3(2.0f),
             };
-            Primitives::CreateUVSphereObject(registry, transform, litShader, false);
+            Primitives::CreateUVSphereObject(registry, transform, litShader, true);
         }
 
         // Directional Lights
