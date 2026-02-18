@@ -66,11 +66,11 @@ namespace BulletPhysicsSystem {
         auto &bp = registry.ctx().get<BulletPhysics>();
         bp.dynamicsWorld->stepSimulation(deltaTime, 10);
         // Draw Debug (TODO: Make this optional)
-        glDisable(GL_LIGHTING);
-        glDisable(GL_DEPTH_TEST);
+        // glDisable(GL_LIGHTING);
+        // glDisable(GL_DEPTH_TEST);
         bp.dynamicsWorld->debugDrawWorld();
-        glEnable(GL_DEPTH_TEST);
-        glEnable(GL_LIGHTING);
+        // glEnable(GL_DEPTH_TEST);
+        // glEnable(GL_LIGHTING);
     }
 
     void SyncTransforms(entt::registry& registry) {
@@ -91,10 +91,10 @@ namespace BulletPhysicsSystem {
         }
     }
 
-    void AddRigidbody(entt::entity entity, entt::registry& registry, float mass, Primitives::PrimitiveType objectType) {
-        auto &bp = registry.ctx().get<BulletPhysics>();
-        auto& transform = registry.get<Transform>(entity);
-        auto motionState = new MotionState(transform.position, transform.rotation);
+    void AddRigidbody(const entt::entity entity, entt::registry& registry, const float mass, Primitives::PrimitiveType objectType) {
+        const auto &bp = registry.ctx().get<BulletPhysics>();
+        const auto& transform = registry.get<Transform>(entity);
+        const auto motionState = new MotionState(transform.position, transform.rotation);
 
         btCollisionShape *shape = nullptr;
         auto type = registry.get<Primitives::PrimitiveType>(entity);
@@ -108,8 +108,8 @@ namespace BulletPhysicsSystem {
             }
             case Primitives::PrimitiveType::UV_SPHERE: {
                 auto sphere = registry.get<UVSphere>(entity);
-                btVector3 positions[] = { btVector3(0, 0, 0) };
-                btScalar radii[] = { 1.0f };
+                const btVector3 positions[] = { btVector3(0, 0, 0) };
+                constexpr btScalar radii[] = { 1.0f };
                 shape = new btMultiSphereShape(positions, radii, 1);
                 shape->setLocalScaling(halfScale); // box half extents
                 break;
