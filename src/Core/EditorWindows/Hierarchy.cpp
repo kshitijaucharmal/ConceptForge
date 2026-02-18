@@ -13,6 +13,7 @@
 #include <Systems/Rendering/LightSystem.hpp>
 
 #include "Components/SceneRoot.hpp"
+#include "Core/EventSystem.hpp"
 
 namespace Hierarchy {
     void DrawEntityNode(entt::registry& registry, entt::entity entity, entt::entity& selectedEntity) {
@@ -116,13 +117,13 @@ namespace Hierarchy {
             selectedEntity = entt::null;
         }
 
-        PopupMenus(registry, (int)selectedEntity);
+        PopupMenus(registry, selectedEntity);
 
         ImGui::End();
         ImGui::PopStyleVar(2);
     }
 
-    void PopupMenus(entt::registry &registry, int selectedID) {
+    void PopupMenus(entt::registry &registry, entt::entity selected_entity) {
         // Right-click on empty space
         if (ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup) && !ImGui::IsAnyItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right)) {
             ImGui::OpenPopup("EmptySpaceMenu");
@@ -133,14 +134,14 @@ namespace Hierarchy {
 
         // --------- Item Context Menu ---------
         if (ImGui::BeginPopup("ItemMenu")) {
-            if (ImGui::MenuItem("Rename")) {
-                // Handle Rename
-            }
-            if (ImGui::MenuItem("Copy")) {
-                // Handle Copy
+            if (ImGui::MenuItem("Duplicate")) {
+                // Handle Duplicate
             }
             if (ImGui::MenuItem("Delete")) {
-                // Handle Delete for item
+                // TODO: Lights are stored in array, need to be removed.
+                // TODO: Every registry.get needs to be registry.try_get, and error handled
+                // registry.ctx().get<EventSystem::DeleteQueue>().entities.insert(selected_entity);
+                // selected_entity = entt::null;
             }
 
             ImGui::EndPopup();

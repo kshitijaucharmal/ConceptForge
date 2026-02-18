@@ -39,7 +39,7 @@ void InitImGUI(entt::registry &registry, GLFWwindow* window) {
 
     // Load icon font (e.g., FontAwesome)
     static constexpr ImWchar icons_ranges[] = { 0xf000, 0xf3ff, 0 };
-    const auto iconFont = io.Fonts->AddFontFromFileTTF(FONT_DIR "/fa-solid-900.ttf", 16.0f, &config, icons_ranges);
+    const auto iconFont = io.Fonts->AddFontFromFileTTF(FONT_DIR "/fa-solid-900.ttf", 20.0f, &config, icons_ranges);
     registry.ctx().get<Fonts>().FontsDict["IconFont"] = iconFont;
 
     // Setup Dear ImGui style

@@ -11,6 +11,7 @@
 #include "Components/SceneRoot.hpp"
 #include "Components/Primitives/Transform.hpp"
 #include "Components/Rendering/Material.hpp"
+#include "Systems/SimObjectSystem.hpp"
 
 namespace ModelSystem {
     Model::Model(
@@ -38,17 +39,28 @@ namespace ModelSystem {
 
         const auto scene_root = registry.ctx().get<SceneRoot>().entity;
         entity = processNode(registry, scene->mRootNode, scene, shader_entity, entt::null);
-        registry.get<Transform>(entity) = transform;
+
+        // Apply provided transform (Just position for now)
+        auto& rootTransform = registry.get<Transform>(entity);
+        rootTransform.name = transform.name;
+        rootTransform.position += transform.position;
+        rootTransform.rotation = transform.rotation * rootTransform.rotation;
+        rootTransform.eulerAngles = glm::degrees(glm::eulerAngles(rootTransform.rotation));
+        rootTransform.scale *= transform.scale;
+
+        // Parent it to root
         Transform::Reparent(registry, scene_root, entity);
+
+        SimObject::UpdateHierarchyMatrices(registry, scene_root, glm::mat4(1.0f));
     }
 
     entt::entity Model::processNode(
-    entt::registry &registry,
-    const aiNode *node,
-    const aiScene *scene,
-    const entt::entity &shader_entity,
-    const entt::entity parent
-) {
+        entt::registry &registry,
+        const aiNode *node,
+        const aiScene *scene,
+        const entt::entity &shader_entity,
+        const entt::entity parent
+    ) {
         const entt::entity entity = registry.create();
 
         // 1. Decompose Assimp Matrix to GLM components
@@ -56,11 +68,11 @@ namespace ModelSystem {
         node->mTransformation.Decompose(aiScale, aiRot, aiPos);
 
         // 2. Convert to GLM types
-        glm::vec3 pos = { aiPos.x, aiPos.y, aiPos.z };
-        glm::vec3 sca = { aiScale.x, aiScale.y, aiScale.z };
+        const glm::vec3 pos = { aiPos.x, aiPos.y, aiPos.z };
+        const glm::vec3 sca = { aiScale.x, aiScale.y, aiScale.z };
 
         // Assimp decomposition gives Euler angles in radians
-        glm::quat rot = glm::quat(glm::vec3(aiRot.x, aiRot.y, aiRot.z));
+        const auto rot = glm::quat(glm::vec3(aiRot.x, aiRot.y, aiRot.z));
 
         // 3. Emplace Transform with extracted data
         registry.emplace<Transform>(entity, Transform{

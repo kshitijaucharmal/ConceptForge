@@ -84,58 +84,57 @@ namespace Inspector {
         ImGui::End();
     }
 
-    void ShowTransform(entt::registry& registry, const entt::entity& selectedObject)
-{
-    if (selectedObject == entt::null) return;
+    void ShowTransform(entt::registry& registry, const entt::entity& selectedObject) {
+        if (selectedObject == entt::null || !registry.valid(selectedObject)) return;
 
-    if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
-        auto &transform = registry.get<Transform>(selectedObject);
+        if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
+            auto &transform = registry.get<Transform>(selectedObject);
 
-        // Name
-        char nameBuf[128];
-        strncpy(nameBuf, transform.name.c_str(), sizeof(nameBuf));
-        if (ImGui::InputText("Name", nameBuf, sizeof(nameBuf))) {
-            transform.name = nameBuf;
+            // Name
+            char nameBuf[128];
+            strncpy(nameBuf, transform.name.c_str(), sizeof(nameBuf));
+            if (ImGui::InputText("Name", nameBuf, sizeof(nameBuf))) {
+                transform.name = nameBuf;
+            }
+
+            bool changed = false;
+
+            // Position
+            if (ImGui::DragFloat3("Position", glm::value_ptr(transform.position), 0.05f)) {
+                changed = true;
+            }
+
+            // Rotation (Euler conversion)
+            if (ImGui::DragFloat3("Rotation", glm::value_ptr(transform.eulerAngles), 0.5f)) {
+                transform.rotation = glm::quat(glm::radians(transform.eulerAngles));
+                changed = true;
+            }
+
+            // Scale
+            if (ImGui::DragFloat3("Scale", glm::value_ptr(transform.scale), 0.05f)) {
+                changed = true;
+            }
+
+            // 1. Reset Scale safety
+            if (transform.scale.x < 0.001f) transform.scale.x = 0.001f;
+            if (transform.scale.y < 0.001f) transform.scale.y = 0.001f;
+            if (transform.scale.z < 0.001f) transform.scale.z = 0.001f;
+
+            // 2. Trigger Hierarchy Update if values changed via UI
+            if (changed) {
+                // Get your SceneRoot or call your UpdateHierarchyMatrices function here
+                // to make sure children follow the slider movement instantly.
+                const auto root = registry.ctx().get<SceneRoot>().entity;
+                SimObject::UpdateHierarchyMatrices(registry, root, glm::mat4(1.0f));
+            }
+
+            // Optional: Read-only World Position for debugging
+            ImGui::BeginDisabled();
+            glm::vec3 worldPos = glm::vec3(transform.model[3]);
+            ImGui::DragFloat3("World Position", glm::value_ptr(worldPos));
+            ImGui::EndDisabled();
         }
-
-        bool changed = false;
-
-        // Position
-        if (ImGui::DragFloat3("Position", glm::value_ptr(transform.position), 0.05f)) {
-            changed = true;
-        }
-
-        // Rotation (Euler conversion)
-        if (ImGui::DragFloat3("Rotation", glm::value_ptr(transform.eulerAngles), 0.5f)) {
-            transform.rotation = glm::quat(glm::radians(transform.eulerAngles));
-            changed = true;
-        }
-
-        // Scale
-        if (ImGui::DragFloat3("Scale", glm::value_ptr(transform.scale), 0.05f)) {
-            changed = true;
-        }
-
-        // 1. Reset Scale safety
-        if (transform.scale.x < 0.001f) transform.scale.x = 0.001f;
-        if (transform.scale.y < 0.001f) transform.scale.y = 0.001f;
-        if (transform.scale.z < 0.001f) transform.scale.z = 0.001f;
-
-        // 2. Trigger Hierarchy Update if values changed via UI
-        if (changed) {
-            // Get your SceneRoot or call your UpdateHierarchyMatrices function here
-            // to make sure children follow the slider movement instantly.
-            const auto root = registry.ctx().get<SceneRoot>().entity;
-            SimObject::UpdateHierarchyMatrices(registry, root, glm::mat4(1.0f));
-        }
-
-        // Optional: Read-only World Position for debugging
-        ImGui::BeginDisabled();
-        glm::vec3 worldPos = glm::vec3(transform.model[3]);
-        ImGui::DragFloat3("World Position", glm::value_ptr(worldPos));
-        ImGui::EndDisabled();
     }
-}
 
     void ShowDirectionalLight(entt::registry& registry, const entt::entity& selectedObject)
     {

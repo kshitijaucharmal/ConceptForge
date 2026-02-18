@@ -63,5 +63,6 @@ auto Window::ScreenClearFlags(glm::vec4 color) -> void {
     glEnable(GL_DEPTH_TEST);
     // Clear Color Buffer and Depth Buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glDepthFunc(GL_LESS);
     glClearColor(color.r, color.g, color.b, color.a);
 }
