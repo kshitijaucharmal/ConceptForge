@@ -51,7 +51,7 @@ struct Camera {
     /// The closest distance at which objects are rendered.
     float nearClipPlane = 0.1f;
     /// The maximum distance at which objects are rendered.
-    float farClipPlane = 100.0f;
+    float farClipPlane = 1000.0f;
 };
 
 /**

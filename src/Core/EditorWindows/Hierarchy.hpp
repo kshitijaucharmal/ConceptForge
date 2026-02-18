@@ -14,5 +14,5 @@ namespace Hierarchy {
 
     void Show(entt::registry &registry);
     void DrawEntityNode(entt::registry& registry, entt::entity entity, entt::entity& selectedEntity);
-    void PopupMenus(entt::registry &registry, int selectedID);
+    void PopupMenus(entt::registry &registry, entt::entity selected_entity);
 }

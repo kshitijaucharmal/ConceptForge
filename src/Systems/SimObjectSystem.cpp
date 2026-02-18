@@ -48,4 +48,23 @@ namespace SimObject {
         }
     }
 
+    void Destroy(entt::registry& registry, const entt::entity entity) {
+        if (!registry.valid(entity)) return;
+
+        // 1. SURGERY: Remove from parent/sibling links while the entity is still "alive"
+        Transform::DetachFromParent(registry, entity);
+
+        // 2. RECURSION: Destroy children
+        const auto& transform = registry.get<Transform>(entity);
+        entt::entity child = transform.first_child;
+        while (child != entt::null) {
+            const entt::entity next = registry.get<Transform>(child).next_sibling;
+            Destroy(registry, child); // Recursive call
+            child = next;
+        }
+
+        // 3. FINAL DEATH: Remove from EnTT
+        registry.destroy(entity);
+    }
+
 }
