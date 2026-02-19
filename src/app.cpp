@@ -229,7 +229,7 @@ private:
                 .rotation = glm::quat(1, 0, 0, 0),
                 .scale = glm::vec3(2.0f),
             };
-            Primitives::CreateUVSphereObject(registry, transform, litShader, true);
+            Primitives::CreateUVSphereObject(registry, transform, toonShader, true);
         }
 
         // Directional Lights
