@@ -35,7 +35,7 @@ in vec2 TexCoords;
 out vec4 FragColor;
 
 // Toon shading settings
-const float levels = 8.0; // Number of shading bands
+const float levels = 4.0; // Number of shading bands
 const float scaleFactor = 1.0 / levels;
 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);

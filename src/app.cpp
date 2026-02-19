@@ -193,7 +193,7 @@ private:
                 .rotation = glm::quat(1, 0, 0, 0),
                 .scale = glm::vec3(20.0, 1.0f, 20.0f),
             };
-            Primitives::CreateCubeObject(registry, transform, litShader, false);
+            Primitives::CreateCubeObject(registry, transform, toonShader, false);
         }
         {
             auto transform = Transform{
@@ -250,14 +250,14 @@ private:
         }
 
         // 3d model
-        // {
-        //     auto transform = Transform{
-        //         .name = "Sponza Cathedral",
-        //         .position = glm::vec3(2.5f, 2.5f, 0.0f),
-        //         .scale = glm::vec3(0.01f),
-        //     };
-        //     myModel = new ModelSystem::Model(registry, litShader, "/home/kshitij/Assets/sponza/sponza.obj", transform, false, false);
-        // }
+        {
+            auto transform = Transform{
+                .name = "Sponza",
+                .position = glm::vec3(2.5f, 2.5f, 0.0f),
+                .scale = glm::vec3(0.01f),
+            };
+            myModel = new ModelSystem::Model(registry, toonShader, MODELS_PATH "/sponza/sponza.obj", transform, false, false);
+        }
 
         // ------------------------------------------------------------------
     }

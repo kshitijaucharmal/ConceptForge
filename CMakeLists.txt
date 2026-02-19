@@ -12,6 +12,9 @@ add_compile_definitions(SHADER_DIR="${SHADERS_PATH}")
 file(TO_CMAKE_PATH "${PROJECT_SOURCE_DIR}/assets/textures" TEXTURES_PATH)
 add_compile_definitions(TEXTURE_DIR="${TEXTURES_PATH}")
 
+file(TO_CMAKE_PATH "${PROJECT_SOURCE_DIR}/assets/models" MODELS_PATH)
+add_compile_definitions(MODELS_PATH="${MODELS_PATH}")
+
 file(TO_CMAKE_PATH "${PROJECT_SOURCE_DIR}/fonts" FONTS_PATH)
 add_compile_definitions(FONT_DIR="${FONTS_PATH}")
 

@@ -3,3 +3,4 @@ build/
 .cache/
 .venv/
 .idea/
+assets/models/
