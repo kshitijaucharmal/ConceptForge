@@ -48,7 +48,15 @@ Window::Window(entt::registry &registry, int w, int h, std::string name, bool fu
 
     // Resize support (Not Perfect)
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+    // Setup things
     glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+    glEnable(GL_STENCIL_TEST);
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    glStencilMask(0x00);
+
     glViewport(0, 0, constants.WINDOW_WIDTH, constants.WINDOW_HEIGHT);
 }
 
@@ -58,11 +66,10 @@ Window::~Window() {
     glfwTerminate();
 }
 
-auto Window::ScreenClearFlags(glm::vec4 color) -> void {
+/// Called before drawing the scene texture, but after rendering
+auto Window::ScreenClearFlags(const glm::vec4 color) -> void {
     // Clear Screen with this color
-    glEnable(GL_DEPTH_TEST);
-    // Clear Color Buffer and Depth Buffer
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glDepthFunc(GL_LESS);
     glClearColor(color.r, color.g, color.b, color.a);
+    // Clear Color Buffer and Depth Buffer
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }

@@ -8,7 +8,6 @@
 #include "Components/Rendering/FrameBuffer.hpp"
 #include "Components/Constants.hpp"
 
-#include "Systems/SimObjectSystem.hpp"
 #include "Systems/Primitives/GizmoSystem.hpp"
 
 #include <glm/gtc/type_ptr.hpp>
@@ -23,6 +22,8 @@
 #include "MaterialSystem.hpp"
 #include "ShaderSystem.hpp"
 #include "Components/Fonts.hpp"
+#include "Components/SceneRoot.hpp"
+#include "Core/EditorWindows/Hierarchy.hpp"
 
 // Font Awesome icon defines (or use full glyphs)
 #define ICON_FA_PLAY  "\xef\x81\x8b"  // f04b
@@ -81,6 +82,12 @@ namespace RenderSystem {
     void Render(entt::registry& registry){
         const auto &constants = registry.ctx().get<Constants>();
 
+        // Get Selected Entity (TODO: Just a single is selected for now)
+        auto selected = registry.ctx().get<Hierarchy::Hierarchy>().selectedEntity;
+        // Declare vars for selected
+        glm::mat4 selected_model = glm::mat4(1.0f);
+        std::vector<Mesh> selected_meshes;
+
         glViewport(0, 0, constants.WINDOW_WIDTH, constants.WINDOW_HEIGHT);
 
         // Draw All meshes
@@ -96,6 +103,20 @@ namespace RenderSystem {
 
             // Apply the transform
             const auto model = _transform.model;
+
+            if (entity == selected)
+            {
+                glStencilFunc(GL_ALWAYS, 1, 0xFF);
+                glStencilMask(0xFF);
+
+                // Store model and meshes
+                selected_meshes = _meshes;
+                selected_model = model;
+            }
+            else
+            {
+                glStencilMask(0x00);
+            }
 
             // Always use the shader before passing parameters
             ShaderSystem::Use(*shader);
@@ -138,10 +159,41 @@ namespace RenderSystem {
             glBindVertexArray(0);
             glActiveTexture(GL_TEXTURE0);
         }
-
         // Lights
+        glStencilMask(0x00);
         LightSystem::RenderPointLights(registry);
         LightSystem::RenderDirectionalLights(registry);
+
+        if (selected != entt::null && !selected_meshes.empty()) {
+            DrawBorder(registry, selected_model, selected_meshes);
+        }
+    }
+
+    void DrawBorder(entt::registry &registry, const glm::mat4 &model, const std::vector<Mesh> &_meshes)
+    {
+        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+        glStencilMask(0x00);
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LEQUAL);
+
+        auto borderShader = registry.get<Shader>(registry.ctx().get<ShaderStore>().shaders["BorderShader"]);
+        ShaderSystem::Use(borderShader);
+        ShaderSystem::setMat4(borderShader, "model", model);
+
+        // 4. Re-draw the meshes with the border shader
+        for (auto &_mesh : _meshes)
+        {
+            glBindVertexArray(_mesh.VAO);
+            if (_mesh.elemental)
+                glDrawElements(GL_TRIANGLES, _mesh.indexCount, GL_UNSIGNED_INT, nullptr);
+            else
+                glDrawArrays(GL_TRIANGLES, 0, _mesh.indexCount);
+            glBindVertexArray(0);
+        }
+
+        glDepthFunc(GL_LESS);
+        glStencilMask(0xFF);
+        glStencilFunc(GL_ALWAYS, 1, 0xFF);
     }
 
     void ShowSceneTexture(entt::registry &registry, GLFWwindow* window) {
