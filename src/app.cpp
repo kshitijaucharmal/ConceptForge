@@ -180,7 +180,7 @@ private:
         {
             auto transform = Transform{
                 .name = "Cube",
-                .position = glm::vec3(0.0f, 4.0f, 0.0f),
+                .position = glm::vec3(0.0f, 2.0f, 0.0f),
                 .rotation = glm::quat(1, 0, 0, 0),
                 .scale = glm::vec3(1.0, 1.0f, 1.0f),
             };
@@ -188,7 +188,7 @@ private:
 
             auto transform2 = Transform{
                 .name = "Cube 1",
-                .position = glm::vec3(0.0f, 8.0f, 0.0f),
+                .position = glm::vec3(0.0f, 6.0f, 0.0f),
                 .rotation = glm::quat(1, 0, 0, 0),
                 .scale = glm::vec3(1.0),
             };
@@ -196,7 +196,7 @@ private:
 
             auto transform3 = Transform{
                 .name = "Cube 2",
-                .position = glm::vec3(0.0f, 12.0f, 0.0f),
+                .position = glm::vec3(0.0f, 10.0f, 0.0f),
                 .rotation = glm::quat(1, 0, 0, 0),
                 .scale = glm::vec3(1.0),
             };
@@ -218,7 +218,7 @@ private:
         {
             auto transform = Transform{
                 .name = "Directional Light",
-                .position = glm::vec3(0.0f, 5.0f, 0.0f),
+                .position = glm::vec3(0.0f, 10.0f, 0.0f),
                 .rotation = glm::quat(0.6484594, 0.2819582, -0.6484594, -0.2819582),
                 .scale = glm::vec3(0.3, 0.3, 0.3),
             };

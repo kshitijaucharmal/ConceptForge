@@ -7,6 +7,7 @@
 
 #ifndef GLM_ENABLE_EXPERIMENTAL
 #define GLM_ENABLE_EXPERIMENTAL
+#endif
 
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
@@ -124,5 +125,4 @@ namespace Vector3 {
 
 } // namespace Vec3
 
-#endif
 #endif
