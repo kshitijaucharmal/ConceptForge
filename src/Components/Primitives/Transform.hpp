@@ -6,6 +6,12 @@
 
 #include "entt/entt.hpp"
 
+#ifndef GLM_ENABLE_EXPERIMENTAL
+#define GLM_ENABLE_EXPERIMENTAL
+#endif
+
+#include "glm/gtx/matrix_decompose.hpp"
+
 struct Transform {
     std::string name = "Object";
 
@@ -21,9 +27,24 @@ struct Transform {
     entt::entity prev_sibling  = entt::null;
     entt::entity next_sibling  = entt::null;
 
-    static glm::vec3 GetWorldPos(Transform& transform)
-    {
-        return glm::vec3(transform.model[3]);
+    static glm::vec3 GetWorldPosition(const Transform& t) {
+        return glm::vec3(t.model[3]);
+    }
+
+    static glm::quat GetWorldRotation(const Transform& t) {
+        glm::vec3 s, p; glm::quat r; glm::vec3 sk; glm::vec4 pers;
+        glm::decompose(t.model, s, r, p, sk, pers);
+        return r;
+    }
+
+    static glm::vec3 GetWorldScale(const Transform& t) {
+        // A faster way for scale without full decomposition:
+        // Get the length of the 3 basis vectors (columns 0, 1, and 2)
+        return {
+            glm::length(glm::vec3(t.model[0])),
+            glm::length(glm::vec3(t.model[1])),
+            glm::length(glm::vec3(t.model[2]))
+        };
     }
 
     static void DetachFromParent(entt::registry& registry, const entt::entity entity) {

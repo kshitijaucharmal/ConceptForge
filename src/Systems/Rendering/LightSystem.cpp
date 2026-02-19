@@ -60,7 +60,7 @@ namespace LightSystem {
         std::vector<PointLight> pointLights;
         for (const auto &entity : entities) {
             auto [transform, pointLight] = entities.get(entity);
-            pointLight.position = Transform::GetWorldPos(transform);
+            pointLight.position = Transform::GetWorldPosition(transform);
             pointLights.push_back(pointLight);
         }
 
