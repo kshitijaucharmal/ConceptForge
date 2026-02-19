@@ -20,8 +20,14 @@ namespace GizmoSystem {
         auto &gameState = registry.ctx().get<GameState>();
         if (gameState.isPlaying) return;
 
-        const auto activeObject = registry.ctx().get<Hierarchy::Hierarchy>().selectedEntity;
-        if(activeObject == entt::null) return;
+        // Get active object, if it has been destroyed, then set it to null and return
+        auto &hierarchy = registry.ctx().get<Hierarchy::Hierarchy>();
+        const auto activeObject = hierarchy.selectedEntity;
+        if(activeObject == entt::null | !registry.valid(activeObject))
+        {
+            hierarchy.selectedEntity = entt::null;
+            return;
+        }
 
         ImGui::Begin("SceneGizmoOverlay", nullptr,
                      ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |

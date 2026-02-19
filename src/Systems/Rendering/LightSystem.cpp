@@ -27,8 +27,6 @@ namespace LightSystem {
         registry.emplace<Mesh>(lightEntity, mesh);
         registry.emplace<PointLight>(lightEntity, point_light);
 
-        auto &handle = registry.ctx().get<PointLightsHandle>();
-        handle.entities.push_back(lightEntity);
         Transform::Reparent(registry, registry.ctx().get<SceneRoot>().entity, lightEntity);
 
         return lightEntity;
@@ -46,24 +44,21 @@ namespace LightSystem {
             .initialized = true
         });
         Mesh mesh = Primitives::CreateUVSphereMesh(registry);
+
         registry.emplace<Mesh>(lightEntity, mesh);
-
         registry.emplace<DirectionalLight>(lightEntity, directional_light);
-        auto &handle = registry.ctx().get<DirectionalLightsHandle>();
-        handle.entities.push_back(lightEntity);
-        Transform::Reparent(registry, registry.ctx().get<SceneRoot>().entity, lightEntity);
 
+        Transform::Reparent(registry, registry.ctx().get<SceneRoot>().entity, lightEntity);
         return lightEntity;
     }
 
     void RenderPointLights(entt::registry &registry) {
-        const auto &handle = registry.ctx().get<PointLightsHandle>();
+        const auto entities = registry.view<Transform, PointLight>();
         auto &ssbo = registry.ctx().get<SSBOHolder>().ssbos;
 
         std::vector<PointLight> pointLights;
-        for (auto &entity : handle.entities) {
-            const auto &transform = registry.get<Transform>(entity);
-            auto &pointLight = registry.get<PointLight>(entity);
+        for (const auto &entity : entities) {
+            auto [transform, pointLight] = entities.get(entity);
             pointLight.position = transform.position;
             pointLights.push_back(pointLight);
         }
@@ -72,13 +67,12 @@ namespace LightSystem {
     }
 
     void RenderDirectionalLights(entt::registry &registry) {
-        const auto &handle = registry.ctx().get<DirectionalLightsHandle>();
+        const auto entities = registry.view<Transform, DirectionalLight>();
         auto &ssbo = registry.ctx().get<SSBOHolder>().ssbos;
 
         std::vector<DirectionalLight> dirLights;
-        for (auto &entity : handle.entities) {
-            auto &transform = registry.get<Transform>(entity);
-            auto &dirLight = registry.get<DirectionalLight>(entity);
+        for (const auto &entity : entities) {
+            auto [transform, dirLight] = entities.get(entity);
             dirLight.direction = glm::eulerAngles(transform.rotation);
             dirLights.push_back(dirLight);
         }

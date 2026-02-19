@@ -92,8 +92,6 @@ private:
         registry.ctx().emplace<FrameBuffer>();
         registry.ctx().emplace<ShaderStore>();
         registry.ctx().emplace<SSBOHolder>();
-        registry.ctx().emplace<LightSystem::PointLightsHandle>();
-        registry.ctx().emplace<LightSystem::DirectionalLightsHandle>();
         registry.ctx().emplace<GizmoControls>();
         registry.ctx().emplace<BulletPhysics>();
         registry.ctx().emplace<RayTracerSettings>();
@@ -170,51 +168,51 @@ private:
         // Grid
         grid = GridSystem::CreateGrid(registry, gridShader, "Grid");
 
-        // {
-        //     auto transform = Transform{
-        //         .name = "Ground",
-        //         .position = glm::vec3(0.0f, -0.5f, 0.0f),
-        //         .rotation = glm::quat(1, 0, 0, 0),
-        //         .scale = glm::vec3(20.0, 1.0f, 20.0f),
-        //     };
-        //     Primitives::CreateCubeObject(registry, transform, litShader, false);
-        // }
-        // {
-        //     auto transform = Transform{
-        //         .name = "Cube",
-        //         .position = glm::vec3(0.0f, 4.0f, 0.0f),
-        //         .rotation = glm::quat(1, 0, 0, 0),
-        //         .scale = glm::vec3(1.0, 1.0f, 1.0f),
-        //     };
-        //     auto cube = Primitives::CreateCubeObject(registry, transform, litShader, true);
-        //
-        //     auto transform2 = Transform{
-        //         .name = "Cube 1",
-        //         .position = glm::vec3(0.0f, 8.0f, 0.0f),
-        //         .rotation = glm::quat(1, 0, 0, 0),
-        //         .scale = glm::vec3(1.0),
-        //     };
-        //     auto cube2= Primitives::CreateCubeObject(registry, transform2, litShader, true);
-        //
-        //     auto transform3 = Transform{
-        //         .name = "Cube 2",
-        //         .position = glm::vec3(0.0f, 12.0f, 0.0f),
-        //         .rotation = glm::quat(1, 0, 0, 0),
-        //         .scale = glm::vec3(1.0),
-        //     };
-        //     auto cube3 = Primitives::CreateCubeObject(registry, transform3, litShader, true);
-        // }
-        //
-        // // Sphere
-        // {
-        //     auto transform = Transform{
-        //         .name = "Sphere",
-        //         .position = glm::vec3(-2.0f, 2.0f, 0.0f),
-        //         .rotation = glm::quat(1, 0, 0, 0),
-        //         .scale = glm::vec3(2.0f),
-        //     };
-        //     Primitives::CreateUVSphereObject(registry, transform, litShader, true);
-        // }
+        {
+            auto transform = Transform{
+                .name = "Ground",
+                .position = glm::vec3(0.0f, -0.5f, 0.0f),
+                .rotation = glm::quat(1, 0, 0, 0),
+                .scale = glm::vec3(20.0, 1.0f, 20.0f),
+            };
+            Primitives::CreateCubeObject(registry, transform, litShader, false);
+        }
+        {
+            auto transform = Transform{
+                .name = "Cube",
+                .position = glm::vec3(0.0f, 4.0f, 0.0f),
+                .rotation = glm::quat(1, 0, 0, 0),
+                .scale = glm::vec3(1.0, 1.0f, 1.0f),
+            };
+            auto cube = Primitives::CreateCubeObject(registry, transform, litShader, true);
+
+            auto transform2 = Transform{
+                .name = "Cube 1",
+                .position = glm::vec3(0.0f, 8.0f, 0.0f),
+                .rotation = glm::quat(1, 0, 0, 0),
+                .scale = glm::vec3(1.0),
+            };
+            auto cube2= Primitives::CreateCubeObject(registry, transform2, litShader, true);
+
+            auto transform3 = Transform{
+                .name = "Cube 2",
+                .position = glm::vec3(0.0f, 12.0f, 0.0f),
+                .rotation = glm::quat(1, 0, 0, 0),
+                .scale = glm::vec3(1.0),
+            };
+            auto cube3 = Primitives::CreateCubeObject(registry, transform3, litShader, true);
+        }
+
+        // Sphere
+        {
+            auto transform = Transform{
+                .name = "Sphere",
+                .position = glm::vec3(-2.0f, 2.0f, 0.0f),
+                .rotation = glm::quat(1, 0, 0, 0),
+                .scale = glm::vec3(2.0f),
+            };
+            Primitives::CreateUVSphereObject(registry, transform, litShader, true);
+        }
 
         // Directional Lights
         {
@@ -234,14 +232,14 @@ private:
         }
 
         // 3d model
-        {
-            auto transform = Transform{
-                .name = "Sponza Cathedral",
-                .position = glm::vec3(2.5f, 2.5f, 0.0f),
-                .scale = glm::vec3(0.01f),
-            };
-            myModel = new ModelSystem::Model(registry, litShader, "/home/kshitij/Assets/sponza/sponza.obj", transform, false, false);
-        }
+        // {
+        //     auto transform = Transform{
+        //         .name = "Sponza Cathedral",
+        //         .position = glm::vec3(2.5f, 2.5f, 0.0f),
+        //         .scale = glm::vec3(0.01f),
+        //     };
+        //     myModel = new ModelSystem::Model(registry, litShader, "/home/kshitij/Assets/sponza/sponza.obj", transform, false, false);
+        // }
 
         // ------------------------------------------------------------------
     }
