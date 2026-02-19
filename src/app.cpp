@@ -63,6 +63,7 @@ public:
     entt::entity gridShader;
     entt::entity litShader;
     entt::entity unlitShader;
+    entt::entity borderShader;
 
     // For Raytracing
     entt::entity rtShader;
@@ -147,6 +148,13 @@ private:
             .fragmentShaderPath = constants.SP_UNLIT_FRAG
         });
         shaderStore.shaders["UnlitShader"] = unlitShader;
+
+        // Unlit Shader
+        borderShader = registry.create();
+        registry.emplace<Shader>(borderShader, Shader{
+            .fragmentShaderPath = SHADER_DIR "/border.frag",
+        });
+        shaderStore.shaders["BorderShader"] = borderShader;
 
         // RayTracer Shader
         rtShader = registry.create();
@@ -406,6 +414,10 @@ public:
                 SimObject::Destroy(registry, entity);
             }
             entitiesToDelete.clear();
+
+            // Clean up the selected Entity in the hierarchy
+            auto &hierarchy = registry.ctx().get<Hierarchy::Hierarchy>();
+            if(!registry.valid(hierarchy.selectedEntity)) hierarchy.selectedEntity = entt::null;
         }
         // ------------------------------------------------------------------
         CleanUp();

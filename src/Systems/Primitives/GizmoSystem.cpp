@@ -1,11 +1,8 @@
 
 #include "GizmoSystem.hpp"
 
-#include <imgui_internal.h>
 #include <Core/GameState.hpp>
 
-#include "../../Components/Physics/Rigidbody.hpp"
-#include "../../Core/Physics/PhysicsSystem.hpp"
 #include "Components/Constants.hpp"
 #include "Components/Primitives/Transform.hpp"
 #include "Components/Rendering/GizmoControls.hpp"
@@ -21,13 +18,8 @@ namespace GizmoSystem {
         if (gameState.isPlaying) return;
 
         // Get active object, if it has been destroyed, then set it to null and return
-        auto &hierarchy = registry.ctx().get<Hierarchy::Hierarchy>();
-        const auto activeObject = hierarchy.selectedEntity;
-        if(activeObject == entt::null | !registry.valid(activeObject))
-        {
-            hierarchy.selectedEntity = entt::null;
-            return;
-        }
+        const auto activeObject = registry.ctx().get<Hierarchy::Hierarchy>().selectedEntity;
+        if (activeObject == entt::null) return;
 
         ImGui::Begin("SceneGizmoOverlay", nullptr,
                      ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
