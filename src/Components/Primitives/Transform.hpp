@@ -58,7 +58,6 @@ struct Transform {
 
         // 1. Assign parent
         cNode.parent = parent;
-
         // 2. Insert at the head of the list
         if (pNode.first_child != entt::null) {
             // Link the current first child to our new child
