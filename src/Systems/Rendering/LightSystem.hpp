@@ -6,13 +6,6 @@
 #include <entt/entt.hpp>
 
 namespace LightSystem {
-    struct PointLightsHandle {
-        std::vector<entt::entity> entities  = {};
-    };
-    struct DirectionalLightsHandle {
-        std::vector<entt::entity> entities      = {};
-    };
-
     entt::entity AddPointLight(entt::registry &registry, Transform transform, PointLight point_light);
     void RenderPointLights(entt::registry &registry);
     entt::entity AddDirectionalLight(entt::registry &registry, const Transform& transform, DirectionalLight directional_light);

@@ -138,10 +138,8 @@ namespace Hierarchy {
                 // Handle Duplicate
             }
             if (ImGui::MenuItem("Delete")) {
-                // TODO: Lights are stored in array, need to be removed.
-                // TODO: Every registry.get needs to be registry.try_get, and error handled
-                // registry.ctx().get<EventSystem::DeleteQueue>().entities.insert(selected_entity);
-                // selected_entity = entt::null;
+                registry.ctx().get<EventSystem::DeleteQueue>().entities.insert(selected_entity);
+                selected_entity = entt::null;
             }
 
             ImGui::EndPopup();
