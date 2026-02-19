@@ -152,6 +152,7 @@ private:
         // Unlit Shader
         borderShader = registry.create();
         registry.emplace<Shader>(borderShader, Shader{
+            .vertexShaderPath = SHADER_DIR "/border.vert",
             .fragmentShaderPath = SHADER_DIR "/border.frag",
         });
         shaderStore.shaders["BorderShader"] = borderShader;
@@ -302,7 +303,7 @@ public:
     void Normal_Rendering() {
         // Normal Rendering
         // Grid
-        GridSystem::Render(registry, grid, registry.get<Shader>(gridShader));
+        // GridSystem::Render(registry, grid, registry.get<Shader>(gridShader));
 
         // Render every object
         RenderSystem::Render(registry);
@@ -384,8 +385,10 @@ public:
             // Anything inside framebuffer draws to the Scene window
             RenderSystem::BindFramebuffer(registry);
             {
-                // Program Background
-                Window::ScreenClearFlags(constants.BACKGROUND_COLOR);
+                const auto color = constants.BACKGROUND_COLOR;
+                glClearColor(color.r, color.g, color.b, color.a);
+                // Clear Color Buffer and Depth Buffer
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
                 // Ray Tracing
                 if (gameState->rayTracing){
