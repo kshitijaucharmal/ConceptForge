@@ -64,6 +64,7 @@ public:
     entt::entity litShader;
     entt::entity unlitShader;
     entt::entity borderShader;
+    entt::entity toonShader;
 
     // For Raytracing
     entt::entity rtShader;
@@ -149,7 +150,15 @@ private:
         });
         shaderStore.shaders["UnlitShader"] = unlitShader;
 
-        // Unlit Shader
+        // Toon (Cel) Shader
+        toonShader = registry.create();
+        registry.emplace<Shader>(toonShader, Shader{
+            .vertexShaderPath = SHADER_DIR "/toon.vert",
+            .fragmentShaderPath = SHADER_DIR "/toon.frag"
+        });
+        shaderStore.shaders["ToonShader"] = toonShader;
+
+        // Border Shader
         borderShader = registry.create();
         registry.emplace<Shader>(borderShader, Shader{
             .vertexShaderPath = SHADER_DIR "/border.vert",
@@ -303,7 +312,7 @@ public:
     void Normal_Rendering() {
         // Normal Rendering
         // Grid
-        // GridSystem::Render(registry, grid, registry.get<Shader>(gridShader));
+        GridSystem::Render(registry, grid, registry.get<Shader>(gridShader));
 
         // Render every object
         RenderSystem::Render(registry);
