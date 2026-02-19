@@ -21,6 +21,11 @@ struct Transform {
     entt::entity prev_sibling  = entt::null;
     entt::entity next_sibling  = entt::null;
 
+    static glm::vec3 GetWorldPos(Transform& transform)
+    {
+        return glm::vec3(transform.model[3]);
+    }
+
     static void DetachFromParent(entt::registry& registry, const entt::entity entity) {
         auto& node = registry.get<Transform>(entity);
 

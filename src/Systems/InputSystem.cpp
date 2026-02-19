@@ -49,9 +49,9 @@ namespace InputSystem {
         else
         {
             auto &[operation, mode] = registry.ctx().get<GizmoControls>();
-            if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) operation = ImGuizmo::TRANSLATE;
-            if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) operation = ImGuizmo::ROTATE;
-            if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) operation = ImGuizmo::SCALE;
+            if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) operation = ImGuizmo::TRANSLATE;
+            if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) operation = ImGuizmo::ROTATE;
+            if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) operation = ImGuizmo::SCALE;
         }
     }
 }
