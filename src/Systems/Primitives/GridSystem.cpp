@@ -73,6 +73,7 @@ namespace GridSystem {
         auto camXZ = glm::vec3(camTransform.position.x, 0.0f, camTransform.position.z);
         auto snappedOffset = glm::floor(camXZ / grid.spacing) * grid.spacing;
 
+        glStencilMask(0x00);
         ShaderSystem::Use(shader);
         ShaderSystem::setMat4(shader, "MVP", MVP);
         ShaderSystem::setVec3(shader, "uColor", grid.color);
