@@ -13,14 +13,14 @@ namespace ShaderSystem {
                 continue;
             }
 
-            InitVertexShader(shader, shader.vertexShaderPath);
-            InitFragmentShader(shader, shader.fragmentShaderPath);
+            if (!shader.vertexShaderPath.empty()) InitVertexShader(shader, shader.vertexShaderPath);
+            if (!shader.fragmentShaderPath.empty()) InitFragmentShader(shader, shader.fragmentShaderPath);
             LinkShader(shader);
 
             shader.initialized = true;
             // Detach After linking done
-            glDetachShader(shader.shaderID, shader.vertexShader);
-            glDetachShader(shader.shaderID, shader.fragmentShader);
+            if (!shader.vertexShaderPath.empty()) glDetachShader(shader.shaderID, shader.vertexShader);
+            if (!shader.fragmentShaderPath.empty()) glDetachShader(shader.shaderID, shader.fragmentShader);
         }
     }
 
@@ -92,8 +92,8 @@ namespace ShaderSystem {
     void LinkShader(Shader &shader){
         shader.shaderID = glCreateProgram();
 
-        glAttachShader(shader.shaderID, shader.vertexShader);
-        glAttachShader(shader.shaderID, shader.fragmentShader);
+        if (!shader.vertexShaderPath.empty()) glAttachShader(shader.shaderID, shader.vertexShader);
+        if (!shader.fragmentShaderPath.empty()) glAttachShader(shader.shaderID, shader.fragmentShader);
         glLinkProgram(shader.shaderID);
 
         // Error handling for linking
