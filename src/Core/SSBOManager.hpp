@@ -8,7 +8,6 @@
 namespace SSBOManager {
     void AddAndInit(entt::registry &registry, std::string ssboName, unsigned int ssboIndex);
 
-
     template <typename T>
     void UploadVectorToSSBO(GLuint ssbo, const std::vector<T>& data) {
         if (ssbo == 0) {

@@ -71,8 +71,14 @@ namespace RenderSystem {
     }
 
     void BindFramebuffer(entt::registry &registry) {
+        const auto &constants = registry.ctx().get<Constants>();
         const auto &framebuffer = registry.ctx().get<FrameBuffer>();
         glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.frameBufferID);
+
+        // Clear color
+        const auto color = constants.BACKGROUND_COLOR;
+        glClearColor(color.r, color.g, color.b, color.a);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     }
 
     void UnbindFramebuffer() {
@@ -83,9 +89,9 @@ namespace RenderSystem {
         const auto &constants = registry.ctx().get<Constants>();
 
         // Get Selected Entity (TODO: Just a single is selected for now)
-        auto selected = registry.ctx().get<Hierarchy::Hierarchy>().selectedEntity;
+        const auto selected = registry.ctx().get<Hierarchy::Hierarchy>().selectedEntity;
         // Declare vars for selected
-        glm::mat4 selected_model = glm::mat4(1.0f);
+        auto selected_model = glm::mat4(1.0f);
         std::vector<Mesh> selected_meshes;
 
         glViewport(0, 0, constants.WINDOW_WIDTH, constants.WINDOW_HEIGHT);
@@ -93,8 +99,8 @@ namespace RenderSystem {
         // Draw All meshes
         // Everything that has Transform, Mesh and Material will be Rendered
         for (const auto view = registry.view<Transform, std::vector<Mesh>, Material>(); const auto entity : view) {
-            auto& _transform = view.get<Transform>(entity);
-            auto& _material = view.get<Material>(entity);
+            const auto& _transform = view.get<Transform>(entity);
+            const auto& _material = view.get<Material>(entity);
             auto& _meshes = view.get<std::vector<Mesh>>(entity);
 
             // Check if anything is missing
@@ -104,8 +110,7 @@ namespace RenderSystem {
             // Apply the transform
             const auto model = _transform.model;
 
-            if (entity == selected)
-            {
+            if (entity == selected) {
                 glStencilFunc(GL_ALWAYS, 1, 0xFF);
                 glStencilMask(0xFF);
 
@@ -113,8 +118,7 @@ namespace RenderSystem {
                 selected_meshes = _meshes;
                 selected_model = model;
             }
-            else
-            {
+            else {
                 glStencilMask(0x00);
             }
 
@@ -262,54 +266,57 @@ namespace RenderSystem {
 
         ImGui::End();
 
-        {
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 4));
-            ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
-
-            ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x / 2.0f, 10), ImGuiCond_Always, ImVec2(0.5f, 0.0f));
-            ImGui::SetNextWindowBgAlpha(0.4f);
-
-            const ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration |
-                                     ImGuiWindowFlags_AlwaysAutoResize |
-                                     ImGuiWindowFlags_NoMove |
-                                     ImGuiWindowFlags_NoSavedSettings |
-                                     ImGuiWindowFlags_NoFocusOnAppearing |
-                                     ImGuiWindowFlags_NoNav;
-
-            ImGui::PushFont(registry.ctx().get<Fonts>().FontsDict["IconFont"]);
-            if (ImGui::Begin("##ControlBar", nullptr, flags)) {
-                auto &gameState = registry.ctx().get<GameState>();
-                if (ImGui::Button(ICON_FA_PLAY)) {
-                    gameState.isPlaying = true;
-                    auto view = registry.view<Transform, Rigidbody>();
-                    for (auto &entity : view) {
-                        auto &transform = view.get<Transform>(entity);
-                        auto &rb = view.get<Rigidbody>(entity);
-                        BulletPhysicsSystem::SetBulletTransformFromVisual(transform, rb);
-                    }
-                }
-
-                ImGui::SameLine();
-                if (ImGui::Button(ICON_FA_PAUSE)) {
-                    gameState.isPlaying = false;
-                }
-                ImGui::SameLine();
-                if (ImGui::Button(ICON_FA_STEP)) {
-                    // Step
-                }
-            }
-            ImGui::PopFont();
-            ImGui::End();
-
-            ImGui::PopStyleVar(3);
-        }
+        ControlBar(registry);
 
         // Show Gizmos
         ImGui::SetNextWindowPos(scenePos);
         ImGui::SetNextWindowSize(sceneSize);
 
         GizmoSystem::Render(registry);
+    }
+
+    void ControlBar(entt::registry &registry) {
+        const auto &io = ImGui::GetIO();
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 4));
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+
+        ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x / 2.0f, 10), ImGuiCond_Always, ImVec2(0.5f, 0.0f));
+        ImGui::SetNextWindowBgAlpha(0.4f);
+
+        constexpr ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration |
+                                 ImGuiWindowFlags_AlwaysAutoResize |
+                                 ImGuiWindowFlags_NoMove |
+                                 ImGuiWindowFlags_NoSavedSettings |
+                                 ImGuiWindowFlags_NoFocusOnAppearing |
+                                 ImGuiWindowFlags_NoNav;
+
+        ImGui::PushFont(registry.ctx().get<Fonts>().FontsDict["IconFont"]);
+        if (ImGui::Begin("##ControlBar", nullptr, flags)) {
+            auto &gameState = registry.ctx().get<GameState>();
+            if (ImGui::Button(ICON_FA_PLAY)) {
+                gameState.isPlaying = true;
+                auto view = registry.view<Transform, Rigidbody>();
+                for (auto &entity : view) {
+                    auto &transform = view.get<Transform>(entity);
+                    auto &rb = view.get<Rigidbody>(entity);
+                    BulletPhysicsSystem::SetBulletTransformFromVisual(transform, rb);
+                }
+            }
+
+            ImGui::SameLine();
+            if (ImGui::Button(ICON_FA_PAUSE)) {
+                gameState.isPlaying = false;
+            }
+            ImGui::SameLine();
+            if (ImGui::Button(ICON_FA_STEP)) {
+                // Step
+            }
+        }
+        ImGui::PopFont();
+        ImGui::End();
+
+        ImGui::PopStyleVar(3);
     }
 
 }

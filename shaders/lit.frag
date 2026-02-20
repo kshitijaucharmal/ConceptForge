@@ -11,17 +11,15 @@ struct Material {
 };
 // --------------------------------------------
 struct DirLight {
-  vec3 direction;
-  float pad1;
+  vec3 direction; float pad1;
+  vec3 ambient; float pad2;
+  vec3 diffuse; float pad3;
+  vec3 specular; float pad4;
 
-  vec3 ambient;
-  float pad2;
+  mat4 lightSpaceMatrix;
 
-  vec3 diffuse;
-  float pad3;
-
-  vec3 specular;
-  float pad4;
+  int shadowMapIndex; float shadowBias;
+  int castShadows; float pad6;
 };
 // --------------------------------------------
 struct PointLight {

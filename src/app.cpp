@@ -42,8 +42,11 @@
 #include <Systems/Rendering/Model.hpp>
 
 #include "Components/Fonts.hpp"
+#include "Components/GPUTimer.hpp"
 #include "Components/SceneRoot.hpp"
+#include "Components/Rendering/LightPassFrameBuffer.hpp"
 #include "Core/EditorWindows/PythonEditor.hpp"
+#include "Systems/LightDepthPassSystem.hpp"
 #include "Systems/SceneRootSystem.hpp"
 #include "Systems/SimObjectSystem.hpp"
 
@@ -65,6 +68,8 @@ public:
     entt::entity unlitShader;
     entt::entity borderShader;
     entt::entity toonShader;
+    // Minimal Shader to draw position data into depth buffer
+    entt::entity shadowShader;
 
     // For Raytracing
     entt::entity rtShader;
@@ -92,6 +97,7 @@ private:
         registry.ctx().emplace<GUISystem::ImGuiDrawQueue>();
         registry.ctx().emplace<Hierarchy::Hierarchy>();
         registry.ctx().emplace<FrameBuffer>();
+        registry.ctx().emplace<LightPassFrameBuffer>();
         registry.ctx().emplace<ShaderStore>();
         registry.ctx().emplace<SSBOHolder>();
         registry.ctx().emplace<GizmoControls>();
@@ -99,7 +105,8 @@ private:
         registry.ctx().emplace<RayTracerSettings>();
     }
     void InitRenderSystem() {
-        // Initialize the FrameBuffer
+        // Initialize the FrameBuffers
+        LightDepthPassSystem::Init(registry);
         RenderSystem::Init(registry);
 
         // Init SSBOs
@@ -157,6 +164,14 @@ private:
             .fragmentShaderPath = SHADER_DIR "/toon.frag"
         });
         shaderStore.shaders["ToonShader"] = toonShader;
+
+        // Shadow Shader
+        shadowShader = registry.create();
+        registry.emplace<Shader>(shadowShader, Shader{
+            .vertexShaderPath = SHADER_DIR "/shadow.vert",
+            .fragmentShaderPath = SHADER_DIR "/shadow.frag"
+        });
+        shaderStore.shaders["ShadowShader"] = shadowShader;
 
         // Border Shader
         borderShader = registry.create();
@@ -256,7 +271,7 @@ private:
                 .position = glm::vec3(2.5f, 2.5f, 0.0f),
                 .scale = glm::vec3(0.01f),
             };
-            myModel = new ModelSystem::Model(registry, toonShader, MODELS_PATH "/sponza/sponza.obj", transform, false, false);
+            myModel = new ModelSystem::Model(registry, litShader, MODELS_PATH "/sponza/sponza.obj", transform, false, false);
         }
 
         // ------------------------------------------------------------------
@@ -318,7 +333,23 @@ public:
         RenderSystem::Render(registry);
         // Debug::DrawPoint(registry, glm::vec3(0, 3, 0), 20);
     }
-    void UI_Rendering() {
+
+    static void ShowPerformanceOverlay(const float shadowMS, const float mainMS) {
+        ImGui::Begin("Performance Profiler");
+
+        ImGui::Text("GPU Shadow Pass: %.3f ms", shadowMS);
+        ImGui::Text("GPU Main Pass:   %.3f ms", mainMS);
+        ImGui::Text("Total GPU Time:  %.3f ms", shadowMS + mainMS);
+
+        // Visual bar for relative cost
+        float total = shadowMS + mainMS;
+        ImGui::ProgressBar(shadowMS / total, ImVec2(-1, 0), "Shadows");
+        ImGui::ProgressBar(mainMS / total, ImVec2(-1, 0), "Main");
+
+        ImGui::End();
+    }
+
+    void UI_Rendering(float shadowMS, float mainMS) {
         // UI here ------------------------------------------------------
         GUISystem::NewFrame();
 
@@ -329,6 +360,7 @@ public:
         if (selectedObject != entt::null) Inspector::Show(registry, selectedObject);
         else Inspector::Hide(registry);
         PythonEditor::Show(registry);
+        ShowPerformanceOverlay(shadowMS, mainMS);
 
         // Custom Windows
         auto &imguiQueue = registry.ctx().get<GUISystem::ImGuiDrawQueue>();
@@ -342,6 +374,7 @@ public:
         // Before drawing anything, clear screen
         Window::ScreenClearFlags(constants.CLEAR_COLOR);
         RenderSystem::ShowSceneTexture(registry, window.window);
+
         GUISystem::RenderFrame();
 
         // Clear queue for next frame
@@ -391,14 +424,22 @@ public:
             // --------------------------------------------------------------
 
             // Rendering --------------------------------------------------
+            // Timers
+            static GPUTimer shadowTimer, mainTimer;
+            if (shadowTimer.queries[0] == 0) { shadowTimer.Init(); mainTimer.Init(); }
+
+            // Shadow pass
+            shadowTimer.Start();
+            LightDepthPassSystem::BindFramebuffer(registry);
+            LightDepthPassSystem::Render(registry);
+            LightDepthPassSystem::UnbindFramebuffer();
+            shadowTimer.Stop();
+
+            // Main Pass
             // Anything inside framebuffer draws to the Scene window
+            mainTimer.Start();
             RenderSystem::BindFramebuffer(registry);
             {
-                const auto color = constants.BACKGROUND_COLOR;
-                glClearColor(color.r, color.g, color.b, color.a);
-                // Clear Color Buffer and Depth Buffer
-                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
                 // Ray Tracing
                 if (gameState->rayTracing){
                     RT_Rendering();
@@ -408,12 +449,13 @@ public:
                 }
             }
             RenderSystem::UnbindFramebuffer();
+            mainTimer.Stop();
             // --------------------------------------------------------------
 
             // Push To Draw Queue -------------------------------------------
             // --------------------------------------------------------------
 
-            UI_Rendering();
+            UI_Rendering(shadowTimer.GetMS(), mainTimer.GetMS());
 
             // check and call events
             glfwPollEvents();

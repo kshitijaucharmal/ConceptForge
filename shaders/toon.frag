@@ -13,6 +13,10 @@ struct DirLight {
   vec3 ambient;   float pad2;
   vec3 diffuse;   float pad3;
   vec3 specular;  float pad4;
+
+  mat4 lightSpaceMatrix;
+  int shadowMapIndex; float shadowBias;
+  int castShadows; float pad6;
 };
 
 struct PointLight {
