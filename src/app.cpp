@@ -360,6 +360,7 @@ public:
         else Inspector::Hide(registry);
         PythonEditor::Show(registry);
         ShowPerformanceOverlay(shadowMS, mainMS);
+        Inspector::ShowDebugInfo();
 
         // Custom Windows
         auto &imguiQueue = registry.ctx().get<GUISystem::ImGuiDrawQueue>();

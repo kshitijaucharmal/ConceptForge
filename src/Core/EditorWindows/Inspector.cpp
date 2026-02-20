@@ -61,18 +61,13 @@ namespace Inspector {
         {
             // BUG: using strings may contain typos
             if (name == "Transform") ShowTransform(registry, selectedObject);
+            else if (name == "Material") ShowMaterial(registry, selectedObject);
             else if (name == "DirectionalLight") ShowDirectionalLight(registry, selectedObject);
             else if (name == "PointLight") ShowPointLight(registry, selectedObject);
             else if (name == "Camera") ShowCamera(registry, selectedObject);
         }
 
         ImGui::End();
-
-        // TODO: Should not be here. A new class has to be created, preferrably with global access
-        ImGui::Begin("Debug Info", nullptr, ImGuiWindowFlags_NoCollapse);
-        ShowDebugInfo();
-        ImGui::End();
-
     }
 
     void Hide(entt::registry &registry)
@@ -136,17 +131,26 @@ namespace Inspector {
         }
     }
 
+    void ShowMaterial(entt::registry& registry, const entt::entity& selectedObject) {
+        if (ImGui::CollapsingHeader("Material", ImGuiTreeNodeFlags_DefaultOpen) && selectedObject != entt::null) {
+            auto &material = registry.get<Material>(selectedObject);
+            ImGui::ColorEdit3("Diffuse##Material", glm::value_ptr(material.diffuseColor));
+            ImGui::ColorEdit3("Specular##Material", glm::value_ptr(material.specularColor));
+            ImGui::SliderFloat("Shininess##Material", &material.shininess, 2, 256);
+        }
+    }
+
     void ShowDirectionalLight(entt::registry& registry, const entt::entity& selectedObject)
     {
         if (ImGui::CollapsingHeader("Directional Light", ImGuiTreeNodeFlags_DefaultOpen) && selectedObject != entt::null) {
 
             auto &dirLight = registry.get<DirectionalLight>(selectedObject);
-            ImGui::ColorEdit3("Ambient", glm::value_ptr(dirLight.ambient));
-            ImGui::ColorEdit3("Diffuse", glm::value_ptr(dirLight.diffuse));
-            ImGui::ColorEdit3("Specular", glm::value_ptr(dirLight.specular));
-            ImGui::SliderFloat("ShadowBias", &dirLight.shadowBias, 0.0001f, 0.01);
+            ImGui::ColorEdit3("Ambient##DirLight", glm::value_ptr(dirLight.ambient));
+            ImGui::ColorEdit3("Diffuse##DirLight", glm::value_ptr(dirLight.diffuse));
+            ImGui::ColorEdit3("Specular##DirLight", glm::value_ptr(dirLight.specular));
+            ImGui::SliderFloat("ShadowBias##DirLight", &dirLight.shadowBias, 0.0001f, 0.01);
             bool castShadows = dirLight.castShadows == 1;
-            ImGui::Checkbox("Cast Shadows", &castShadows);
+            ImGui::Checkbox("Cast Shadows##DirLight", &castShadows);
             dirLight.castShadows = castShadows ? 1 : 0;
         }
     }
@@ -156,9 +160,9 @@ namespace Inspector {
         if (ImGui::CollapsingHeader("Point Light", ImGuiTreeNodeFlags_DefaultOpen) && selectedObject != entt::null) {
 
             auto &pointLight = registry.get<PointLight>(selectedObject);
-            ImGui::ColorEdit3("Ambient", glm::value_ptr(pointLight.ambient));
-            ImGui::ColorEdit3("Diffuse", glm::value_ptr(pointLight.diffuse));
-            ImGui::ColorEdit3("Specular", glm::value_ptr(pointLight.specular));
+            ImGui::ColorEdit3("Ambient##PointLight", glm::value_ptr(pointLight.ambient));
+            ImGui::ColorEdit3("Diffuse##PointLight", glm::value_ptr(pointLight.diffuse));
+            ImGui::ColorEdit3("Specular##PointLight", glm::value_ptr(pointLight.specular));
         }
     }
 
@@ -169,17 +173,18 @@ namespace Inspector {
 
             // TODO: These are for debugging
             ImGui::PushItemWidth(90.0);
-            ImGui::SliderFloat("Movement Speed", &camera.MovementSpeed, 0.01, 10.0);
-            ImGui::SliderFloat("Mouse Sensitivity", &camera.MouseSensitivity, 0.01, 1.0);
+            ImGui::SliderFloat("Movement Speed##Camera", &camera.MovementSpeed, 0.01, 10.0);
+            ImGui::SliderFloat("Mouse Sensitivity##Camera", &camera.MouseSensitivity, 0.01, 1.0);
 
-            ImGui::SliderFloat("FOV", &camera.Fov, 0.01, 180.0);
-            ImGui::SliderFloat("Zoom", &camera.Zoom, 0.01, 10.0);
+            ImGui::SliderFloat("FOV##Camera", &camera.Fov, 0.01, 180.0);
+            ImGui::SliderFloat("Zoom##Camera", &camera.Zoom, 0.01, 10.0);
             ImGui::PopItemWidth();
         }
     }
 
     void ShowDebugInfo()
     {
+        ImGui::Begin("Debug Info", nullptr, ImGuiWindowFlags_NoCollapse);
         const ImGuiIO& io = ImGui::GetIO();
 
         // FPS & Timing (always available)
@@ -198,6 +203,7 @@ namespace Inspector {
                          ImVec2(60.0f, 30.0f));
 
         ImGui::Separator();
+        ImGui::End();
     }
 
 }

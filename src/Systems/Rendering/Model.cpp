@@ -95,7 +95,10 @@ namespace ModelSystem {
             meshes.emplace_back(processMesh(mesh, scene));
         }
         registry.emplace<std::vector<Mesh>>(entity, meshes);
-        registry.emplace<Material>(entity, Material{shader_entity, true});
+        registry.emplace<Material>(entity, Material{
+            .shader =  shader_entity,
+            .initialized = true
+        });
 
         // Recursively process children
         for(unsigned int i = 0; i < node->mNumChildren; i++) {
