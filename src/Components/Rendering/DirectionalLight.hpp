@@ -19,4 +19,14 @@ struct alignas(16) DirectionalLight {
 
     glm::vec3 specular  = glm::vec3(0.1f);
     float pad4          = 0.0f;
+
+    // Shadow Mapping
+    /// projection * view matrix for this light
+    glm::mat4 lightSpaceMatrix = glm::mat4(1.0f);
+
+    /// Which Layer in GL_TEXTURE_2D_Array this belongs to. -1 for no shadows
+    int shadowMapIndex  = -1;
+    float shadowBias    = 0.0f;
+    int castShadows     = 1;
+    float pad6          = 0.0f;
 };
