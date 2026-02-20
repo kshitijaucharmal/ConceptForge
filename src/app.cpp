@@ -265,14 +265,14 @@ private:
         }
 
         // 3d model
-        // {
-        //     auto transform = Transform{
-        //         .name = "Backpack",
-        //         .position = glm::vec3(2.5f, 2.5f, 0.0f),
-        //         .scale = glm::vec3(0.01f),
-        //     };
-        //     myModel = new ModelSystem::Model(registry, litShader, MODELS_PATH "/backpack/backpack.obj", transform, false, true);
-        // }
+        {
+            auto transform = Transform{
+                .name = "Backpack",
+                .position = glm::vec3(2.5f, 2.5f, 0.0f),
+                .scale = glm::vec3(1.0f),
+            };
+            myModel = new ModelSystem::Model(registry, litShader, MODELS_PATH "/backpack/backpack.obj", transform, false, true);
+        }
 
         // ------------------------------------------------------------------
     }
@@ -334,7 +334,7 @@ public:
     }
 
     static void ShowPerformanceOverlay(const float shadowMS, const float mainMS) {
-        ImGui::Begin("Performance Profiler");
+        ImGui::Begin("Pass Timers");
 
         ImGui::Text("GPU Shadow Pass: %.3f ms", shadowMS);
         ImGui::Text("GPU Main Pass:   %.3f ms", mainMS);

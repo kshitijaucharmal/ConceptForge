@@ -25,8 +25,8 @@ namespace LightDepthPassSystem
     {
         const auto &constants = registry.ctx().get<Constants>();
 
-        constexpr int width = 1024;
-        constexpr int height = 1024;
+        constexpr int width = 2048;
+        constexpr int height = 2048;
 
         GLuint framebufferID, shadowDepthArray;
 

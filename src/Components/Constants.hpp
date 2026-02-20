@@ -16,7 +16,8 @@ struct Constants{
     std::string SP_LIGHT_FRAG = std::string(SHADER_DIR) + "/light.frag";
 
     // Darkish blue
-    glm::vec4 BACKGROUND_COLOR{0.04f, 0.04f, 0.045f, 1.0f};
+    // glm::vec4 BACKGROUND_COLOR{0.04f, 0.04f, 0.045f, 1.0f};
+    glm::vec4 BACKGROUND_COLOR{1.0, 1.0, 1.0, 1.0};
     glm::vec4 CLEAR_COLOR{0.1, 0.1, 0.1, 1.0f};
 
     // Fixed texture position for Shadows
