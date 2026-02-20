@@ -12,6 +12,7 @@
 #include "Components/Rendering/LightPassFrameBuffer.hpp"
 #include "Components/Rendering/Mesh.hpp"
 #include "Components/Rendering/Shader.hpp"
+#include "Rendering/LightSystem.hpp"
 #include "Rendering/ShaderSystem.hpp"
 
 namespace LightDepthPassSystem
@@ -83,7 +84,7 @@ namespace LightDepthPassSystem
         glViewport(0, 0, lightPassFB.width, lightPassFB.height);
 
         // Render All Shadow Maps (Later can prioritize by distance to player)
-        const auto &dirLights = registry.view<DirectionalLight>();
+        const auto &entities = registry.view<Transform, DirectionalLight>();
         const auto& meshView = registry.view<Transform, std::vector<Mesh>>();
 
         const auto shadowShaderEntity = registry.ctx().get<ShaderStore>().shaders["ShadowShader"];
@@ -92,10 +93,11 @@ namespace LightDepthPassSystem
 
         // Understand that max is 2 (declared in Init)
         int shadowCounter = 0;
-        for (const entt::entity entity : dirLights) {
-            auto& light = dirLights.get<DirectionalLight>(entity);
+        for (const entt::entity entity : entities) {
+            auto& transform = entities.get<Transform>(entity);
+            auto& light = entities.get<DirectionalLight>(entity);
             // Set shadowMapIndex
-            if (light.castShadows) {
+            if (light.castShadows == 1.0) {
                 if (shadowCounter >= NUM_LIGHTS) break;
                 light.shadowMapIndex = shadowCounter++;
             } else {
@@ -106,6 +108,9 @@ namespace LightDepthPassSystem
             // Attach the correct layer
             glFramebufferTextureLayer(GL_FRAMEBUFFER,GL_DEPTH_ATTACHMENT, lightPassFB.shadowDepthArray, 0, light.shadowMapIndex);
             glClear(GL_DEPTH_BUFFER_BIT);
+
+            light.direction = glm::normalize(glm::eulerAngles(transform.rotation));
+            light.lightSpaceMatrix = LightSystem::CalculateLightSpaceMatrix(light.direction);
 
             // Set the light space matrix
             ShaderSystem::setMat4(shadowShader, "lightSpaceMatrix", light.lightSpaceMatrix);

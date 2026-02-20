@@ -208,7 +208,7 @@ private:
                 .rotation = glm::quat(1, 0, 0, 0),
                 .scale = glm::vec3(20.0, 1.0f, 20.0f),
             };
-            Primitives::CreateCubeObject(registry, transform, toonShader, false);
+            Primitives::CreateCubeObject(registry, transform, litShader, false);
         }
         {
             auto transform = Transform{
@@ -244,7 +244,7 @@ private:
                 .rotation = glm::quat(1, 0, 0, 0),
                 .scale = glm::vec3(2.0f),
             };
-            Primitives::CreateUVSphereObject(registry, transform, toonShader, true);
+            Primitives::CreateUVSphereObject(registry, transform, litShader, true);
         }
 
         // Directional Lights
@@ -265,14 +265,14 @@ private:
         }
 
         // 3d model
-        {
-            auto transform = Transform{
-                .name = "Sponza",
-                .position = glm::vec3(2.5f, 2.5f, 0.0f),
-                .scale = glm::vec3(0.01f),
-            };
-            myModel = new ModelSystem::Model(registry, litShader, MODELS_PATH "/sponza/sponza.obj", transform, false, false);
-        }
+        // {
+        //     auto transform = Transform{
+        //         .name = "Backpack",
+        //         .position = glm::vec3(2.5f, 2.5f, 0.0f),
+        //         .scale = glm::vec3(0.01f),
+        //     };
+        //     myModel = new ModelSystem::Model(registry, litShader, MODELS_PATH "/backpack/backpack.obj", transform, false, true);
+        // }
 
         // ------------------------------------------------------------------
     }
@@ -290,7 +290,6 @@ public:
         constants(registry.ctx().emplace<Constants>()),
         window(registry, width, height, windowName)
     {
-        // Window window(registry, width, height, windowName);
         InitContext();
         InitRenderSystem();
 
@@ -342,7 +341,7 @@ public:
         ImGui::Text("Total GPU Time:  %.3f ms", shadowMS + mainMS);
 
         // Visual bar for relative cost
-        float total = shadowMS + mainMS;
+        const float total = shadowMS + mainMS;
         ImGui::ProgressBar(shadowMS / total, ImVec2(-1, 0), "Shadows");
         ImGui::ProgressBar(mainMS / total, ImVec2(-1, 0), "Main");
 

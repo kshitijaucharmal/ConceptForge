@@ -19,6 +19,10 @@ struct Constants{
     glm::vec4 BACKGROUND_COLOR{0.04f, 0.04f, 0.045f, 1.0f};
     glm::vec4 CLEAR_COLOR{0.1, 0.1, 0.1, 1.0f};
 
+    // Fixed texture position for Shadows
+    // TODO: Ensure that any instance of glTextureActive does not go above this
+    const int SHADOW_MAP_UNIT = 15;
+
     int WINDOW_WIDTH = 1600;
     int WINDOW_HEIGHT = 900;
     float ASPECT_RATIO = static_cast<float>(WINDOW_WIDTH) / static_cast<float>(WINDOW_HEIGHT);

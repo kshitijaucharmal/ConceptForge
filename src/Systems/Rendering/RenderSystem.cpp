@@ -23,6 +23,7 @@
 #include "ShaderSystem.hpp"
 #include "Components/Fonts.hpp"
 #include "Components/SceneRoot.hpp"
+#include "Components/Rendering/LightPassFrameBuffer.hpp"
 #include "Core/EditorWindows/Hierarchy.hpp"
 
 // Font Awesome icon defines (or use full glyphs)
@@ -79,6 +80,7 @@ namespace RenderSystem {
         const auto color = constants.BACKGROUND_COLOR;
         glClearColor(color.r, color.g, color.b, color.a);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        glViewport(0, 0, constants.WINDOW_WIDTH, constants.WINDOW_HEIGHT);
     }
 
     void UnbindFramebuffer() {
@@ -87,14 +89,18 @@ namespace RenderSystem {
 
     void Render(entt::registry& registry){
         const auto &constants = registry.ctx().get<Constants>();
+        const auto lightPassFB = registry.ctx().get<LightPassFrameBuffer>();
 
-        // Get Selected Entity (TODO: Just a single is selected for now)
+        // Get Selected Entity (TODO: Just a single is selected for now, should be allowed multiple pressing shift)
         const auto selected = registry.ctx().get<Hierarchy::Hierarchy>().selectedEntity;
         // Declare vars for selected
         auto selected_model = glm::mat4(1.0f);
         std::vector<Mesh> selected_meshes;
 
-        glViewport(0, 0, constants.WINDOW_WIDTH, constants.WINDOW_HEIGHT);
+        // Bind the ShadowMap texture
+        glActiveTexture(GL_TEXTURE0 + constants.SHADOW_MAP_UNIT);
+        glBindTexture(GL_TEXTURE_2D_ARRAY, lightPassFB.shadowDepthArray);
+
 
         // Draw All meshes
         // Everything that has Transform, Mesh and Material will be Rendered
@@ -124,7 +130,9 @@ namespace RenderSystem {
 
             // Always use the shader before passing parameters
             ShaderSystem::Use(*shader);
+            // Set model matrix
             ShaderSystem::setMat4(*shader, "model", model);
+            ShaderSystem::setInt(*shader, "shadowMaps", constants.SHADOW_MAP_UNIT);
             unsigned int diffuseNr = 1;
             unsigned int specularNr = 1;
             unsigned int unit_counter = 0; // Use one counter for all texture units

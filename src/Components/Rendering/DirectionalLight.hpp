@@ -26,7 +26,7 @@ struct alignas(16) DirectionalLight {
 
     /// Which Layer in GL_TEXTURE_2D_Array this belongs to. -1 for no shadows
     int shadowMapIndex  = -1;
-    float shadowBias    = 0.0f;
+    float shadowBias    = 0.001f;
     int castShadows     = 1;
     float pad6          = 0.0f;
 };

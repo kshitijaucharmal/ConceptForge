@@ -80,4 +80,18 @@ namespace LightSystem {
 
         SSBOManager::UploadVectorToSSBO(ssbo["dirLights"], dirLights);
     }
+
+    glm::mat4 CalculateLightSpaceMatrix(const glm::vec3 lightDir) {
+        // Adjust these values (-20, 20) based on your scene size!
+        // TODO: Change this
+        constexpr float size = 20.0f;
+        const glm::mat4 lightProjection = glm::ortho(-size, size, -size, size, 0.1f, 100.0f);
+
+        // 2. View: Where the "Light Camera" is looking
+        // We move 10 units away from the origin in the direction the light comes from
+        const glm::vec3 lightPos = -lightDir * 10.0f;
+        const glm::mat4 lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+        return lightProjection * lightView;
+    }
 }
