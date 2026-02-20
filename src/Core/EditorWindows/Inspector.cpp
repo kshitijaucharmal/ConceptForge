@@ -144,6 +144,10 @@ namespace Inspector {
             ImGui::ColorEdit3("Ambient", glm::value_ptr(dirLight.ambient));
             ImGui::ColorEdit3("Diffuse", glm::value_ptr(dirLight.diffuse));
             ImGui::ColorEdit3("Specular", glm::value_ptr(dirLight.specular));
+            ImGui::SliderFloat("ShadowBias", &dirLight.shadowBias, 0.0001f, 0.01);
+            bool castShadows = dirLight.castShadows == 1;
+            ImGui::Checkbox("Cast Shadows", &castShadows);
+            dirLight.castShadows = castShadows ? 1 : 0;
         }
     }
 
