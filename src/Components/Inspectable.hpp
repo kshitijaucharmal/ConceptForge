@@ -8,6 +8,7 @@
 #include "entt/entt.hpp"
 #include "Primitives/Transform.hpp"
 #include "Rendering/DirectionalLight.hpp"
+#include "Rendering/Material.hpp"
 #include "Rendering/PointLight.hpp"
 
 
@@ -15,6 +16,7 @@ namespace Inspectable
 {
     using InspectableComponents = entt::type_list<
         Transform,
+        Material,
         DirectionalLight,
         PointLight,
         Camera

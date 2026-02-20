@@ -122,12 +122,15 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 fragPos) {
     vec3 texDiffuse  = vec3(texture(material.texture_diffuse1, TexCoords));
     vec3 texSpecular = vec3(texture(material.texture_specular1, TexCoords));
 
-    vec3 ambient  = light.ambient * texDiffuse;
+    vec3 finalDiff = texDiffuse * material.diffuseColor;
+    vec3 finalSpec = texSpecular * material.specularColor;
+
+    vec3 ambient  = light.ambient * finalDiff;
 
     // Diffuse and Specular are multiplied by (1.0 - shadow)
     // If shadow is 1.0, these components become 0
-    vec3 diffuse  = light.diffuse  * diff * texDiffuse * (1.0 - shadow);
-    vec3 specular = light.specular * spec * texSpecular * (1.0 - shadow);
+    vec3 diffuse  = light.diffuse  * diff * finalDiff * (1.0 - shadow);
+    vec3 specular = light.specular * spec * finalSpec * (1.0 - shadow);
 
     return (ambient + diffuse + specular);
 }

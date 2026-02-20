@@ -133,6 +133,12 @@ namespace RenderSystem {
             // Set model matrix
             ShaderSystem::setMat4(*shader, "model", model);
             ShaderSystem::setInt(*shader, "shadowMaps", constants.SHADOW_MAP_UNIT);
+
+            // Set material properties
+            ShaderSystem::setVec3(*shader, "material.diffuseColor", _material.diffuseColor);
+            ShaderSystem::setVec3(*shader, "material.specularColor", _material.specularColor);
+            ShaderSystem::setFloat(*shader, "material.shininess", _material.shininess);
+
             unsigned int diffuseNr = 1;
             unsigned int specularNr = 1;
             unsigned int unit_counter = 0; // Use one counter for all texture units
