@@ -45,10 +45,12 @@
 #include "Components/GPUTimer.hpp"
 #include "Components/SceneRoot.hpp"
 #include "Components/Rendering/LightPassFrameBuffer.hpp"
+#include "Components/Rendering/PickingBuffer.hpp"
 #include "Core/EditorWindows/PythonEditor.hpp"
-#include "Systems/LightDepthPassSystem.hpp"
+#include "Systems/Rendering/LightDepthPassSystem.hpp"
 #include "Systems/SceneRootSystem.hpp"
 #include "Systems/SimObjectSystem.hpp"
+#include "Systems/Rendering/PickingPassSystem.hpp"
 
 class App {
 //Variables
@@ -60,16 +62,6 @@ public:
     entt::entity camera;
 
     GameState *gameState;
-
-    // Default Shaders
-    entt::entity debugShader;
-    entt::entity gridShader;
-    entt::entity litShader;
-    entt::entity unlitShader;
-    entt::entity borderShader;
-    entt::entity toonShader;
-    // Minimal Shader to draw position data into depth buffer
-    entt::entity shadowShader;
 
     // For Raytracing
     entt::entity rtShader;
@@ -98,6 +90,7 @@ private:
         registry.ctx().emplace<Hierarchy::Hierarchy>();
         registry.ctx().emplace<FrameBuffer>();
         registry.ctx().emplace<LightPassFrameBuffer>();
+        registry.ctx().emplace<PickingBuffer>();
         registry.ctx().emplace<ShaderStore>();
         registry.ctx().emplace<SSBOHolder>();
         registry.ctx().emplace<GizmoControls>();
@@ -106,6 +99,7 @@ private:
     }
     void InitRenderSystem() {
         // Initialize the FrameBuffers
+        PickingPassSystem::Init(registry);
         LightDepthPassSystem::Init(registry);
         RenderSystem::Init(registry);
 
@@ -128,21 +122,21 @@ private:
         // Shaders
         auto &shaderStore = registry.ctx().get<ShaderStore>();
 
-        debugShader = registry.create();
+        const auto debugShader = registry.create();
         registry.emplace<Shader>(debugShader, Shader{
             .vertexShaderPath = SHADER_DIR "/point.vert",
             .fragmentShaderPath = SHADER_DIR "/point.frag"
         });
         shaderStore.shaders["DebugShader"] = debugShader;
 
-        gridShader = registry.create();
+        const auto gridShader = registry.create();
         registry.emplace<Shader>(gridShader, Shader{
             .vertexShaderPath = SHADER_DIR "/grid.vert",
             .fragmentShaderPath = SHADER_DIR "/grid.frag"
         });
         shaderStore.shaders["GridShader"] = gridShader;
 
-        litShader = registry.create();
+        const auto litShader = registry.create();
         registry.emplace<Shader>(litShader, Shader{
             .vertexShaderPath = constants.SP_LIT_VERT,
             .fragmentShaderPath = constants.SP_LIT_FRAG
@@ -150,7 +144,7 @@ private:
         shaderStore.shaders["LitShader"] = litShader;
 
         // Unlit Shader
-        unlitShader = registry.create();
+        const auto unlitShader = registry.create();
         registry.emplace<Shader>(unlitShader, Shader{
             .vertexShaderPath = constants.SP_UNLIT_VERT,
             .fragmentShaderPath = constants.SP_UNLIT_FRAG
@@ -158,7 +152,7 @@ private:
         shaderStore.shaders["UnlitShader"] = unlitShader;
 
         // Toon (Cel) Shader
-        toonShader = registry.create();
+        const auto toonShader = registry.create();
         registry.emplace<Shader>(toonShader, Shader{
             .vertexShaderPath = SHADER_DIR "/toon.vert",
             .fragmentShaderPath = SHADER_DIR "/toon.frag"
@@ -166,15 +160,23 @@ private:
         shaderStore.shaders["ToonShader"] = toonShader;
 
         // Shadow Shader
-        shadowShader = registry.create();
+        const auto shadowShader = registry.create();
         registry.emplace<Shader>(shadowShader, Shader{
             .vertexShaderPath = SHADER_DIR "/shadow.vert",
             .fragmentShaderPath = SHADER_DIR "/shadow.frag"
         });
         shaderStore.shaders["ShadowShader"] = shadowShader;
 
+        // Picking Shader
+        const auto pickingShader = registry.create();
+        registry.emplace<Shader>(pickingShader, Shader{
+            .vertexShaderPath = SHADER_DIR "/picking.vert",
+            .fragmentShaderPath = SHADER_DIR "/picking.frag",
+        });
+        shaderStore.shaders["PickingShader"] = pickingShader;
+
         // Border Shader
-        borderShader = registry.create();
+        const auto borderShader = registry.create();
         registry.emplace<Shader>(borderShader, Shader{
             .vertexShaderPath = SHADER_DIR "/border.vert",
             .fragmentShaderPath = SHADER_DIR "/border.frag",
@@ -198,6 +200,10 @@ private:
     }
     void SetupScene() {
         auto &scene_root = registry.ctx().get<SceneRoot>().entity;
+        auto shaders = registry.ctx().get<ShaderStore>().shaders;
+        auto &gridShader = shaders["GridShader"];
+        auto &litShader = shaders["LitShader"];
+        auto &toonShader = shaders["ToonShader"];
         // Grid
         grid = GridSystem::CreateGrid(registry, gridShader, "Grid");
 
@@ -354,21 +360,12 @@ public:
         BulletPhysicsSystem::StepSimulation(registry, registry.ctx().get<Time>().deltaTime);
         BulletPhysicsSystem::SyncTransforms(registry);
     }
-    void RT_Rendering() {
-        RayTracer::Render(registry, rtEntity);
-    }
-    void Normal_Rendering() {
-        // Normal Rendering
-        // Grid
-        GridSystem::Render(registry, grid, registry.get<Shader>(gridShader));
 
-        // Render every object
-        RenderSystem::Render(registry);
-        // Debug::DrawPoint(registry, glm::vec3(0, 3, 0), 20);
-    }
-
-    static void ShowPerformanceOverlay(const float shadowMS, const float mainMS) {
+    static void ShowPerformanceOverlay(std::vector<float> &timers) {
         ImGui::Begin("Pass Timers");
+
+        const float shadowMS = timers[0];
+        const float mainMS = timers[1];
 
         ImGui::Text("GPU Shadow Pass: %.3f ms", shadowMS);
         ImGui::Text("GPU Main Pass:   %.3f ms", mainMS);
@@ -382,7 +379,7 @@ public:
         ImGui::End();
     }
 
-    void UI_Rendering(float shadowMS, float mainMS) {
+    void UI_Rendering(std::vector<float> timers) {
         // UI here ------------------------------------------------------
         GUISystem::NewFrame();
 
@@ -393,7 +390,7 @@ public:
         if (selectedObject != entt::null) Inspector::Show(registry, selectedObject);
         else Inspector::Hide(registry);
         PythonEditor::Show(registry);
-        ShowPerformanceOverlay(shadowMS, mainMS);
+        ShowPerformanceOverlay(timers);
         Inspector::ShowDebugInfo();
 
         // Custom Windows
@@ -407,7 +404,8 @@ public:
 
         // Before drawing anything, clear screen
         Window::ScreenClearFlags(constants.CLEAR_COLOR);
-        RenderSystem::ShowSceneTexture(registry, window.window);
+        const auto frameBuffer = registry.ctx().get<FrameBuffer>();
+        RenderSystem::ShowSceneTexture(registry, window.window, frameBuffer.colorTexture);
 
         GUISystem::RenderFrame();
 
@@ -476,10 +474,11 @@ public:
             {
                 // Ray Tracing
                 if (gameState->rayTracing){
-                    RT_Rendering();
+                    RayTracer::Render(registry, rtEntity);
                 }
                 else {
-                    Normal_Rendering();
+                    GridSystem::Render(registry, grid);
+                    RenderSystem::Render(registry);
                 }
             }
             RenderSystem::UnbindFramebuffer();
@@ -489,7 +488,7 @@ public:
             // Push To Draw Queue -------------------------------------------
             // --------------------------------------------------------------
 
-            UI_Rendering(shadowTimer.GetMS(), mainTimer.GetMS());
+            UI_Rendering({shadowTimer.GetMS(), mainTimer.GetMS()});
 
             // check and call events
             glfwPollEvents();

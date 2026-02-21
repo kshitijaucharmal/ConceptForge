@@ -16,7 +16,7 @@ namespace RenderSystem {
     /// Render all objects with Transform, Meshes, and Material to the frambuffer
     void Render(entt::registry& registry);
     /// Draw the Frambuffer as a texture on the screen
-    void ShowSceneTexture(entt::registry &registry, GLFWwindow* window);
+    void ShowSceneTexture(entt::registry &registry, GLFWwindow* window, GLuint colorTexture);
     /// Bind the framebuffer before using
     void BindFramebuffer(entt::registry &registry);
     /// Unbind the framebuffer after using

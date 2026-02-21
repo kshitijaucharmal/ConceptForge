@@ -8,7 +8,7 @@
 #include "Components/Primitives/Grid.hpp"
 
 namespace  GridSystem {
-    Mesh GenerateMesh(entt::registry& registry, const Grid grid);
+    Mesh GenerateMesh(entt::registry& registry, Grid grid);
     entt::entity CreateGrid(entt::registry &registry, entt::entity &shader, std::string name);
-    void Render(entt::registry& registry, const entt::entity gridEntity, Shader &shader);
+    void Render(entt::registry& registry, entt::entity gridEntity);
 }

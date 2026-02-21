@@ -101,7 +101,6 @@ namespace RenderSystem {
         glActiveTexture(GL_TEXTURE0 + constants.SHADOW_MAP_UNIT);
         glBindTexture(GL_TEXTURE_2D_ARRAY, lightPassFB.shadowDepthArray);
 
-
         // Draw All meshes
         // Everything that has Transform, Mesh and Material will be Rendered
         for (const auto view = registry.view<Transform, std::vector<Mesh>, Material>(); const auto entity : view) {
@@ -214,7 +213,7 @@ namespace RenderSystem {
         glStencilFunc(GL_ALWAYS, 1, 0xFF);
     }
 
-    void ShowSceneTexture(entt::registry &registry, GLFWwindow* window) {
+    void ShowSceneTexture(entt::registry &registry, GLFWwindow* window, GLuint colorTexture) {
         auto &constants = registry.ctx().get<Constants>();
         // Fixed Screen Position
         ImGui::SetNextWindowPos(ImVec2(constants.SCENE_X, constants.SCENE_Y), ImGuiCond_Appearing);
@@ -230,8 +229,6 @@ namespace RenderSystem {
                      ImGuiWindowFlags_NoCollapse |
                      ImGuiWindowFlags_NoTitleBar
                      );
-
-        auto &framebuffer = registry.ctx().get<FrameBuffer>();
 
         const auto avail = ImGui::GetContentRegionAvail();
         const auto aspect = static_cast<float>(constants.WINDOW_WIDTH) / static_cast<float>(constants.WINDOW_HEIGHT);
@@ -250,7 +247,7 @@ namespace RenderSystem {
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0)); // No padding
         ImDrawList* drawList = ImGui::GetBackgroundDrawList();
         drawList->AddImage(
-            (ImTextureID)static_cast<uintptr_t>(framebuffer.colorTexture),
+            (ImTextureID)static_cast<uintptr_t>(colorTexture),
                            scenePos,
                            ImVec2(scenePos.x + sceneSize.x, scenePos.y + sceneSize.y),
                            ImVec2(0, 1), ImVec2(1, 0)  // UVs (flip vertically if needed)
@@ -259,20 +256,28 @@ namespace RenderSystem {
 
         const auto &activeCam = registry.ctx().get<ActiveCamera>().camera;
         auto &camera = registry.get<Camera>(activeCam);
-        ImVec2 sceneEnd  = ImVec2(scenePos.x + sceneSize.x, scenePos.y + sceneSize.y);
+        const auto sceneEnd  = ImVec2(scenePos.x + sceneSize.x, scenePos.y + sceneSize.y);
 
         auto &io = ImGui::GetIO();
         // Check if the mouse is inside the image rectangle
         if (!io.WantCaptureMouse) {
-            if (ImGui::IsMouseHoveringRect(scenePos, sceneEnd) && ImGui::IsMouseDragging(ImGuiMouseButton_Right)) {
-                if (!constants.MouseCaptured) {
+            if (ImGui::IsMouseHoveringRect(scenePos, sceneEnd) && ImGui::IsMouseDown(ImGuiMouseButton_Right))
+            {
+                if (!constants.RightMouseCaptured) {
                     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-                    constants.MouseCaptured = true;
+                    constants.RightMouseCaptured = true;
+
                     camera.firstMouse = true;
                 }
             }
+            else if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+                if (!constants.LeftMouseCaptured) {
+                    constants.LeftMouseCaptured = true;
+                }
+            }
             else {
-                constants.MouseCaptured = false;
+                constants.RightMouseCaptured = false;
+                constants.LeftMouseCaptured = false;
                 glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
             }
         }
