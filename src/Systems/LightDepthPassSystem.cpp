@@ -25,17 +25,15 @@ namespace LightDepthPassSystem
     {
         const auto &constants = registry.ctx().get<Constants>();
 
-        constexpr int width = 2048;
-        constexpr int height = 2048;
-
-        GLuint framebufferID, shadowDepthArray;
+        // Setup FrameBuffer
+        auto &framebuffer = registry.ctx().get<LightPassFrameBuffer>();
 
         // Init as a TEXTURE_2D_ARRAY
-        glGenTextures(1, &shadowDepthArray);
-        glBindTexture(GL_TEXTURE_2D_ARRAY, shadowDepthArray);
+        glGenTextures(1, &framebuffer.shadowDepthArray);
+        glBindTexture(GL_TEXTURE_2D_ARRAY, framebuffer.shadowDepthArray);
 
         glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT,
-            width, height, NUM_LIGHTS, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+            framebuffer.width, framebuffer.height, NUM_LIGHTS, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
 
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -48,19 +46,12 @@ namespace LightDepthPassSystem
 
         // Framebuffer
         // Don't need to add any texture, will be swapping textures
-        glGenFramebuffers(1, &framebufferID);
-        glBindFramebuffer(GL_FRAMEBUFFER, framebufferID);
+        glGenFramebuffers(1, &framebuffer.frameBufferID);
+        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.frameBufferID);
 
         // Only depth
         glDrawBuffer(GL_NONE);
         glReadBuffer(GL_NONE);
-
-        // Setup FrameBuffer
-        auto &framebuffer = registry.ctx().get<LightPassFrameBuffer>();
-        framebuffer.frameBufferID = framebufferID;
-        framebuffer.shadowDepthArray = shadowDepthArray;
-        framebuffer.width = width;
-        framebuffer.height = height;
 
         // unbind
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
