@@ -2,7 +2,6 @@
 
 #include <iostream>
 
-#include "Components/Rendering/Material.hpp"
 #include "Components/Rendering/Mesh.hpp"
 
 #include "VertexData.hpp"
@@ -14,7 +13,11 @@
 #include "Systems/Rendering/MeshSystem.hpp"
 
 namespace Primitives {
-    entt::entity Create(entt::registry &registry, const PrimitiveType primitiveType, const Transform& transform, const entt::entity &material) {
+    entt::entity Create(entt::registry &registry, const PrimitiveType primitiveType, const Transform& transform, const entt::entity &shader) {
+        const auto material = Material{
+            .shader = shader,
+            .initialized = true
+        };
         switch (primitiveType) {
             case PrimitiveType::CUBE:
                 return CreateCubeObject(registry, transform, material);
@@ -33,13 +36,14 @@ namespace Primitives {
         return MeshManager::InitMesh(cubeVertices, cubeIndices, textures);
     }
 
-    entt::entity CreateUVSphereObject(entt::registry &registry, const Transform& transform, const entt::entity &shader, const bool movable) {
+    entt::entity CreateUVSphereObject(entt::registry &registry,
+        const Transform& transform,
+        const Material &material,
+        const bool movable)
+    {
         const entt::entity e = registry.create();
         registry.emplace<Transform>(e, transform);
-        registry.emplace<Material>(e, Material {
-            .shader = shader,
-            .initialized = true
-        });
+        registry.emplace<Material>(e, material);
 
         const Mesh mesh = CreateUVSphereMesh(registry);
         std::vector meshes = {CreateUVSphereMesh(registry)};
@@ -151,13 +155,14 @@ namespace Primitives {
     }
 
     // Creation
-    entt::entity CreateCubeObject(entt::registry& registry, const Transform& transform, const entt::entity &shader, const bool movable) {
+    entt::entity CreateCubeObject(entt::registry& registry,
+        const Transform& transform,
+        const Material &material,
+        const bool movable
+        ) {
         const entt::entity e = registry.create();
         registry.emplace<Transform>(e, transform);
-        registry.emplace<Material>(e, Material {
-            .shader = shader,
-            .initialized = true
-        });
+        registry.emplace<Material>(e, material);
         std::vector meshes = {CreateCubeMesh(registry)};
         registry.emplace<std::vector<Mesh>>(e, meshes);
         registry.emplace<Cube>(e);
