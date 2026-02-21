@@ -19,7 +19,7 @@ struct DirLight {
     mat4 lightSpaceMatrix;
 
     int shadowMapIndex; float shadowBias;
-    int castShadows; float pad6;
+    int castShadows; int hardShadows;
 };
 // --------------------------------------------
 struct PointLight {
@@ -58,19 +58,35 @@ in vec2 TexCoords;
 
 out vec4 FragColor;
 
+float random(vec3 seed, int i) {
+    vec4 seed4 = vec4(seed, i);
+    float dot_product = dot(seed4, vec4(12.9898, 78.233, 45.164, 94.673));
+    return fract(sin(dot_product) * 43758.5453);
+}
+
 // --- Shadow Calculation Function ---
-float CalculateShadow(vec4 fragPosLightSpace, int layer, float bias) {
+float CalculateShadow(vec4 fragPosLightSpace, int layer, float bias, int hardShadows) {
     // Transform to [0,1] range for texture sampling
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
     projCoords = projCoords * 0.5 + 0.5;
     if(projCoords.z > 1.0) return 0.0;
 
     float shadow = 0.0;
-    vec2 texelSize = 1.0 / textureSize(shadowMaps, 0).xy;
 
+    if (hardShadows == 1) {
+        float closestDepth = texture(shadowMaps, vec3(projCoords.xy, layer)).r;
+        shadow = (projCoords.z - bias) > closestDepth ? 1.0 : 0.0;
+        return shadow;
+    }
+
+    vec2 texelSize = 1.0 / textureSize(shadowMaps, 0).xy;
+    float jitterScale = 1.0;
     for(int x = -2; x <= 2; ++x){
         for(int y = -2; y <= 2; ++y){
-            float pcfDepth = texture(shadowMaps, vec3(projCoords.xy + vec2(x, y) * texelSize, layer)).r;
+            float offset = random(gl_FragCoord.xyz, x + y * 5);
+            vec2 jitter = vec2(offset) * texelSize * jitterScale;
+
+            float pcfDepth = texture(shadowMaps, vec3(projCoords.xy + (vec2(x, y) + jitter) * texelSize, layer)).r;
             shadow += (projCoords.z - bias) > pcfDepth ? 1.0 : 0.0;
         }
     }
@@ -108,7 +124,7 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 fragPos) {
     float shadow = 0.0;
     if (light.castShadows == 1 && light.shadowMapIndex != -1) {
         vec4 fragPosLightSpace = light.lightSpaceMatrix * vec4(fragPos, 1.0);
-        shadow = CalculateShadow(fragPosLightSpace, light.shadowMapIndex, light.shadowBias);
+        shadow = CalculateShadow(fragPosLightSpace, light.shadowMapIndex, light.shadowBias, light.hardShadows);
     }
 
     // 2. Diffuse shading

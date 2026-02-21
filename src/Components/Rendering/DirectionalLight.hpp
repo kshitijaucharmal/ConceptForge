@@ -28,5 +28,5 @@ struct alignas(16) DirectionalLight {
     int shadowMapIndex  = -1;
     float shadowBias    = 0.002f;
     int castShadows     = 1;
-    float pad6          = 0.0f;
+    int hardShadows     = 1;
 };

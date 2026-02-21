@@ -208,7 +208,13 @@ private:
                 .rotation = glm::quat(1, 0, 0, 0),
                 .scale = glm::vec3(20.0, 1.0f, 20.0f),
             };
-            Primitives::CreateCubeObject(registry, transform, litShader, false);
+            auto material = Material{
+                .shader = litShader,
+                .diffuseColor = glm::vec3(66.0/255.0),
+                .specularColor = glm::vec3(0.0),
+                .initialized = true
+            };
+            Primitives::CreateCubeObject(registry, transform, material, false);
         }
         {
             auto transform = Transform{
@@ -217,23 +223,45 @@ private:
                 .rotation = glm::quat(1, 0, 0, 0),
                 .scale = glm::vec3(1.0, 1.0f, 1.0f),
             };
-            auto cube = Primitives::CreateCubeObject(registry, transform, litShader, true);
+            auto material = Material{
+                .shader = litShader,
+                .diffuseColor = glm::vec3(1.0),
+                .specularColor = glm::vec3(0.0),
+                .initialized = true
+            };
+            auto cube = Primitives::CreateCubeObject(registry, transform, material, true);
+        }
 
-            auto transform2 = Transform{
+        {
+            auto transform = Transform{
                 .name = "Cube 1",
                 .position = glm::vec3(0.0f, 6.0f, 0.0f),
                 .rotation = glm::quat(1, 0, 0, 0),
                 .scale = glm::vec3(1.0),
             };
-            auto cube2= Primitives::CreateCubeObject(registry, transform2, litShader, true);
+            auto material = Material{
+                .shader = litShader,
+                .diffuseColor = glm::vec3(1.0, 0.0, 0.0),
+                .specularColor = glm::vec3(0.0),
+                .initialized = true
+            };
+            auto cube2= Primitives::CreateCubeObject(registry, transform, material, true);
+        }
 
-            auto transform3 = Transform{
+        {
+            auto transform = Transform{
                 .name = "Cube 2",
                 .position = glm::vec3(0.0f, 10.0f, 0.0f),
                 .rotation = glm::quat(1, 0, 0, 0),
                 .scale = glm::vec3(1.0),
             };
-            auto cube3 = Primitives::CreateCubeObject(registry, transform3, litShader, true);
+            auto material = Material{
+                .shader = litShader,
+                .diffuseColor = glm::vec3(1.0),
+                .specularColor = glm::vec3(0.0),
+                .initialized = true
+            };
+            auto cube = Primitives::CreateCubeObject(registry, transform, material, true);
         }
 
         // Sphere
@@ -244,7 +272,13 @@ private:
                 .rotation = glm::quat(1, 0, 0, 0),
                 .scale = glm::vec3(2.0f),
             };
-            Primitives::CreateUVSphereObject(registry, transform, litShader, true);
+            auto material = Material{
+                .shader = litShader,
+                .diffuseColor = glm::vec3(1.0, 0.0, 0.0),
+                .specularColor = glm::vec3(0.0),
+                .initialized = true
+            };
+            Primitives::CreateUVSphereObject(registry, transform, material, true);
         }
 
         // Directional Lights
