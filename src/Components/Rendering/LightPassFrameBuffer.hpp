@@ -15,6 +15,6 @@ struct LightPassFrameBuffer
     GLuint shadowDepthArray = 0;
 
     // Texture dimensions
-    int width = 1024;
-    int height = 1024;
+    int width = 4096;
+    int height = 4096;
 };
