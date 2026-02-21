@@ -47,6 +47,18 @@ struct Transform {
         };
     }
 
+    static glm::mat4 GetWorldMatrix(entt::registry& registry, const entt::entity entity) {
+        const auto& t = registry.get<Transform>(entity);
+
+        // If there's no parent, the local model matrix IS the world matrix
+        if (t.parent == entt::null) {
+            return t.model;
+        }
+
+        // Otherwise: World = ParentWorldMatrix * LocalMatrix
+        return GetWorldMatrix(registry, t.parent) * t.model;
+    }
+
     static void DetachFromParent(entt::registry& registry, const entt::entity entity) {
         auto& node = registry.get<Transform>(entity);
 

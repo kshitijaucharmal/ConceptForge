@@ -19,7 +19,6 @@ namespace LightDepthPassSystem
     void BindFramebuffer(entt::registry &registry);
     /// Unbind the framebuffer after using
     void UnbindFramebuffer();
-
     void Render(entt::registry &registry);
 }
 

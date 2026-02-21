@@ -113,6 +113,9 @@ namespace ShaderSystem {
     void setInt(Shader &shader, const std::string &name, int value) {
         glUniform1i(glGetUniformLocation(shader.shaderID, name.c_str()), value);
     }
+    void setUInt(Shader &shader, const std::string &name, uint value) {
+        glUniform1ui(glGetUniformLocation(shader.shaderID, name.c_str()), value);
+    }
     void setFloat(Shader &shader, const std::string &name, float value) {
         glUniform1f(glGetUniformLocation(shader.shaderID, name.c_str()), value);
     }

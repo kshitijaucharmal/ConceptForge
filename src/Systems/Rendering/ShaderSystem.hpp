@@ -22,6 +22,7 @@ namespace ShaderSystem {
     // Setters
     void setBool(Shader &shader, const std::string &name, bool value);
     void setInt(Shader &shader, const std::string &name, int value);
+    void setUInt(Shader &shader, const std::string &name, uint value);
     void setFloat(Shader &shader, const std::string &name, float value);
 
     // Vec2 overloads

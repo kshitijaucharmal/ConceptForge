@@ -12,8 +12,8 @@
 #include "Components/Rendering/LightPassFrameBuffer.hpp"
 #include "Components/Rendering/Mesh.hpp"
 #include "Components/Rendering/Shader.hpp"
-#include "Rendering/LightSystem.hpp"
-#include "Rendering/ShaderSystem.hpp"
+#include "LightSystem.hpp"
+#include "ShaderSystem.hpp"
 
 namespace LightDepthPassSystem
 {

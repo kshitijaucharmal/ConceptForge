@@ -61,7 +61,10 @@ namespace GridSystem {
         return entity;
     }
 
-    void Render(entt::registry& registry, const entt::entity gridEntity, Shader &shader) {
+    void Render(entt::registry& registry, const entt::entity gridEntity) {
+        const auto shaderEntity = registry.ctx().get<ShaderStore>().shaders["GridShader"];
+        auto &shader = registry.get<Shader>(shaderEntity);
+
         const auto mesh = registry.get<Mesh>(gridEntity);
         const auto grid = registry.get<Grid>(gridEntity);
 
