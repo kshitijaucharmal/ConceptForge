@@ -32,12 +32,13 @@ struct Constants{
     bool RightMouseCaptured = false;
     bool LeftMouseCaptured = false;
 
-    float mouseX, mouseY;
+    int mouseX, mouseY;
 
     // Editor
     // Inspector
     const int SCENE_X = 302;
     const int SCENE_Y = 2;
+
     const int SCENE_WIDTH = 992;
     const int SCENE_HEIGHT = 558;
 };

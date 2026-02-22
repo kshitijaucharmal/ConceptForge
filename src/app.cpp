@@ -309,9 +309,9 @@ private:
             auto transform = Transform{
                 .name = "Backpack",
                 .position = glm::vec3(2.5f, 2.5f, 0.0f),
-                .scale = glm::vec3(1.0f),
+                .scale = glm::vec3(1.0),
             };
-            myModel = new ModelSystem::Model(registry, litShader, MODELS_PATH "/backpack/backpack.obj", transform, false, true);
+            myModel = new ModelSystem::Model(registry, litShader, MODELS_PATH "/backpack/backpack.obj", transform, false, false);
         }
 
         // ------------------------------------------------------------------
@@ -459,6 +459,7 @@ public:
             // Timers
             static GPUTimer shadowTimer, mainTimer;
             if (shadowTimer.queries[0] == 0) { shadowTimer.Init(); mainTimer.Init(); }
+
 
             // Shadow pass
             shadowTimer.Start();

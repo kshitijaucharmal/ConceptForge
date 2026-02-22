@@ -10,6 +10,7 @@
 #include <Systems/CameraSystem.hpp>
 
 #include "Components/Rendering/GizmoControls.hpp"
+#include "Core/EditorWindows/Hierarchy.hpp"
 #include "Rendering/PickingPassSystem.hpp"
 
 namespace InputSystem {
@@ -23,23 +24,23 @@ namespace InputSystem {
             PickingPassSystem::BindFramebuffer(registry);
             PickingPassSystem::Render(registry);
 
-            const float localX = ImGui::GetMousePos().x - static_cast<float>(constants.SCENE_X);
-            const float localY = ImGui::GetMousePos().y - static_cast<float>(constants.SCENE_Y);
-            printf("Hello World: %f, %f\n", localX, localY);
-
-            glFlush();
-            glFinish();
-
             glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
             unsigned char data[4];
-            // Read at postion
-            glReadPixels(1024/2, 768/2,1,1, GL_RGBA, GL_UNSIGNED_BYTE, data);
+            const auto &consts = registry.ctx().get<Constants>();
+
+            glReadPixels(consts.mouseX, constants.WINDOW_HEIGHT - consts.mouseY,1,1, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
             int pickedID =
                 data[0] +
                 data[1] * 256 +
                 data[2] * 256*256;
-            printf("ID: %d", pickedID);
+            if (const auto selected = static_cast<entt::entity>(pickedID); registry.valid(selected)) {
+                const auto transform = registry.get<Transform>(selected);
+                registry.ctx().get<Hierarchy::Hierarchy>().selectedEntity = selected;
+            }
+            else {
+                registry.ctx().get<Hierarchy::Hierarchy>().selectedEntity = entt::null;
+            }
 
             PickingPassSystem::UnbindFramebuffer();
 
