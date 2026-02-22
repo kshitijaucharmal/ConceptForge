@@ -259,8 +259,24 @@ namespace RenderSystem {
         const auto sceneEnd  = ImVec2(scenePos.x + sceneSize.x, scenePos.y + sceneSize.y);
 
         auto &io = ImGui::GetIO();
+        auto mousePos = io.MousePos;
+        if (ImGui::IsMouseHoveringRect(scenePos, sceneEnd))
+        {
+            float localX = mousePos.x - scenePos.x;
+            float localY = mousePos.y - scenePos.y;
+
+            float texX = static_cast<int>(localX * (static_cast<float>(constants.WINDOW_WIDTH) / sceneSize.x));
+            float texY = static_cast<int>(localY * (static_cast<float>(constants.WINDOW_HEIGHT) / sceneSize.y));
+
+            constants.mouseX = texX;
+            constants.mouseY = texY;
+
+            // printf("Hovering %d %d\n", constants.mouseX, constants.mouseY);
+        }
+
         // Check if the mouse is inside the image rectangle
         if (!io.WantCaptureMouse) {
+
             if (ImGui::IsMouseHoveringRect(scenePos, sceneEnd) && ImGui::IsMouseDown(ImGuiMouseButton_Right))
             {
                 if (!constants.RightMouseCaptured) {

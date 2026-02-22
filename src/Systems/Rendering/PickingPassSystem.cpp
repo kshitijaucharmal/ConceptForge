@@ -24,8 +24,8 @@ namespace PickingPassSystem {
 
         GLuint framebufferID, colorTexture, depthBuffer;
 
-        const float width = constants.SCENE_WIDTH;
-        const float height = constants.SCENE_HEIGHT;
+        const float width = constants.WINDOW_WIDTH;
+        const float height = constants.WINDOW_HEIGHT;
 
         glGenFramebuffers(1, &framebufferID);
         glBindFramebuffer(GL_FRAMEBUFFER, framebufferID);
