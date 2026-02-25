@@ -4,8 +4,12 @@
 
 #ifndef CONCEPTFORGE_PYTHONEDITOR_HPP
 #define CONCEPTFORGE_PYTHONEDITOR_HPP
-#include "entt/entt.hpp"
 
+#include "entt/entt.hpp"
+#include <pybind11/embed.h>
+#include <pybind11/stl.h>
+
+namespace py = pybind11;
 namespace PythonEditor
 {
     void Init();
