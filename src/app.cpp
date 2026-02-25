@@ -311,7 +311,7 @@ private:
                 .position = glm::vec3(2.5f, 2.5f, 0.0f),
                 .scale = glm::vec3(1.0),
             };
-            myModel = new ModelSystem::Model(registry, litShader, MODELS_PATH "/backpack/backpack.obj", transform, false, false);
+            myModel = new ModelSystem::Model(registry, litShader, MODELS_PATH "/backpack/backpack.obj", transform, false, true);
         }
 
         // ------------------------------------------------------------------
@@ -499,6 +499,7 @@ public:
             auto &entitiesToDelete = registry.ctx().get<EventSystem::DeleteQueue>().entities;
             for (const auto &entity : entitiesToDelete)
             {
+                // TODO: Does not destroy the physics object
                 SimObject::Destroy(registry, entity);
             }
             entitiesToDelete.clear();
