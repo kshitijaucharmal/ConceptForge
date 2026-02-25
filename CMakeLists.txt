@@ -34,6 +34,8 @@ message(STATUS "Python Executable: ${Python_EXECUTABLE}")
 message(STATUS "Python Libraries: ${Python_LIBRARIES}")
 message(STATUS "Python Include Dirs: ${Python_INCLUDE_DIRS}")
 
+find_package(pybind11 REQUIRED)
+
 # Set default build type to Release if not specified
 if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
@@ -54,7 +56,6 @@ include_directories(
 
 # Gather source files
 file(GLOB_RECURSE SOURCES "src/*.cpp")
-file(GLOB_RECURSE NB_SOURCES "nanobind/*.cpp")
 
 # --- Add Assimp ---
 option(ASSIMP_BUILD_NO_STEP_IMPORTER "Disable STEP importer" ON)
@@ -75,7 +76,6 @@ set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "" FORCE)          # Assimp's internal zlib
 # Add external libraries
 add_subdirectory(external/glm)
 add_subdirectory(external/glfw)
-add_subdirectory(external/nanobind)
 add_subdirectory(external/assimp)
 
 # Build glad
@@ -126,6 +126,7 @@ add_subdirectory(${BULLET_ROOT_DIR})
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_link_libraries(${PROJECT_NAME}
         PRIVATE
+        pybind11::embed
         Python::Python
         OpenGL::GL
         imgui
@@ -169,30 +170,3 @@ if(BUILD_DOCS AND Doxygen_FOUND)
   set(DOXYGEN_BUILTIN_STL_SUPPORT YES)
   doxygen_add_docs(conceptforge-docs ALL COMMENT "Generating API docs...")
 endif()
-
-
-# nanobind module for Python
-# nanobind_add_module(concept_forge ${SOURCES} ${NB_SOURCES})
-# target_include_directories(concept_forge PRIVATE
-#   src
-#   external/glad/include
-#   external/imgui
-#   external/imgui/backends
-#   external/glfw/include
-#   external/ImGuizmo
-#   external/stb_image
-#   external/IconFont
-# )
-# target_link_libraries(concept_forge
-#   PRIVATE OpenGL::GL imgui ImGuizmo glad glfw glm
-# )
-#
-# add_custom_command(TARGET concept_forge POST_BUILD
-#     COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_SOURCE_DIR}/python-scripts"
-#     COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:concept_forge>" "${CMAKE_CURRENT_SOURCE_DIR}/python-scripts/"
-#     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}/python-scripts
-#             ${Python_EXECUTABLE} -m nanobind.stubgen -m concept_forge
-#     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/python-scripts"
-#     COMMENT "Copying Python module to python-scripts/ and generating .pyi stubs"
-# )
-
