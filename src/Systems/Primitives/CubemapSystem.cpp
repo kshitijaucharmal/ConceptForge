@@ -10,8 +10,15 @@
 #include "glad/glad.h"
 #include <iostream>
 
+#include "PrimitivesSystem.hpp"
+#include "VertexData.hpp"
+#include "Components/Primitives/Transform.hpp"
+#include "Components/Rendering/Material.hpp"
+#include "entt/entt.hpp"
 namespace CubeMap {
-    void Init(const std::string& folder_path) {
+
+
+    void Init(entt::registry &registry, const std::string& folder_path) {
         std::vector<std::string> faces = {
             "right",
             "left",
@@ -22,23 +29,21 @@ namespace CubeMap {
         };
 
         // Add path and extension
-        for(unsigned int i = 0; i < faces.size(); i++)
-        {
-            faces[i] = folder_path + faces[i] + ".jpg";
+        for(auto & face : faces) {
+            face = folder_path + face + ".jpg";
         }
 
-        LoadCubeMap(faces);
+        LoadCubeMap(registry, faces);
     }
 
-    void LoadCubeMap(const std::vector<std::string>& faces) {
+    void LoadCubeMap(entt::registry &registry, const std::vector<std::string>& faces) {
         unsigned int textureID;
         glGenTextures(1, &textureID);
         glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 
         int width, height, nrChannels;
         unsigned char *data;
-        for(unsigned int i = 0; i < faces.size(); i++)
-        {
+        for(unsigned int i = 0; i < faces.size(); i++) {
             data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
             if (data)
             {
@@ -59,5 +64,53 @@ namespace CubeMap {
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+        unsigned int VAO, VBO, EBO;
+
+        glGenVertexArrays(1, &VAO);
+        glGenBuffers(1, &VBO);
+        glGenBuffers(1, &EBO);
+
+        glBindVertexArray(VAO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+        glBufferData(GL_ARRAY_BUFFER, skyboxVertices.size() * sizeof(glm::vec3), &skyboxVertices[0], GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, cubeIndices.size() * sizeof(unsigned int), &cubeIndices[0], GL_STATIC_DRAW);
+
+        // vertex positions
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+
+        // Unbind
+        glBindVertexArray(0);
+
+        const int indexSize = cubeIndices.size();
+
+        auto mesh =  Mesh{
+            .vertices = {},
+            .indices = cubeIndices,
+            .textures = {},
+            .VAO = VAO,
+            .VBO = VBO,
+            .EBO = EBO,
+            .indexCount = indexSize,
+            .elemental = true,
+            .initialized = true
+        };
+        auto skyboxShader = registry.ctx().get<ShaderStore>().shaders["SkyboxShader"];
+
+        auto material = Material{
+            .shader = skyboxShader,
+            .initialized = true
+        };
+
+        const entt::entity e = registry.create();
+        registry.emplace<Transform>(e, Transform{"Skybox"});
+        registry.emplace<Material>(e, material);
+        std::vector meshes = {mesh};
+        registry.emplace<std::vector<Mesh>>(e, meshes);
+        registry.emplace<Skybox>(e);
     }
 }

@@ -58,6 +58,7 @@ Window::Window(entt::registry &registry, int w, int h, std::string name, bool fu
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
     glStencilMask(0x00);
+    // glEnable(GL_FRAMEBUFFER_SRGB);
 
     glViewport(0, 0, constants.WINDOW_WIDTH, constants.WINDOW_HEIGHT);
 }

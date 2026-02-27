@@ -114,7 +114,10 @@ void main() {
         result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
     }
 
-    FragColor = vec4(result, 1.0);
+    float gamma = 1.3;
+    FragColor.rgb = pow(result.rgb, vec3(1.0/gamma));
+
+    // FragColor = vec4(result, 1.0);
 }
 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 fragPos) {

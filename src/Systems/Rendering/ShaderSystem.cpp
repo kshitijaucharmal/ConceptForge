@@ -155,6 +155,7 @@ namespace ShaderSystem {
         glUniformMatrix4fv(glGetUniformLocation(shader.shaderID, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
     }
 
+    /// Define default shaders
     void DefineDefaultShaders(entt::registry& registry)
     {
         // Shaders
@@ -222,8 +223,14 @@ namespace ShaderSystem {
         });
         shaderStore.shaders["BorderShader"] = borderShader;
 
+        // Skybox shader
+        const auto skyboxShader = registry.create();
+        registry.emplace<Shader>(skyboxShader, Shader{
+            .vertexShaderPath = SHADER_DIR "/skybox.vert",
+            .fragmentShaderPath = SHADER_DIR "/skybox.frag",
+        });
+        shaderStore.shaders["SkyboxShader"] = skyboxShader;
     }
 
-    // Define default shaders
 
 }

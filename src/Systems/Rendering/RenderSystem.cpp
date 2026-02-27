@@ -25,6 +25,7 @@
 #include "Components/SceneRoot.hpp"
 #include "Components/Rendering/LightPassFrameBuffer.hpp"
 #include "Core/EditorWindows/Hierarchy.hpp"
+#include "Systems/Primitives/CubemapSystem.hpp"
 
 // Font Awesome icon defines (or use full glyphs)
 #define ICON_FA_PLAY  "\xef\x81\x8b"  // f04b
@@ -168,9 +169,23 @@ namespace RenderSystem {
                 // Drawing
                 glBindVertexArray(_mesh.VAO);
 
-                // Draw differently depending on EBO availability
-                if (_mesh.elemental) glDrawElements(GL_TRIANGLES, _mesh.indexCount, GL_UNSIGNED_INT, nullptr);
-                else glDrawArrays(GL_TRIANGLES, 0, _mesh.indexCount);
+                if (registry.all_of<CubeMap::Skybox>(entity))
+                {
+                    glDepthMask(GL_FALSE);
+                    glDepthFunc(GL_LEQUAL);
+                    glFrontFace(GL_CW);
+                    if (_mesh.elemental) glDrawElements(GL_TRIANGLES, _mesh.indexCount, GL_UNSIGNED_INT, nullptr);
+                    else glDrawArrays(GL_TRIANGLES, 0, _mesh.indexCount);
+                    glFrontFace(GL_CCW);
+                    glDepthFunc(GL_LESS);   // restore after
+                    glDepthMask(GL_TRUE);
+                }
+                else {
+                    // Draw differently depending on EBO availability
+                    if (_mesh.elemental) glDrawElements(GL_TRIANGLES, _mesh.indexCount, GL_UNSIGNED_INT, nullptr);
+                    else glDrawArrays(GL_TRIANGLES, 0, _mesh.indexCount);
+                }
+
             }
 
             // Unbind
