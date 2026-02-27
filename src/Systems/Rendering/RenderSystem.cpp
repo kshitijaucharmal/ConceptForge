@@ -80,6 +80,7 @@ namespace RenderSystem {
         const auto color = constants.BACKGROUND_COLOR;
         glClearColor(color.r, color.g, color.b, color.a);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        glEnable(GL_CULL_FACE);
         glViewport(0, 0, constants.WINDOW_WIDTH, constants.WINDOW_HEIGHT);
     }
 

@@ -10,6 +10,7 @@
 #include "entt/entt.hpp"
 
 namespace py = pybind11;
+using namespace pybind11::literals;
 
 namespace BaseBindings
 {

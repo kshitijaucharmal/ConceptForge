@@ -68,17 +68,17 @@ namespace Primitives {
 
             for (int j = 0; j < sphere.sectorCount; ++j, ++k1, ++k2) {
                 if (i != 0) {
-                    // First triangle (k1 -> k2 -> k1+1)
+                    // First triangle (k1 -> k1 + 1 -> k2)
                     indices.push_back(k1);
-                    indices.push_back(k2);
                     indices.push_back(k1 + 1);
+                    indices.push_back(k2);
                 }
 
                 if (i != (sphere.stackCount - 1)) {
-                    // Second triangle (k1+1 -> k2 -> k2+1)
+                    // Second triangle (k1+1 -> k2 + 1 -> k2)
                     indices.push_back(k1 + 1);
-                    indices.push_back(k2);
                     indices.push_back(k2 + 1);
+                    indices.push_back(k2);
                 }
             }
         }

@@ -28,7 +28,7 @@ namespace BaseBindings
         });
 
         py::class_<glm::vec3>(m, "Vec3")
-            .def(py::init<float, float, float>(), py::arg("x") = 0.0f, py::arg("y") = 0.0f, py::arg("z") = 0.0f)
+            .def(py::init<float, float, float>(), "x"_a = 0.0f, "y"_a = 0.0f, "z"_a = 0.0f)
 
             .def_readwrite("x", &glm::vec3::x)
             .def_readwrite("y", &glm::vec3::y)
@@ -39,9 +39,7 @@ namespace BaseBindings
             });
 
         m.def("add_cube", [&registry](
-            const glm::vec3 pos,
-            const glm::vec3 rot=glm::vec3(0),
-            const glm::vec3 scale=glm::vec3(1)
+            const glm::vec3 pos, const glm::vec3 rot, const glm::vec3 scale
             ) -> void {
             const auto transform = Transform {
                 .name = "Cube",
@@ -53,7 +51,11 @@ namespace BaseBindings
             };
             auto &shaders = registry.ctx().get<ShaderStore>().shaders;
             Primitives::Create(registry, Primitives::PrimitiveType::CUBE, transform, shaders["LitShader"]);
-        });
+        },
+        "Add a new cube at pos, rot, scale",
+        "pos"_a,
+        "rot"_a = glm::vec3(0.0),
+        "scale"_a = glm::vec3(1.0));
 
         // Bind registry with explicit per-component methods
         py::class_<entt::registry>(m, "Registry")
