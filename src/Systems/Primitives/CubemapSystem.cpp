@@ -10,8 +10,7 @@
 #include "glad/glad.h"
 #include <iostream>
 
-namespace CubeMap
-{
+namespace CubeMap {
     void Init(const std::string& folder_path) {
         std::vector<std::string> faces = {
             "right",
