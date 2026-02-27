@@ -119,82 +119,24 @@ private:
     }
     void InitShaders() {
         // Shader System ----------------------------------------------------
-        // Shaders
-        auto &shaderStore = registry.ctx().get<ShaderStore>();
+        ShaderSystem::DefineDefaultShaders(registry);
 
-        const auto debugShader = registry.create();
-        registry.emplace<Shader>(debugShader, Shader{
-            .vertexShaderPath = SHADER_DIR "/point.vert",
-            .fragmentShaderPath = SHADER_DIR "/point.frag"
-        });
-        shaderStore.shaders["DebugShader"] = debugShader;
+        // Init
+        MaterialSystem::InitFallbackTexture(registry);
 
-        const auto gridShader = registry.create();
-        registry.emplace<Shader>(gridShader, Shader{
-            .vertexShaderPath = SHADER_DIR "/grid.vert",
-            .fragmentShaderPath = SHADER_DIR "/grid.frag"
-        });
-        shaderStore.shaders["GridShader"] = gridShader;
-
-        const auto litShader = registry.create();
-        registry.emplace<Shader>(litShader, Shader{
-            .vertexShaderPath = constants.SP_LIT_VERT,
-            .fragmentShaderPath = constants.SP_LIT_FRAG
-        });
-        shaderStore.shaders["LitShader"] = litShader;
-
-        // Unlit Shader
-        const auto unlitShader = registry.create();
-        registry.emplace<Shader>(unlitShader, Shader{
-            .vertexShaderPath = constants.SP_UNLIT_VERT,
-            .fragmentShaderPath = constants.SP_UNLIT_FRAG
-        });
-        shaderStore.shaders["UnlitShader"] = unlitShader;
-
-        // Toon (Cel) Shader
-        const auto toonShader = registry.create();
-        registry.emplace<Shader>(toonShader, Shader{
-            .vertexShaderPath = SHADER_DIR "/toon.vert",
-            .fragmentShaderPath = SHADER_DIR "/toon.frag"
-        });
-        shaderStore.shaders["ToonShader"] = toonShader;
-
-        // Shadow Shader
-        const auto shadowShader = registry.create();
-        registry.emplace<Shader>(shadowShader, Shader{
-            .vertexShaderPath = SHADER_DIR "/shadow.vert",
-            .fragmentShaderPath = SHADER_DIR "/shadow.frag"
-        });
-        shaderStore.shaders["ShadowShader"] = shadowShader;
-
-        // Picking Shader
-        const auto pickingShader = registry.create();
-        registry.emplace<Shader>(pickingShader, Shader{
-            .vertexShaderPath = SHADER_DIR "/picking.vert",
-            .fragmentShaderPath = SHADER_DIR "/picking.frag",
-        });
-        shaderStore.shaders["PickingShader"] = pickingShader;
-
-        // Border Shader
-        const auto borderShader = registry.create();
-        registry.emplace<Shader>(borderShader, Shader{
-            .vertexShaderPath = SHADER_DIR "/border.vert",
-            .fragmentShaderPath = SHADER_DIR "/border.frag",
-        });
-        shaderStore.shaders["BorderShader"] = borderShader;
-
-        // RayTracer Shader
+        // RayTracer Shader --------------------------------------------
+        auto shaderStore = registry.ctx().get<ShaderStore>();
         rtShader = registry.create();
         registry.emplace<Shader>(rtShader, Shader{
             .vertexShaderPath = SHADER_DIR "/rtShader.vert",
             .fragmentShaderPath = SHADER_DIR "/rtShader.frag"
         });
         shaderStore.shaders["RayTracingShader"] = rtShader;
+        // -------------------------------------------------------------
 
-        // Init
-        MaterialSystem::InitFallbackTexture(registry);
         ShaderSystem::InitShaders(registry);
 
+        // Init RTShader
         rtEntity = registry.create();
         RayTracer::Init(registry, rtEntity);
     }

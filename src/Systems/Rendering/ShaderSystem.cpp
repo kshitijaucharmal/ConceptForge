@@ -1,12 +1,13 @@
 
 #include "ShaderSystem.hpp"
 
+#include "MaterialSystem.hpp"
 #include "Components/Constants.hpp"
 #include "Core/Utilities/FileLoader.hpp"
 
 namespace ShaderSystem {
     void InitShaders(entt::registry &registry){
-        auto shaders = registry.ctx().get<ShaderStore>().shaders;
+        const auto shaders = registry.ctx().get<ShaderStore>().shaders;
         for (auto &shaderPair : shaders) {
             auto &shader = registry.get<Shader>(shaderPair.second);
             if (shader.initialized){
@@ -153,5 +154,76 @@ namespace ShaderSystem {
     void setMat4(Shader &shader, const std::string &name, glm::mat4 value) {
         glUniformMatrix4fv(glGetUniformLocation(shader.shaderID, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
     }
+
+    void DefineDefaultShaders(entt::registry& registry)
+    {
+        // Shaders
+        auto &shaderStore = registry.ctx().get<ShaderStore>();
+        const auto constants = registry.ctx().get<Constants>();
+
+        const auto debugShader = registry.create();
+        registry.emplace<Shader>(debugShader, Shader{
+            .vertexShaderPath = SHADER_DIR "/point.vert",
+            .fragmentShaderPath = SHADER_DIR "/point.frag"
+        });
+        shaderStore.shaders["DebugShader"] = debugShader;
+
+        const auto gridShader = registry.create();
+        registry.emplace<Shader>(gridShader, Shader{
+            .vertexShaderPath = SHADER_DIR "/grid.vert",
+            .fragmentShaderPath = SHADER_DIR "/grid.frag"
+        });
+        shaderStore.shaders["GridShader"] = gridShader;
+
+        const auto litShader = registry.create();
+        registry.emplace<Shader>(litShader, Shader{
+            .vertexShaderPath = constants.SP_LIT_VERT,
+            .fragmentShaderPath = constants.SP_LIT_FRAG
+        });
+        shaderStore.shaders["LitShader"] = litShader;
+
+        // Unlit Shader
+        const auto unlitShader = registry.create();
+        registry.emplace<Shader>(unlitShader, Shader{
+            .vertexShaderPath = constants.SP_UNLIT_VERT,
+            .fragmentShaderPath = constants.SP_UNLIT_FRAG
+        });
+        shaderStore.shaders["UnlitShader"] = unlitShader;
+
+        // Toon (Cel) Shader
+        const auto toonShader = registry.create();
+        registry.emplace<Shader>(toonShader, Shader{
+            .vertexShaderPath = SHADER_DIR "/toon.vert",
+            .fragmentShaderPath = SHADER_DIR "/toon.frag"
+        });
+        shaderStore.shaders["ToonShader"] = toonShader;
+
+        // Shadow Shader
+        const auto shadowShader = registry.create();
+        registry.emplace<Shader>(shadowShader, Shader{
+            .vertexShaderPath = SHADER_DIR "/shadow.vert",
+            .fragmentShaderPath = SHADER_DIR "/shadow.frag"
+        });
+        shaderStore.shaders["ShadowShader"] = shadowShader;
+
+        // Picking Shader
+        const auto pickingShader = registry.create();
+        registry.emplace<Shader>(pickingShader, Shader{
+            .vertexShaderPath = SHADER_DIR "/picking.vert",
+            .fragmentShaderPath = SHADER_DIR "/picking.frag",
+        });
+        shaderStore.shaders["PickingShader"] = pickingShader;
+
+        // Border Shader
+        const auto borderShader = registry.create();
+        registry.emplace<Shader>(borderShader, Shader{
+            .vertexShaderPath = SHADER_DIR "/border.vert",
+            .fragmentShaderPath = SHADER_DIR "/border.frag",
+        });
+        shaderStore.shaders["BorderShader"] = borderShader;
+
+    }
+
+    // Define default shaders
 
 }
