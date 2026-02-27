@@ -50,6 +50,7 @@
 #include "Systems/Rendering/LightDepthPassSystem.hpp"
 #include "Systems/SceneRootSystem.hpp"
 #include "Systems/SimObjectSystem.hpp"
+#include "Systems/Primitives/CubemapSystem.hpp"
 #include "Systems/Rendering/PickingPassSystem.hpp"
 
 class App {
@@ -146,6 +147,10 @@ private:
         auto &gridShader = shaders["GridShader"];
         auto &litShader = shaders["LitShader"];
         auto &toonShader = shaders["ToonShader"];
+
+        // Skybox
+        CubeMap::Init(registry, TEXTURE_DIR "/cubemap1/");
+
         // Grid
         grid = GridSystem::CreateGrid(registry, gridShader, "Grid");
 
@@ -255,6 +260,15 @@ private:
             };
             myModel = new ModelSystem::Model(registry, litShader, MODELS_PATH "/backpack/backpack.obj", transform, false, true);
         }
+        // 3d model
+        // {
+        //     auto transform = Transform{
+        //         .name = "Sponza",
+        //         .position = glm::vec3(2.5f, 2.5f, 0.0f),
+        //         .scale = glm::vec3(0.01),
+        //     };
+        //     myModel = new ModelSystem::Model(registry, litShader, MODELS_PATH "/sponza/sponza.obj", transform, false, true);
+        // }
 
         // ------------------------------------------------------------------
     }

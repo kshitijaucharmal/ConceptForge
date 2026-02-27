@@ -14,6 +14,7 @@
 #include "Components/Rendering/Shader.hpp"
 #include "LightSystem.hpp"
 #include "ShaderSystem.hpp"
+#include "Systems/Primitives/CubemapSystem.hpp"
 
 namespace LightDepthPassSystem
 {
@@ -108,6 +109,9 @@ namespace LightDepthPassSystem
 
             // Draw all entities' geometry only
             for (const auto& meshEntity : meshView) {
+                // Skybox has no shadows
+                if (registry.all_of<CubeMap::Skybox>(meshEntity)) continue;
+
                 auto& _transform = meshView.get<Transform>(meshEntity);
                 auto& _meshes = meshView.get<std::vector<Mesh>>(meshEntity);
 

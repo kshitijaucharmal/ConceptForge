@@ -5,6 +5,7 @@
 
 #include "Components/SceneRoot.hpp"
 #include "Components/Rendering/Shader.hpp"
+#include "Primitives/CubemapSystem.hpp"
 #include "Systems/Rendering/ShaderSystem.hpp"
 
 namespace CameraSystem {
@@ -128,11 +129,21 @@ void CalculateProjection(entt::registry &registry){
     camera.projection = glm::perspective(glm::radians(camera.Fov), constants.ASPECT_RATIO, camera.nearClipPlane, camera.farClipPlane);
     camera.view = GetViewMatrix(camera, transform);
 
-    for (const auto shaderView = registry.view<Shader>(); const auto entity : shaderView) {
-        auto &shader = shaderView.get<Shader>(entity);
+    const auto shaderStore = registry.ctx().get<ShaderStore>().shaders;
+    for (const auto& [name, entity] : shaderStore) {
+        auto &shader = registry.get<Shader>(entity);
         ShaderSystem::Use(shader);
-        ShaderSystem::setMat4(shader, "projection", camera.projection);
-        ShaderSystem::setMat4(shader, "view", camera.view);
+        if (name == "SkyboxShader")
+        {
+            ShaderSystem::setMat4(shader, "projection", camera.projection);
+            const auto view = glm::mat4(glm::mat3(camera.view));
+            ShaderSystem::setMat4(shader, "view", view);
+        }
+        else
+        {
+            ShaderSystem::setMat4(shader, "projection", camera.projection);
+            ShaderSystem::setMat4(shader, "view", camera.view);
+        }
     }
 }
 
