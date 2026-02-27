@@ -43,12 +43,12 @@ inline std::vector<Vertex> cubeVertices = {
 
 /// Indices data for Cube
 inline std::vector<unsigned int> cubeIndices = {
- 0,  1,  2,     0,  2,  3,    // Back
+ 1,  0,  2,     3,  2,  0,    // Back
  4,  5,  6,     4,  6,  7,    // Front
  8,  9,  10,    8,  10, 11,   // Left
- 12, 13, 14,    12, 14, 15,   // Right
+ 13, 12, 14,    15, 14, 12,   // Right
  16, 17, 18,    16, 18, 19,   // Bottom
- 20, 21, 22,    20, 22, 23    // Top
+ 21, 20, 22,    23, 22, 20    // Top
 };
 
 /// Vertices data for skybox
