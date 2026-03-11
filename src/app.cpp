@@ -440,9 +440,9 @@ public:
             }
             RenderSystem::UnbindFramebuffer();
             mainTimer.Stop();
-            // --------------------------------------------------------------
 
-            // Push To Draw Queue -------------------------------------------
+            // Post Process Pass
+
             // --------------------------------------------------------------
 
             UI_Rendering({shadowTimer.GetMS(), mainTimer.GetMS()});

@@ -32,8 +32,8 @@ void InitImGUI(entt::registry &registry, GLFWwindow* window) {
     config.PixelSnapH = true;
 
     // Load main font
-    const auto mainFont = io.Fonts->AddFontFromFileTTF(FONT_DIR "/TextFont.ttf", 18.0f);
-    const auto codeFont = io.Fonts->AddFontFromFileTTF(FONT_DIR "/JetBrainsMono-Medium.ttf", 24.0f);
+    const auto mainFont = io.Fonts->AddFontFromFileTTF(FONT_DIR "/Inter.ttf", 18.0f);
+    const auto codeFont = io.Fonts->AddFontFromFileTTF(FONT_DIR "/JetBrainsMonoNerdFont-SemiBold.ttf", 24.0f);
     registry.ctx().get<Fonts>().FontsDict["MainFont"] = mainFont;
     registry.ctx().get<Fonts>().FontsDict["CodeFont"] = codeFont;
 
