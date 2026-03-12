@@ -46,12 +46,14 @@
 #include "Components/SceneRoot.hpp"
 #include "Components/Rendering/LightPassFrameBuffer.hpp"
 #include "Components/Rendering/PickingBuffer.hpp"
+#include "Components/Rendering/PostProcessContext.hpp"
 #include "Core/EditorWindows/PythonEditor.hpp"
 #include "Systems/Rendering/LightDepthPassSystem.hpp"
 #include "Systems/SceneRootSystem.hpp"
 #include "Systems/SimObjectSystem.hpp"
 #include "Systems/Primitives/CubemapSystem.hpp"
 #include "Systems/Rendering/PickingPassSystem.hpp"
+#include "Systems/Rendering/PostProcessSystem.hpp"
 
 class App {
 //Variables
@@ -91,6 +93,7 @@ private:
         registry.ctx().emplace<Hierarchy::Hierarchy>();
         registry.ctx().emplace<FrameBuffer>();
         registry.ctx().emplace<LightPassFrameBuffer>();
+        registry.ctx().emplace<PostProcessContext>();
         registry.ctx().emplace<PickingBuffer>();
         registry.ctx().emplace<ShaderStore>();
         registry.ctx().emplace<SSBOHolder>();
@@ -103,6 +106,7 @@ private:
         PickingPassSystem::Init(registry);
         LightDepthPassSystem::Init(registry);
         RenderSystem::Init(registry);
+        PostProcessSystem::Init(registry);
 
         // Init SSBOs
         SSBOManager::AddAndInit(registry, "pointLights", 1);
@@ -322,15 +326,18 @@ public:
 
         const float shadowMS = timers[0];
         const float mainMS = timers[1];
+        const float postprocessMS = timers[2];
 
         ImGui::Text("GPU Shadow Pass: %.3f ms", shadowMS);
         ImGui::Text("GPU Main Pass:   %.3f ms", mainMS);
-        ImGui::Text("Total GPU Time:  %.3f ms", shadowMS + mainMS);
+        ImGui::Text("GPU Post Process Pass:   %.3f ms", postprocessMS);
+        ImGui::Text("Total GPU Time:  %.3f ms", shadowMS + mainMS + postprocessMS);
 
         // Visual bar for relative cost
         const float total = shadowMS + mainMS;
         ImGui::ProgressBar(shadowMS / total, ImVec2(-1, 0), "Shadows");
         ImGui::ProgressBar(mainMS / total, ImVec2(-1, 0), "Main");
+        ImGui::ProgressBar(postprocessMS / total, ImVec2(-1, 0), "Post Process");
 
         ImGui::End();
     }
@@ -360,8 +367,9 @@ public:
 
         // Before drawing anything, clear screen
         Window::ScreenClearFlags(constants.CLEAR_COLOR);
-        const auto frameBuffer = registry.ctx().get<FrameBuffer>();
-        RenderSystem::ShowSceneTexture(registry, window.window, frameBuffer.colorTexture);
+        const auto ppCtx = registry.ctx().get<PostProcessContext>();
+        const auto framebuffer = registry.ctx().get<FrameBuffer>();
+        RenderSystem::ShowSceneTexture(registry, window.window, ppCtx.outputTexture);
 
         GUISystem::RenderFrame();
 
@@ -413,8 +421,13 @@ public:
 
             // Rendering --------------------------------------------------
             // Timers
-            static GPUTimer shadowTimer, mainTimer;
-            if (shadowTimer.queries[0] == 0) { shadowTimer.Init(); mainTimer.Init(); }
+            static GPUTimer shadowTimer, mainTimer, postprocessTimer;
+            if (shadowTimer.queries[0] == 0)
+            {
+                shadowTimer.Init();
+                mainTimer.Init();
+                postprocessTimer.Init();
+            }
 
 
             // Shadow pass
@@ -442,10 +455,14 @@ public:
             mainTimer.Stop();
 
             // Post Process Pass
+            postprocessTimer.Start();
+            const auto framebuffer = registry.ctx().get<FrameBuffer>();
+            PostProcessSystem::Apply(registry, framebuffer.colorTexture);
+            postprocessTimer.Stop();
 
             // --------------------------------------------------------------
 
-            UI_Rendering({shadowTimer.GetMS(), mainTimer.GetMS()});
+            UI_Rendering({shadowTimer.GetMS(), mainTimer.GetMS(), postprocessTimer.GetMS()});
 
             // check and call events
             glfwPollEvents();

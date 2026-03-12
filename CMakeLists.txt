@@ -123,7 +123,9 @@ set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)  # static libs only, optional
 add_subdirectory(${BULLET_ROOT_DIR})
 
 # Main executable
-add_executable(${PROJECT_NAME} ${SOURCES})
+add_executable(${PROJECT_NAME} ${SOURCES}
+        src/Systems/Rendering/PostProcessSystem.hpp
+        src/Components/Rendering/PostProcessContext.hpp)
 target_link_libraries(${PROJECT_NAME}
         PRIVATE
         pybind11::embed

@@ -36,8 +36,10 @@ namespace RenderSystem {
     void Init(entt::registry &registry){
         const auto &constants = registry.ctx().get<Constants>();
 
-        const int width = constants.WINDOW_WIDTH / constants.RENDER_FACTOR;
-        const int height = constants.WINDOW_HEIGHT / constants.RENDER_FACTOR;
+        // TODO: If I decide to go solely pixelart, this can be changed here itself
+        // For now, I'll just render to the whole window and resize it in the post process pass
+        const int width = constants.SCENE_WIDTH;
+        const int height = constants.SCENE_HEIGHT;
 
         GLuint framebufferID, colorTexture, depthBuffer;
 
@@ -57,7 +59,6 @@ namespace RenderSystem {
         glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
-
 
         // Check completeness
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)

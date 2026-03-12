@@ -230,7 +230,21 @@ namespace ShaderSystem {
             .fragmentShaderPath = SHADER_DIR "/skybox.frag",
         });
         shaderStore.shaders["SkyboxShader"] = skyboxShader;
+
+        // Passthrough shader
+        const auto passthroughShader = registry.create();
+        registry.emplace<Shader>(passthroughShader, Shader{
+            .vertexShaderPath = SHADER_DIR "/passthrough.vert",
+            .fragmentShaderPath = SHADER_DIR "/passthrough.frag",
+        });
+        shaderStore.shaders["PassthroughShader"] = passthroughShader;
+
+        // pixelart shader
+        const auto pixelartShader = registry.create();
+        registry.emplace<Shader>(pixelartShader, Shader{
+            .vertexShaderPath = SHADER_DIR "/pixelart.vert",
+            .fragmentShaderPath = SHADER_DIR "/pixelart.frag",
+        });
+        shaderStore.shaders["PixelartShader"] = pixelartShader;
     }
-
-
 }
