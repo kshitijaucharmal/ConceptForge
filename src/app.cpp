@@ -252,23 +252,23 @@ private:
         }
 
         // 3d model
-        {
-            auto transform = Transform{
-                .name = "Backpack",
-                .position = glm::vec3(2.5f, 2.5f, 0.0f),
-                .scale = glm::vec3(1.0),
-            };
-            myModel = new ModelSystem::Model(registry, litShader, MODELS_PATH "/backpack/backpack.obj", transform, false, true);
-        }
-        // 3d model
         // {
         //     auto transform = Transform{
-        //         .name = "Sponza",
+        //         .name = "Backpack",
         //         .position = glm::vec3(2.5f, 2.5f, 0.0f),
-        //         .scale = glm::vec3(0.01),
+        //         .scale = glm::vec3(1),
         //     };
-        //     myModel = new ModelSystem::Model(registry, litShader, MODELS_PATH "/sponza/sponza.obj", transform, false, true);
+        //     myModel = new ModelSystem::Model(registry, litShader, MODELS_PATH "/backpack/backpack.obj", transform, false, true);
         // }
+        // 3d model
+        {
+            auto transform = Transform{
+                .name = "Sponza",
+                .position = glm::vec3(2.5f, 2.5f, 0.0f),
+                .scale = glm::vec3(0.01),
+            };
+            myModel = new ModelSystem::Model(registry, litShader, MODELS_PATH "/sponza/sponza.obj", transform, false, true);
+        }
 
         // ------------------------------------------------------------------
     }

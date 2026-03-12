@@ -36,8 +36,8 @@ namespace RenderSystem {
     void Init(entt::registry &registry){
         const auto &constants = registry.ctx().get<Constants>();
 
-        const int width = constants.WINDOW_WIDTH;
-        const int height = constants.WINDOW_HEIGHT;
+        const int width = constants.WINDOW_WIDTH / constants.RENDER_FACTOR;
+        const int height = constants.WINDOW_HEIGHT / constants.RENDER_FACTOR;
 
         GLuint framebufferID, colorTexture, depthBuffer;
 
@@ -48,8 +48,8 @@ namespace RenderSystem {
         glGenTextures(1, &colorTexture);
         glBindTexture(GL_TEXTURE_2D, colorTexture);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexture, 0);
 
         // Create depth renderbuffer
@@ -57,6 +57,7 @@ namespace RenderSystem {
         glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
+
 
         // Check completeness
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -67,6 +68,8 @@ namespace RenderSystem {
         framebuffer.colorTexture = colorTexture;
         framebuffer.depthBuffer = depthBuffer;
         framebuffer.frameBufferID = framebufferID;
+        framebuffer.renderWidth = width;
+        framebuffer.renderHeight = height;
 
         // unbind
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -82,7 +85,7 @@ namespace RenderSystem {
         glClearColor(color.r, color.g, color.b, color.a);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         glEnable(GL_CULL_FACE);
-        glViewport(0, 0, constants.WINDOW_WIDTH, constants.WINDOW_HEIGHT);
+        glViewport(0, 0, framebuffer.renderWidth, framebuffer.renderHeight);
     }
 
     void UnbindFramebuffer() {
