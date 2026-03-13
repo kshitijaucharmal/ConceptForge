@@ -19,7 +19,9 @@ struct PostProcessContext {
     GLuint renderHeight = 240;
 
     // Ordered list of shader keys — push/pop to enable/disable effects
-    std::vector<std::string> activePasses = { "PixelartShader" };
+    std::vector<std::string> activePasses = {
+        "PixelartShader"
+    };
 };
 
 #endif //CONCEPTFORGE_POSTPROCESSCONTEXT_HPP

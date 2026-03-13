@@ -88,17 +88,20 @@ namespace ModelSystem {
             Transform::Reparent(registry, parent, entity);
         }
 
+        auto material = Material{
+            .shader =  shader_entity,
+            .initialized = true
+        };
+
         // Process meshes
         std::vector<Mesh> meshes;
         for(unsigned int i = 0; i < node->mNumMeshes; i++) {
             aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
-            meshes.emplace_back(processMesh(mesh, scene));
+            meshes.emplace_back(processMesh(mesh, material, scene));
         }
+
         registry.emplace<std::vector<Mesh>>(entity, meshes);
-        registry.emplace<Material>(entity, Material{
-            .shader =  shader_entity,
-            .initialized = true
-        });
+        registry.emplace<Material>(entity, material);
 
         // Recursively process children
         for(unsigned int i = 0; i < node->mNumChildren; i++) {
@@ -108,7 +111,7 @@ namespace ModelSystem {
         return entity;
     }
 
-    Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
+    Mesh Model::processMesh(aiMesh *mesh, Material &material, const aiScene *scene) {
         std::vector<Vertex> vertices;
         std::vector<unsigned int> indices;
         std::vector<Texture> textures;
@@ -151,12 +154,24 @@ namespace ModelSystem {
         // process material
         if(mesh->mMaterialIndex >= 0)
         {
-            aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
+            aiMaterial *aMat = scene->mMaterials[mesh->mMaterialIndex];
 
-            std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
+            aiColor4D color(0.0f, 0.0f, 0.0f, 1.0f);
+
+            // Get Diffuse Color
+            if (AI_SUCCESS == aiGetMaterialColor(aMat, AI_MATKEY_COLOR_DIFFUSE, &color)) {
+                material.diffuseColor = glm::vec3(color.r, color.g, color.b);
+            }
+
+            // Get Specular Color
+            if (AI_SUCCESS == aiGetMaterialColor(aMat, AI_MATKEY_COLOR_SPECULAR, &color)) {
+                material.specularColor = glm::vec3(color.r, color.g, color.b);
+            }
+
+            std::vector<Texture> diffuseMaps = loadMaterialTextures(aMat, aiTextureType_DIFFUSE, "texture_diffuse");
             textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 
-            std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
+            std::vector<Texture> specularMaps = loadMaterialTextures(aMat, aiTextureType_SPECULAR, "texture_specular");
             textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
         }
 

@@ -89,7 +89,8 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 fragPos) {
     vec3 halfwayDir = normalize(lightDir + viewDir);
     float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
 
-    vec3 texDiffuse = srgb_to_linear(texture(material.texture_diffuse1, TexCoords).rgb);
+    vec4 rawTex = texture(material.texture_diffuse1, TexCoords);
+    vec3 texDiffuse = srgb_to_linear(rawTex.rgb);
     vec3 texSpecular = texture(material.texture_specular1, TexCoords).rgb;
 
     vec3 finalDiff = texDiffuse * material.diffuseColor;

@@ -155,88 +155,70 @@ private:
         // Skybox
         CubeMap::Init(registry, TEXTURE_DIR "/cubemap1/");
 
-        // Grid
-        grid = GridSystem::CreateGrid(registry, gridShader, "Grid");
-
-        {
-            auto transform = Transform{
-                .name = "Ground",
-                .position = glm::vec3(0.0f, -0.5f, 0.0f),
-                .rotation = glm::quat(1, 0, 0, 0),
-                .scale = glm::vec3(20.0, 1.0f, 20.0f),
-            };
-            auto material = Material{
-                .shader = litShader,
-                .diffuseColor = glm::vec3(66.0/255.0),
-                .specularColor = glm::vec3(0.0),
-                .initialized = true
-            };
-            Primitives::CreateCubeObject(registry, transform, material, false);
-        }
-        {
-            auto transform = Transform{
-                .name = "Cube",
-                .position = glm::vec3(0.0f, 2.0f, 0.0f),
-                .rotation = glm::quat(1, 0, 0, 0),
-                .scale = glm::vec3(1.0, 1.0f, 1.0f),
-            };
-            auto material = Material{
-                .shader = litShader,
-                .diffuseColor = glm::vec3(1.0),
-                .specularColor = glm::vec3(0.0),
-                .initialized = true
-            };
-            auto cube = Primitives::CreateCubeObject(registry, transform, material, true);
-        }
-
-        {
-            auto transform = Transform{
-                .name = "Cube 1",
-                .position = glm::vec3(0.0f, 6.0f, 0.0f),
-                .rotation = glm::quat(1, 0, 0, 0),
-                .scale = glm::vec3(1.0),
-            };
-            auto material = Material{
-                .shader = litShader,
-                .diffuseColor = glm::vec3(1.0, 0.0, 0.0),
-                .specularColor = glm::vec3(0.0),
-                .initialized = true
-            };
-            auto cube2= Primitives::CreateCubeObject(registry, transform, material, true);
-        }
-
-        {
-            auto transform = Transform{
-                .name = "Cube 2",
-                .position = glm::vec3(0.0f, 10.0f, 0.0f),
-                .rotation = glm::quat(1, 0, 0, 0),
-                .scale = glm::vec3(1.0),
-            };
-            auto material = Material{
-                .shader = litShader,
-                .diffuseColor = glm::vec3(1.0),
-                .specularColor = glm::vec3(0.0),
-                .initialized = true
-            };
-            auto cube = Primitives::CreateCubeObject(registry, transform, material, true);
-        }
-
-        // Sphere
-        {
-            auto transform = Transform{
-                .name = "Sphere",
-                .position = glm::vec3(-2.0f, 2.0f, 0.0f),
-                .rotation = glm::quat(1, 0, 0, 0),
-                .scale = glm::vec3(2.0f),
-            };
-            auto material = Material{
-                .shader = litShader,
-                .diffuseColor = glm::vec3(1.0, 0.0, 0.0),
-                .specularColor = glm::vec3(0.0),
-                .initialized = true
-            };
-            Primitives::CreateUVSphereObject(registry, transform, material, true);
-        }
+        // // Grid
+        // grid = GridSystem::CreateGrid(registry, gridShader, "Grid");
+        //
+        // {
+        //     auto transform = Transform{
+        //         .name = "Ground",
+        //         .position = glm::vec3(0.0f, -0.5f, 0.0f),
+        //         .rotation = glm::quat(1, 0, 0, 0),
+        //         .scale = glm::vec3(20.0, 1.0f, 20.0f),
+        //     };
+        //     auto material = Material{
+        //         .shader = litShader,
+        //         .diffuseColor = glm::vec3(20.0/255.0),
+        //         .specularColor = glm::vec3(0.0),
+        //         .initialized = true
+        //     };
+        //     Primitives::CreateCubeObject(registry, transform, material, false);
+        // }
+        // {
+        //     auto transform = Transform{
+        //         .name = "Cube",
+        //         .position = glm::vec3(0.0f, 2.0f, 0.0f),
+        //         .rotation = glm::quat(1, 0, 0, 0),
+        //         .scale = glm::vec3(1.0, 1.0f, 1.0f),
+        //     };
+        //     auto material = Material{
+        //         .shader = litShader,
+        //         .diffuseColor = glm::vec3(1.0),
+        //         .specularColor = glm::vec3(0.0),
+        //         .initialized = true
+        //     };
+        //     auto cube = Primitives::CreateCubeObject(registry, transform, material, true);
+        // }
+        //
+        // {
+        //     auto transform = Transform{
+        //         .name = "Cube 1",
+        //         .position = glm::vec3(0.0f, 6.0f, 0.0f),
+        //         .rotation = glm::quat(1, 0, 0, 0),
+        //         .scale = glm::vec3(1.0),
+        //     };
+        //     auto material = Material{
+        //         .shader = litShader,
+        //         .diffuseColor = glm::vec3(1.0, 0.0, 0.0),
+        //         .specularColor = glm::vec3(0.0),
+        //         .initialized = true
+        //     };
+        //     auto cube2= Primitives::CreateCubeObject(registry, transform, material, true);
+        // }
+        // {
+        //     auto transform = Transform{
+        //         .name = "Cube 2",
+        //         .position = glm::vec3(0.0f, 10.0f, 0.0f),
+        //         .rotation = glm::quat(1, 0, 0, 0),
+        //         .scale = glm::vec3(1.0),
+        //     };
+        //     auto material = Material{
+        //         .shader = litShader,
+        //         .diffuseColor = glm::vec3(1.0),
+        //         .specularColor = glm::vec3(0.0),
+        //         .initialized = true
+        //     };
+        //     auto cube = Primitives::CreateCubeObject(registry, transform, material, true);
+        // }
 
         // Directional Lights
         {
@@ -264,15 +246,23 @@ private:
         //     };
         //     myModel = new ModelSystem::Model(registry, litShader, MODELS_PATH "/backpack/backpack.obj", transform, false, true);
         // }
-        // 3d model
         {
             auto transform = Transform{
-                .name = "Sponza",
+                .name = "Campfire",
                 .position = glm::vec3(2.5f, 2.5f, 0.0f),
-                .scale = glm::vec3(0.01),
+                .scale = glm::vec3(10),
             };
-            myModel = new ModelSystem::Model(registry, litShader, MODELS_PATH "/sponza/sponza.obj", transform, false, true);
+            myModel = new ModelSystem::Model(registry, litShader, MODELS_PATH "/camping/model.obj", transform, false, true);
         }
+        // 3d model
+        // {
+        //     auto transform = Transform{
+        //         .name = "Sponza",
+        //         .position = glm::vec3(2.5f, 2.5f, 0.0f),
+        //         .scale = glm::vec3(0.01),
+        //     };
+        //     myModel = new ModelSystem::Model(registry, litShader, MODELS_PATH "/sponza/sponza.obj", transform, false, true);
+        // }
 
         // ------------------------------------------------------------------
     }
@@ -447,7 +437,7 @@ public:
                     RayTracer::Render(registry, rtEntity);
                 }
                 else {
-                    GridSystem::Render(registry, grid);
+                    // GridSystem::Render(registry, grid);
                     RenderSystem::Render(registry);
                 }
             }

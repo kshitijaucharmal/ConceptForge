@@ -3,7 +3,7 @@ out vec4 FragColor;
 in vec2 TexCoords;
 
 uniform sampler2D screenTexture; // The output from your main lighting pass
-const int steps = 16;
+const int steps = 24;
 
 // OKLab ↔ OKLCh helpers
 vec3 oklab_to_oklch(vec3 lab) {

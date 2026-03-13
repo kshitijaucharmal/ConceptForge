@@ -96,6 +96,7 @@ namespace RenderSystem {
     void Render(entt::registry& registry){
         const auto &constants = registry.ctx().get<Constants>();
         const auto lightPassFB = registry.ctx().get<LightPassFrameBuffer>();
+        const auto &whiteTexture = registry.ctx().get<MaterialSystem::FallbackTexture>();
 
         // Get Selected Entity (TODO: Just a single is selected for now, should be allowed multiple pressing shift)
         const auto selected = registry.ctx().get<Hierarchy::Hierarchy>().selectedEntity;
@@ -151,23 +152,50 @@ namespace RenderSystem {
             // Texture rendering
             for (auto &_mesh : _meshes)
             {
+                // Track if we found specific texture types for this mesh
+                bool hasDiffuse = false;
+                bool hasSpecular = false;
+
                 for (const auto & texture : _mesh.textures) {
-                    glActiveTexture(GL_TEXTURE0 + unit_counter); // Use the main counter
+                    glActiveTexture(GL_TEXTURE0 + unit_counter);
 
                     std::string number;
                     std::string name = texture.type;
 
-                    if (name == "texture_diffuse") number = std::to_string(diffuseNr++);
-                    else if (name == "texture_specular") number = std::to_string(specularNr++);
-                    else
-                    {
-                        printf("[WARN] Texture with name %s cannot be rendered",name.c_str());
+                    if (name == "texture_diffuse") {
+                        number = std::to_string(diffuseNr++);
+                        hasDiffuse = true;
+                    }
+                    else if (name == "texture_specular") {
+                        number = std::to_string(specularNr++);
+                        hasSpecular = true;
+                    }
+                    else {
+                        printf("[WARN] Texture with name %s cannot be rendered", name.c_str());
                         continue;
                     };
 
                     ShaderSystem::setInt(*shader, "material." + name + number, unit_counter);
                     glBindTexture(GL_TEXTURE_2D, texture.id);
-                    unit_counter++; // Increment for each texture used
+                    unit_counter++;
+                }
+
+                // --- FALLBACK: Bind white texture if maps are missing ---
+
+                // If no diffuse texture was loaded, bind white to material.texture_diffuse1
+                if (!hasDiffuse) {
+                    glActiveTexture(GL_TEXTURE0 + unit_counter);
+                    ShaderSystem::setInt(*shader, "material.texture_diffuse1", unit_counter);
+                    glBindTexture(GL_TEXTURE_2D, whiteTexture); // Use the global white tex
+                    unit_counter++;
+                }
+
+                // If no specular texture was loaded, bind white to material.texture_specular1
+                if (!hasSpecular) {
+                    glActiveTexture(GL_TEXTURE0 + unit_counter);
+                    ShaderSystem::setInt(*shader, "material.texture_specular1", unit_counter);
+                    glBindTexture(GL_TEXTURE_2D, whiteTexture);
+                    unit_counter++;
                 }
 
                 // Drawing

@@ -12,6 +12,7 @@
 #include <assimp/postprocess.h>
 
 #include "Components/Primitives/Transform.hpp"
+#include "Components/Rendering/Material.hpp"
 
 /**
  * @namespace ModelSystem
@@ -66,10 +67,11 @@ namespace ModelSystem {
         /**
          * @brief Extracts vertex, index, and material data from an Assimp mesh.
          * @param mesh The Assimp mesh data to process.
+         * @param material Material
          * @param scene The root Assimp scene for material lookups.
          * @return A Mesh object ready for GPU buffer initialization.
          */
-        Mesh processMesh(aiMesh *mesh, const aiScene *scene);
+        Mesh processMesh(aiMesh *mesh, Material& material, const aiScene *scene);
 
         /**
          * @brief Helper utility to load a texture from the disk into the GPU.
